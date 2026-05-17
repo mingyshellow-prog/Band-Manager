@@ -40,7 +40,7 @@
   body{
     background:linear-gradient(155deg,#e4f4fc 0%,#d0ecf7 50%,#e8f8fb 100%);
     min-height:100vh; font-family:'Noto Sans KR',sans-serif;
-    color:var(--text); overflow-x:hidden; user-select:none;
+    color:var(--text); overflow-x:hidden;
   }
   body::before{content:'';position:fixed;bottom:-80px;left:-60px;width:480px;height:360px;background:radial-gradient(ellipse,rgba(93,183,212,.14) 0%,transparent 70%);pointer-events:none;z-index:0;}
   body::after{content:'';position:fixed;top:-60px;right:-40px;width:400px;height:320px;background:radial-gradient(ellipse,rgba(142,223,200,.16) 0%,transparent 70%);pointer-events:none;z-index:0;}
@@ -115,6 +115,7 @@
     position:relative;font-family:'Nunito',sans-serif;
     border:1.5px solid transparent;gap:1px;
     -webkit-tap-highlight-color:transparent;
+    user-select:none; -webkit-user-select:none;
     overflow:hidden;
   }
   .cal-day:hover:not(.empty):not(.other-month){background:var(--foam);border-color:var(--border);transform:scale(1.06);}
@@ -268,6 +269,14 @@
   .share-member-amount{font-size:13px;font-weight:900;color:var(--mint-deep);}
   .share-member-status{font-size:11px;color:var(--text3);}
 
+  /* 납부 status 칩 */
+  .pay-status-row{display:flex;align-items:center;justify-content:space-between;padding:8px 12px;border-radius:10px;background:rgba(255,255,255,.6);margin-bottom:5px;border:1px solid rgba(194,224,240,.5);}
+  .pay-status-name{font-size:13px;font-weight:700;color:var(--text);}
+  .pay-status-chip{padding:3px 11px;border-radius:20px;font-size:11px;font-weight:700;font-family:'Nunito',sans-serif;cursor:pointer;border:none;transition:all .18s;}
+  .pay-status-chip.unpaid{background:var(--coral-light);color:#c05840;}
+  .pay-status-chip.paid{background:var(--mint-light);color:var(--mint-deep);}
+  .pay-status-chip:hover{transform:scale(1.08);}
+
   /* 정산 히스토리 목록 */
   .settle-list{display:flex;flex-direction:column;gap:10px;}
   .settle-item{
@@ -287,6 +296,33 @@
   .toast.show{transform:translateY(0);opacity:1;}
   .toast.success{border-color:var(--mint);}
   .toast.error{border-color:var(--coral);}
+
+  /* ── 곡 정하기 ── */
+  .songs-layout{display:grid;grid-template-columns:1fr 280px;gap:18px;align-items:start;}
+  @media(max-width:740px){.songs-layout{grid-template-columns:1fr;}}
+
+  .round-badge{display:inline-flex;align-items:center;gap:6px;background:var(--ocean-pale);color:var(--ocean-deep);border:1.5px solid var(--border);border-radius:20px;padding:5px 14px;font-size:12px;font-weight:700;font-family:'Nunito',sans-serif;}
+
+  .song-cards{display:flex;flex-direction:column;gap:14px;}
+  .song-card{background:var(--white);border:1.5px solid var(--border);border-radius:20px;box-shadow:0 4px 20px var(--shadow);overflow:hidden;transition:all .2s;}
+  .song-card:hover{transform:translateY(-2px);box-shadow:0 8px 28px var(--shadow2);}
+  .song-card.confirmed-song{border-color:var(--mint-deep);background:linear-gradient(145deg,#f0fdf8,var(--white));}
+  .song-card-header{padding:16px 20px 12px;border-bottom:1.5px solid var(--border2);display:flex;align-items:center;justify-content:space-between;}
+  .song-proposer{font-size:12px;font-weight:700;color:var(--text3);font-family:'Nunito',sans-serif;display:flex;align-items:center;gap:5px;}
+  .song-confirmed-badge{background:var(--mint-light);color:var(--mint-deep);border:1px solid var(--mint);border-radius:10px;padding:2px 9px;font-size:11px;font-weight:700;font-family:'Nunito',sans-serif;}
+  .song-card-body{padding:14px 20px;}
+  .song-title{font-family:'Nunito',sans-serif;font-weight:900;font-size:20px;color:var(--text);margin-bottom:2px;}
+  .song-artist{font-size:13px;color:var(--text2);margin-bottom:10px;}
+  .song-yt-link{display:inline-flex;align-items:center;gap:5px;font-size:12px;color:var(--ocean-mid);font-weight:600;text-decoration:none;border:1px solid var(--border);border-radius:8px;padding:4px 10px;transition:all .15s;}
+  .song-yt-link:hover{background:var(--ocean-pale);border-color:var(--ocean-mid);}
+  .song-card-footer{padding:10px 20px 14px;display:flex;align-items:center;justify-content:space-between;gap:10px;}
+  .vote-btn{display:flex;align-items:center;gap:6px;padding:8px 18px;border-radius:12px;font-size:13px;font-weight:700;font-family:'Nunito',sans-serif;cursor:pointer;border:1.5px solid var(--border);background:var(--foam);color:var(--text2);transition:all .18s;}
+  .vote-btn:hover{border-color:var(--coral);color:var(--coral);background:var(--coral-light);}
+  .vote-btn.voted{background:var(--coral-light);color:#c05840;border-color:var(--coral);}
+  .vote-count{font-size:13px;color:var(--text3);font-weight:600;font-family:'Nunito',sans-serif;}
+  .voter-names{font-size:11px;color:var(--text3);font-style:italic;}
+
+  .round-info-card{background:var(--white);border:1.5px solid var(--border);border-radius:20px;box-shadow:0 4px 20px var(--shadow);overflow:hidden;}
 
   .coming-soon{text-align:center;padding:90px 0;}
   .coming-soon .big{font-family:'Nunito',sans-serif;font-weight:900;font-size:48px;color:var(--border);letter-spacing:2px;margin-bottom:14px;}
@@ -493,7 +529,70 @@
   </div>
 
   <!-- 나머지 탭 -->
-  <div id="tab-songs"   style="display:none"><div class="coming-soon"><div class="big">COMING SOON</div><p>🎵 곡 정하기 기능 준비 중이에요</p></div></div>
+  <div id="tab-songs" style="display:none">
+    <div class="section-header">
+      <div class="section-title">🎵 곡 정하기 <span class="section-sub" id="roundBadgeArea"></span></div>
+      <div id="leaderRoundBtns" style="display:none;display:flex;gap:8px"></div>
+    </div>
+    <div class="songs-layout">
+      <!-- 좌: 곡 카드 목록 -->
+      <div>
+        <div id="songCardsArea">
+          <div class="empty-hint"><span class="e">🎵</span><p>진행 중인 라운드가 없어요<br>리더가 새 라운드를 시작하면 곡을 제안할 수 있어요</p></div>
+        </div>
+      </div>
+      <!-- 우: 라운드 정보 + 제안 폼 -->
+      <div class="side-panel">
+        <!-- 내 제안 폼 -->
+        <div class="round-info-card" id="proposeSongCard" style="display:none">
+          <div class="side-header">
+            <div class="side-header-title">✏️ 곡 제안하기</div>
+            <div class="side-header-sub" id="proposeSubText"></div>
+          </div>
+          <div class="side-body">
+            <div class="form-row">
+              <label class="form-label">곡 제목 *</label>
+              <input class="form-input" id="songTitle" placeholder="ex) Superstition">
+            </div>
+            <div class="form-row">
+              <label class="form-label">아티스트</label>
+              <input class="form-input" id="songArtist" placeholder="ex) Stevie Wonder">
+            </div>
+            <div class="form-row">
+              <label class="form-label">유튜브 링크</label>
+              <input class="form-input" id="songYt" placeholder="https://youtube.com/...">
+            </div>
+            <button class="action-btn leader-action" onclick="proposeSong()">🎵 제안하기</button>
+          </div>
+        </div>
+        <!-- 라운드 정보 -->
+        <div class="round-info-card">
+          <div class="side-header">
+            <div class="side-header-title">🔄 라운드 정보</div>
+          </div>
+          <div class="side-body" id="roundInfoBody">
+            <div style="font-size:13px;color:var(--text3);text-align:center;padding:16px 0">라운드 없음</div>
+          </div>
+        </div>
+        <!-- 어드민/리더 전용 -->
+        <div id="leaderSongPanel" style="display:none">
+          <div class="round-info-card">
+            <div class="side-header">
+              <div class="side-header-title">👑 라운드 관리</div>
+            </div>
+            <div class="side-body">
+              <div class="form-row">
+                <label class="form-label">제안자 (쉼표로 구분)</label>
+                <input class="form-input" id="roundProposers" placeholder="ex) 우준,민지,지은">
+              </div>
+              <button class="action-btn leader-action" onclick="startRound()">🎬 새 라운드 시작</button>
+              <button class="action-btn danger" id="endRoundBtn" style="display:none" onclick="endRound()">라운드 종료</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
   <div id="tab-scores"  style="display:none"><div class="coming-soon"><div class="big">COMING SOON</div><p>📄 악보 창고 기능 준비 중이에요</p></div></div>
   <div id="tab-videos"  style="display:none"><div class="coming-soon"><div class="big">COMING SOON</div><p>🎬 연습 영상 기능 준비 중이에요</p></div></div>
   <div id="tab-recruit" style="display:none"><div class="coming-soon"><div class="big">COMING SOON</div><p>🎸 Recruit 기능 준비 중이에요</p></div></div>
@@ -615,18 +714,27 @@ function showTab(tab, el) {
   document.getElementById('tab-'+tab).style.display = 'block';
   el.classList.add('active');
   if (tab==='settle') renderSettleList();
+  if (tab==='songs')  renderSongsTab();
 }
 
 // ── 데이터 로드 ──
+let songs=[], songVotes=[], rounds=[];
+
 async function loadAll() {
-  const [pR, vR, sR] = await Promise.all([
+  const [pR, vR, sR, rR, soR, svR] = await Promise.all([
     db.from('band_date_proposals').select('*'),
     db.from('band_date_votes').select('*'),
-    db.from('band_settlements').select('*').order('created_at', {ascending:false})
+    db.from('band_settlements').select('*').order('created_at', {ascending:false}),
+    db.from('band_rounds').select('*').order('created_at', {ascending:false}),
+    db.from('band_songs').select('*').order('created_at', {ascending:true}),
+    db.from('band_song_votes').select('*'),
   ]);
-  proposals = pR.data||[];
-  votes     = vR.data||[];
-  settles   = sR.data||[];
+  proposals  = pR.data||[];
+  votes      = vR.data||[];
+  settles    = sR.data||[];
+  rounds     = rR.data||[];
+  songs      = soR.data||[];
+  songVotes  = svR.data||[];
   renderCalendar();
 }
 
@@ -695,7 +803,7 @@ function renderCalendar() {
     const star   = prop?.is_confirmed ? '<span class="confirmed-star">★</span>' : '';
     const htip   = isHol ? `<span class="holiday-name">${HOLIDAYS[ds]}</span>` : '';
 
-    html+=`<div class="${cls}" onclick="dayClick('${ds}')">
+    html+=`<div class="${cls}" data-ds="${ds}" onpointerdown="calPointerDown(event,'${ds}')" onpointerup="calPointerUp(event,'${ds}')">
       ${star}${htip}
       <span class="day-num">${d}</span>
       <div class="name-tags">${nameTags}${moreTag}</div>
@@ -707,6 +815,14 @@ function renderCalendar() {
   for(let i=1;i<=rem;i++) html+=`<div class="cal-day other-month"><span class="day-num">${i}</span></div>`;
 
   document.getElementById('calGrid').innerHTML=html;
+}
+
+// ── 달력 드래그 방지 클릭 ──
+let _pdX=0, _pdY=0;
+function calPointerDown(e,ds){ _pdX=e.clientX; _pdY=e.clientY; }
+function calPointerUp(e,ds){
+  const dx=Math.abs(e.clientX-_pdX), dy=Math.abs(e.clientY-_pdY);
+  if(dx<6&&dy<6) dayClick(ds); // 5px 이내면 클릭으로 인정
 }
 
 // ── 날짜 클릭 ──
@@ -870,11 +986,37 @@ function renderSettleList(){
     </div>`).join('');
 }
 
-function renderSettleCard(s){
+async function renderSettleCard(s){
   const el=document.getElementById('settleCardArea');
   const dt=s.date?new Date(s.date+'T00:00:00'):null;
   const MO=['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월'];
   const dateStr=dt?`${dt.getFullYear()}년 ${MO[dt.getMonth()]} ${dt.getDate()}일`:'';
+  window._currentSettle=s;
+
+  // 납부 status 로드
+  const {data:statusData}=await db.from('band_settlement_status').select('*').eq('settlement_id',s.id);
+  const statusMap={};
+  (statusData||[]).forEach(r=>{ statusMap[r.member_name]=r; });
+  const members=Object.keys(statusMap);
+  const paidCount=members.filter(m=>statusMap[m]?.is_paid).length;
+
+  const memberRows=members.length
+    ?members.map(name=>{
+        const isPaid=statusMap[name]?.is_paid;
+        return `<div class="pay-status-row">
+          <span class="pay-status-name">${name}</span>
+          <button class="pay-status-chip ${isPaid?'paid':'unpaid'}" onclick="togglePayStatus('${s.id}','${name}',${!isPaid})">
+            ${isPaid?'✓ 완납':'미납'}
+          </button>
+        </div>`;
+      }).join('')
+    :`<div style="font-size:12px;color:var(--text3);text-align:center;padding:6px 0">아래에서 멤버를 추가하세요</div>`;
+
+  const addMemberForm=(isAdmin||isLeader)?`
+    <div style="display:flex;gap:6px;margin-top:8px">
+      <input class="form-input" id="newPayMember_${s.id}" placeholder="이름 입력" style="flex:1;padding:7px 10px;font-size:13px">
+      <button class="action-btn leader-action" style="width:auto;padding:7px 14px;margin:0;font-size:12px" onclick="addPayMember('${s.id}')">추가</button>
+    </div>`:'';
 
   el.innerHTML=`
     <div style="margin-bottom:10px;display:flex;align-items:center;justify-content:space-between">
@@ -883,19 +1025,16 @@ function renderSettleCard(s){
     <div class="share-card" id="shareCardInner">
       <div class="share-card-title">🎸 합주 정산</div>
       <div class="share-card-date">${s.room_name} · ${dateStr} ${s.time?'· '+s.time:''}</div>
-
       <div class="share-total">
         <div class="share-total-label">TOTAL</div>
         <div class="share-total-amount">${(s.total_amount||0).toLocaleString()}원</div>
         <div class="share-total-detail">${s.member_count}명 참여</div>
       </div>
-
       <div class="share-per-person">
         <div class="share-per-label">1인당 금액</div>
         <div class="share-per-amount">${(s.per_person||0).toLocaleString()}원</div>
         <div class="share-per-sub">총 ${(s.total_amount||0).toLocaleString()}원 ÷ ${s.member_count}명</div>
       </div>
-
       ${s.account_num?`
       <div class="share-account">
         <div class="share-account-label">💳 송금 계좌</div>
@@ -903,13 +1042,43 @@ function renderSettleCard(s){
         <div class="share-account-num">${s.account_num}</div>
         <div class="share-account-name">예금주: ${s.account_name||''}</div>
       </div>`:''}
-
+      <div class="share-members" style="margin-top:14px">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+          <div class="share-members-title">💸 납부 현황</div>
+          <div style="font-size:11px;color:var(--mint-deep);font-weight:700;font-family:'Nunito',sans-serif">${paidCount}/${members.length} 완납</div>
+        </div>
+        ${memberRows}
+        ${addMemberForm}
+      </div>
       <div style="margin-top:14px;text-align:center;font-size:11px;color:var(--text3);font-family:'Nunito',sans-serif">
         정산 요청: ${s.created_by||''} · Band Manager
       </div>
     </div>
-    ${(isAdmin)?`<button class="action-btn danger" style="margin-top:10px" onclick="deleteSettle('${s.id}')">정산 삭제 (어드민)</button>`:''}
+    ${isAdmin?`<button class="action-btn danger" style="margin-top:10px" onclick="deleteSettle('${s.id}')">정산 삭제 (어드민)</button>`:''}
   `;
+}
+
+async function addPayMember(sid){
+  const input=document.getElementById(`newPayMember_${sid}`);
+  const name=input?.value.trim();
+  if(!name) return showToast('이름을 입력해주세요','error');
+  const {error}=await db.from('band_settlement_status').upsert(
+    {settlement_id:sid, member_name:name, is_paid:false},
+    {onConflict:'settlement_id,member_name'}
+  );
+  if(error) return showToast('추가 실패: '+error.message,'error');
+  showToast(`${name} 추가됨`,'success');
+  await renderSettleCard(window._currentSettle);
+}
+
+async function togglePayStatus(sid,name,isPaid){
+  const {error}=await db.from('band_settlement_status').upsert(
+    {settlement_id:sid, member_name:name, is_paid:isPaid, paid_at:isPaid?new Date().toISOString():null},
+    {onConflict:'settlement_id,member_name'}
+  );
+  if(error) return showToast('저장 실패','error');
+  showToast(isPaid?`${name} 완납 ✓`:`${name} 미납으로 변경`,'success');
+  await renderSettleCard(window._currentSettle);
 }
 
 async function deleteSettle(id){
@@ -918,6 +1087,180 @@ async function deleteSettle(id){
   settles=settles.filter(s=>s.id!==id);
   renderSettleList();
   document.getElementById('settleCardArea').innerHTML=`<div class="settle-card"><div class="settle-body" style="text-align:center;padding:40px 20px"><div style="font-size:40px;margin-bottom:12px">💳</div><div style="font-size:14px;color:var(--text2);line-height:1.7">정산 내역을 선택하면<br>공유용 카드가 여기 나와요!</div></div></div>`;
+}
+
+// ── 곡 정하기 ──
+function renderSongsTab() {
+  const activeRound = rounds.find(r=>r.is_active);
+  const proposers   = activeRound?.proposers || [];
+  const roundSongs  = activeRound ? songs.filter(s=>s.round_id===activeRound.id) : [];
+  const iAmProposer = proposers.includes(myName);
+  const myProposal  = roundSongs.find(s=>s.proposed_by===myName);
+
+  // 배지
+  document.getElementById('roundBadgeArea').innerHTML = activeRound
+    ? `<span class="round-badge">🔄 Round ${activeRound.round_num} 진행 중</span>`
+    : '';
+
+  // 리더 패널
+  const lp = document.getElementById('leaderSongPanel');
+  lp.style.display = (isLeader||isAdmin) ? 'block' : 'none';
+  const erb = document.getElementById('endRoundBtn');
+  if (erb) erb.style.display = activeRound ? 'block' : 'none';
+
+  // 제안 폼
+  const pc = document.getElementById('proposeSongCard');
+  if (activeRound && iAmProposer && !myProposal) {
+    pc.style.display = 'block';
+    document.getElementById('proposeSubText').textContent = `이번 라운드 제안자예요!`;
+  } else {
+    pc.style.display = 'none';
+  }
+
+  // 라운드 정보
+  const rib = document.getElementById('roundInfoBody');
+  if (activeRound) {
+    rib.innerHTML = `
+      <div style="margin-bottom:10px">
+        <span class="form-label">제안자</span>
+        <div style="display:flex;flex-wrap:wrap;gap:5px;margin-top:5px">
+          ${proposers.map(p=>{
+            const hasSong = roundSongs.find(s=>s.proposed_by===p);
+            return `<span style="padding:3px 10px;border-radius:12px;font-size:12px;font-weight:700;font-family:'Nunito',sans-serif;background:${hasSong?'var(--mint-light)':'var(--foam)'};color:${hasSong?'var(--mint-deep)':'var(--text3)'}">
+              ${hasSong?'✓ ':''}${p}
+            </span>`;
+          }).join('')}
+        </div>
+      </div>
+      <div style="font-size:12px;color:var(--text3)">제안 ${roundSongs.length}/${proposers.length} 완료</div>
+    `;
+  } else {
+    rib.innerHTML = `<div style="font-size:13px;color:var(--text3);text-align:center;padding:16px 0">진행 중인 라운드 없음</div>`;
+  }
+
+  // 곡 카드 렌더
+  const area = document.getElementById('songCardsArea');
+  if (!activeRound && rounds.length===0) {
+    area.innerHTML = `<div class="empty-hint"><span class="e">🎵</span><p>진행 중인 라운드가 없어요<br>리더가 새 라운드를 시작하면 곡을 제안할 수 있어요</p></div>`;
+    return;
+  }
+
+  // 현재 라운드 곡 + 이전 확정곡
+  const displaySongs = activeRound ? roundSongs : [];
+  const confirmedSongs = songs.filter(s=>s.is_confirmed);
+
+  let html = '';
+  if (activeRound && displaySongs.length === 0) {
+    html = `<div class="empty-hint"><span class="e">🎵</span><p>아직 제안된 곡이 없어요</p></div>`;
+  } else {
+    html = displaySongs.map(s => songCardHTML(s)).join('');
+  }
+
+  if (confirmedSongs.length > 0) {
+    html += `<div style="margin:20px 0 10px"><span style="font-size:11px;font-weight:700;color:var(--text3);letter-spacing:1px;text-transform:uppercase;font-family:'Nunito',sans-serif">✅ 확정된 곡들</span></div>`;
+    html += confirmedSongs.map(s => songCardHTML(s, true)).join('');
+  }
+  area.innerHTML = html || `<div class="empty-hint"><span class="e">🎵</span><p>제안된 곡이 없어요</p></div>`;
+}
+
+function songCardHTML(s, isConfirmedSection=false) {
+  const myVote   = songVotes.find(v=>v.song_id===s.id && v.voter_name===myName);
+  const voteList = songVotes.filter(v=>v.song_id===s.id);
+  const voterNames = voteList.map(v=>v.voter_name).join(', ');
+  const isLeaderProposer = s.proposed_by.includes(LEADER_KEYWORD);
+
+  return `<div class="song-card ${s.is_confirmed?'confirmed-song':''}">
+    <div class="song-card-header">
+      <div class="song-proposer">
+        ${isLeaderProposer?'👑':'🎸'} ${s.proposed_by} 제안
+      </div>
+      ${s.is_confirmed?'<span class="song-confirmed-badge">✅ 확정</span>':''}
+    </div>
+    <div class="song-card-body">
+      <div class="song-title">${s.title}</div>
+      <div class="song-artist">${s.artist||'아티스트 미입력'}</div>
+      ${s.youtube_url?`<a class="song-yt-link" href="${s.youtube_url}" target="_blank">▶ 유튜브로 듣기</a>`:''}
+    </div>
+    <div class="song-card-footer">
+      <div>
+        <button class="vote-btn ${myVote?'voted':''}" onclick="toggleSongVote('${s.id}',${!!myVote})">
+          ❤️ ${myVote?'취소':'좋아요'} ${voteList.length}
+        </button>
+        ${voterNames?`<div class="voter-names" style="margin-top:4px">${voterNames}</div>`:''}
+      </div>
+      ${(isAdmin||isLeader)&&!s.is_confirmed?`<button class="action-btn leader-action" style="width:auto;padding:6px 12px;margin:0;font-size:11px" onclick="confirmSong('${s.id}')">확정</button>`:''}
+      ${isAdmin?`<button class="action-btn danger" style="width:auto;padding:6px 10px;margin:0;font-size:11px" onclick="deleteSong('${s.id}')">삭제</button>`:''}
+    </div>
+  </div>`;
+}
+
+async function startRound() {
+  const input = document.getElementById('roundProposers').value.trim();
+  if (!input) return showToast('제안자를 입력해주세요','error');
+  const proposers = input.split(/[,，\s]+/).map(s=>s.trim()).filter(Boolean);
+  if (proposers.length === 0) return showToast('제안자를 입력해주세요','error');
+
+  // 기존 라운드 비활성화
+  await db.from('band_rounds').update({is_active:false}).eq('is_active',true);
+  const lastRound = rounds[0];
+  const nextNum   = lastRound ? lastRound.round_num+1 : 1;
+
+  const {error} = await db.from('band_rounds').insert({round_num:nextNum, proposers, is_active:true});
+  if (error) return showToast('라운드 시작 실패: '+error.message,'error');
+  document.getElementById('roundProposers').value='';
+  showToast(`🎬 Round ${nextNum} 시작!`,'success');
+  await loadAll();
+  renderSongsTab();
+}
+
+async function endRound() {
+  if (!confirm('라운드를 종료할까요?')) return;
+  await db.from('band_rounds').update({is_active:false}).eq('is_active',true);
+  showToast('라운드 종료됨','success');
+  await loadAll(); renderSongsTab();
+}
+
+async function proposeSong() {
+  const title  = document.getElementById('songTitle').value.trim();
+  const artist = document.getElementById('songArtist').value.trim();
+  const yt     = document.getElementById('songYt').value.trim();
+  if (!title) return showToast('곡 제목을 입력해주세요','error');
+  const activeRound = rounds.find(r=>r.is_active);
+  if (!activeRound) return showToast('진행 중인 라운드가 없어요','error');
+
+  const {error} = await db.from('band_songs').insert({
+    round_id: activeRound.id,
+    title, artist, proposed_by: myName, youtube_url: yt||null
+  });
+  if (error) return showToast('제안 실패: '+error.message,'error');
+  showToast('🎵 곡 제안 완료!','success');
+  ['songTitle','songArtist','songYt'].forEach(id=>{ document.getElementById(id).value=''; });
+  await loadAll(); renderSongsTab();
+}
+
+async function toggleSongVote(songId, hasVoted) {
+  if (hasVoted) {
+    await db.from('band_song_votes').delete().eq('song_id',songId).eq('voter_name',myName);
+    showToast('좋아요 취소','success');
+  } else {
+    const {error} = await db.from('band_song_votes').insert({song_id:songId, voter_name:myName});
+    if (error) return showToast('투표 실패','error');
+    showToast('❤️ 좋아요!','success');
+  }
+  await loadAll(); renderSongsTab();
+}
+
+async function confirmSong(id) {
+  if (!confirm('이 곡을 확정할까요?')) return;
+  await db.from('band_songs').update({is_confirmed:true}).eq('id',id);
+  showToast('✅ 곡 확정!','success');
+  await loadAll(); renderSongsTab();
+}
+
+async function deleteSong(id) {
+  if (!confirm('곡을 삭제할까요?')) return;
+  await db.from('band_songs').delete().eq('id',id);
+  await loadAll(); renderSongsTab();
 }
 
 // ── 유틸 ──
