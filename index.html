@@ -535,23 +535,21 @@
   <!-- 나머지 탭 -->
   <div id="tab-songs" style="display:none">
     <div class="section-header">
-      <div class="section-title">🎵 곡 정하기 <span class="section-sub" id="roundBadgeArea"></span></div>
-      <div id="leaderRoundBtns" style="display:none;display:flex;gap:8px"></div>
+      <div class="section-title">🎵 곡 정하기 <span class="section-sub">투표로 곡을 골라요</span></div>
     </div>
     <div class="songs-layout">
       <!-- 좌: 곡 카드 목록 -->
       <div>
         <div id="songCardsArea">
-          <div class="empty-hint"><span class="e">🎵</span><p>진행 중인 라운드가 없어요<br>리더가 새 라운드를 시작하면 곡을 제안할 수 있어요</p></div>
+          <div class="empty-hint"><span class="e">🎵</span><p>아직 제안된 곡이 없어요<br>오른쪽에서 곡을 추가해보세요!</p></div>
         </div>
       </div>
-      <!-- 우: 라운드 정보 + 제안 폼 -->
+      <!-- 우: 곡 추가 폼 -->
       <div class="side-panel">
-        <!-- 내 제안 폼 -->
-        <div class="round-info-card" id="proposeSongCard" style="display:none">
+        <div class="round-info-card">
           <div class="side-header">
-            <div class="side-header-title">✏️ 곡 제안하기</div>
-            <div class="side-header-sub" id="proposeSubText"></div>
+            <div class="side-header-title">🎵 곡 추가하기</div>
+            <div class="side-header-sub">누구나 곡을 올릴 수 있어요</div>
           </div>
           <div class="side-body">
             <div class="form-row">
@@ -566,32 +564,16 @@
               <label class="form-label">유튜브 링크</label>
               <input class="form-input" id="songYt" placeholder="https://youtube.com/...">
             </div>
-            <button class="action-btn leader-action" onclick="proposeSong()">🎵 제안하기</button>
+            <button class="action-btn leader-action" onclick="proposeSong()">🎵 올리기</button>
           </div>
         </div>
-        <!-- 라운드 정보 -->
+        <!-- 확정된 곡 -->
         <div class="round-info-card">
           <div class="side-header">
-            <div class="side-header-title">🔄 라운드 정보</div>
+            <div class="side-header-title">✅ 확정된 곡</div>
           </div>
-          <div class="side-body" id="roundInfoBody">
-            <div style="font-size:13px;color:var(--text3);text-align:center;padding:16px 0">라운드 없음</div>
-          </div>
-        </div>
-        <!-- 어드민/리더 전용 -->
-        <div id="leaderSongPanel" style="display:none">
-          <div class="round-info-card">
-            <div class="side-header">
-              <div class="side-header-title">👑 라운드 관리</div>
-            </div>
-            <div class="side-body">
-              <div class="form-row">
-                <label class="form-label">제안자 (쉼표로 구분)</label>
-                <input class="form-input" id="roundProposers" placeholder="ex) 우준,민지,지은">
-              </div>
-              <button class="action-btn leader-action" onclick="startRound()">🎬 새 라운드 시작</button>
-              <button class="action-btn danger" id="endRoundBtn" style="display:none" onclick="endRound()">라운드 종료</button>
-            </div>
+          <div class="side-body" id="confirmedSongsArea">
+            <div style="font-size:13px;color:var(--text3);text-align:center;padding:8px 0">아직 없어요</div>
           </div>
         </div>
       </div>
@@ -728,18 +710,16 @@ function showTab(tab, el) {
 let songs=[], songVotes=[], rounds=[];
 
 async function loadAll() {
-  const [pR, vR, sR, rR, soR, svR] = await Promise.all([
+  const [pR, vR, sR, soR, svR] = await Promise.all([
     db.from('band_date_proposals').select('*'),
     db.from('band_date_votes').select('*'),
     db.from('band_settlements').select('*').order('created_at', {ascending:false}),
-    db.from('band_rounds').select('*').order('created_at', {ascending:false}),
     db.from('band_songs').select('*').order('created_at', {ascending:true}),
     db.from('band_song_votes').select('*'),
   ]);
   proposals  = pR.data||[];
   votes      = vR.data||[];
   settles    = sR.data||[];
-  rounds     = rR.data||[];
   songs      = soR.data||[];
   songVotes  = svR.data||[];
   renderCalendar();
@@ -1252,90 +1232,45 @@ async function deleteSettle(id){
 
 // ── 곡 정하기 ──
 function renderSongsTab() {
-  const activeRound = rounds.find(r=>r.is_active);
-  const proposers   = activeRound?.proposers || [];
-  const roundSongs  = activeRound ? songs.filter(s=>s.round_id===activeRound.id) : [];
-  const iAmProposer = proposers.includes(myName);
-  const myProposal  = roundSongs.find(s=>s.proposed_by===myName);
-
-  // 배지
-  document.getElementById('roundBadgeArea').innerHTML = activeRound
-    ? `<span class="round-badge">🔄 Round ${activeRound.round_num} 진행 중</span>`
-    : '';
-
-  // 리더 패널
-  const lp = document.getElementById('leaderSongPanel');
-  lp.style.display = (isLeader||isAdmin) ? 'block' : 'none';
-  const erb = document.getElementById('endRoundBtn');
-  if (erb) erb.style.display = activeRound ? 'block' : 'none';
-
-  // 제안 폼
-  const pc = document.getElementById('proposeSongCard');
-  if (activeRound && iAmProposer && !myProposal) {
-    pc.style.display = 'block';
-    document.getElementById('proposeSubText').textContent = `이번 라운드 제안자예요!`;
-  } else {
-    pc.style.display = 'none';
-  }
-
-  // 라운드 정보
-  const rib = document.getElementById('roundInfoBody');
-  if (activeRound) {
-    rib.innerHTML = `
-      <div style="margin-bottom:10px">
-        <span class="form-label">제안자</span>
-        <div style="display:flex;flex-wrap:wrap;gap:5px;margin-top:5px">
-          ${proposers.map(p=>{
-            const hasSong = roundSongs.find(s=>s.proposed_by===p);
-            return `<span style="padding:3px 10px;border-radius:12px;font-size:12px;font-weight:700;font-family:'Nunito',sans-serif;background:${hasSong?'var(--mint-light)':'var(--foam)'};color:${hasSong?'var(--mint-deep)':'var(--text3)'}">
-              ${hasSong?'✓ ':''}${p}
-            </span>`;
-          }).join('')}
-        </div>
-      </div>
-      <div style="font-size:12px;color:var(--text3)">제안 ${roundSongs.length}/${proposers.length} 완료</div>
-    `;
-  } else {
-    rib.innerHTML = `<div style="font-size:13px;color:var(--text3);text-align:center;padding:16px 0">진행 중인 라운드 없음</div>`;
-  }
-
-  // 곡 카드 렌더
-  const area = document.getElementById('songCardsArea');
-  if (!activeRound && rounds.length===0) {
-    area.innerHTML = `<div class="empty-hint"><span class="e">🎵</span><p>진행 중인 라운드가 없어요<br>리더가 새 라운드를 시작하면 곡을 제안할 수 있어요</p></div>`;
-    return;
-  }
-
-  // 현재 라운드 곡 + 이전 확정곡
-  const displaySongs = activeRound ? roundSongs : [];
+  const pendingSongs   = songs.filter(s=>!s.is_confirmed);
   const confirmedSongs = songs.filter(s=>s.is_confirmed);
 
-  let html = '';
-  if (activeRound && displaySongs.length === 0) {
-    html = `<div class="empty-hint"><span class="e">🎵</span><p>아직 제안된 곡이 없어요</p></div>`;
-  } else {
-    html = displaySongs.map(s => songCardHTML(s)).join('');
-  }
+  // 투표 많은 순 정렬
+  const sorted = [...pendingSongs].sort((a,b)=>{
+    const va = songVotes.filter(v=>v.song_id===a.id).length;
+    const vb = songVotes.filter(v=>v.song_id===b.id).length;
+    return vb-va;
+  });
 
-  if (confirmedSongs.length > 0) {
-    html += `<div style="margin:20px 0 10px"><span style="font-size:11px;font-weight:700;color:var(--text3);letter-spacing:1px;text-transform:uppercase;font-family:'Nunito',sans-serif">✅ 확정된 곡들</span></div>`;
-    html += confirmedSongs.map(s => songCardHTML(s, true)).join('');
-  }
-  area.innerHTML = html || `<div class="empty-hint"><span class="e">🎵</span><p>제안된 곡이 없어요</p></div>`;
+  // 메인 카드 영역
+  const area = document.getElementById('songCardsArea');
+  area.innerHTML = sorted.length
+    ? sorted.map(s=>songCardHTML(s)).join('')
+    : `<div class="empty-hint"><span class="e">🎵</span><p>아직 제안된 곡이 없어요<br>오른쪽에서 곡을 추가해보세요!</p></div>`;
+
+  // 확정된 곡 사이드
+  const cs = document.getElementById('confirmedSongsArea');
+  cs.innerHTML = confirmedSongs.length
+    ? confirmedSongs.map(s=>`
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--border2)">
+          <div>
+            <div style="font-weight:700;font-size:13px;color:var(--text)">${s.title}</div>
+            <div style="font-size:11px;color:var(--text3)">${s.artist||''}</div>
+          </div>
+          ${isAdmin?`<button class="action-btn danger" style="width:auto;padding:4px 8px;margin:0;font-size:11px" onclick="deleteSong('${s.id}')">삭제</button>`:''}
+        </div>`).join('')
+    : `<div style="font-size:13px;color:var(--text3);text-align:center;padding:8px 0">아직 없어요</div>`;
 }
 
-function songCardHTML(s, isConfirmedSection=false) {
+function songCardHTML(s) {
   const myVote   = songVotes.find(v=>v.song_id===s.id && v.voter_name===myName);
   const voteList = songVotes.filter(v=>v.song_id===s.id);
   const voterNames = voteList.map(v=>v.voter_name).join(', ');
   const isLeaderProposer = s.proposed_by.includes(LEADER_KEYWORD);
 
-  return `<div class="song-card ${s.is_confirmed?'confirmed-song':''}">
+  return `<div class="song-card">
     <div class="song-card-header">
-      <div class="song-proposer">
-        ${isLeaderProposer?'👑':'🎸'} ${s.proposed_by} 제안
-      </div>
-      ${s.is_confirmed?'<span class="song-confirmed-badge">✅ 확정</span>':''}
+      <div class="song-proposer">${isLeaderProposer?'👑':'🎸'} ${s.proposed_by}</div>
     </div>
     <div class="song-card-body">
       <div class="song-title">${s.title}</div>
@@ -1349,36 +1284,12 @@ function songCardHTML(s, isConfirmedSection=false) {
         </button>
         ${voterNames?`<div class="voter-names" style="margin-top:4px">${voterNames}</div>`:''}
       </div>
-      ${(isAdmin||isLeader)&&!s.is_confirmed?`<button class="action-btn leader-action" style="width:auto;padding:6px 12px;margin:0;font-size:11px" onclick="confirmSong('${s.id}')">확정</button>`:''}
-      ${isAdmin?`<button class="action-btn danger" style="width:auto;padding:6px 10px;margin:0;font-size:11px" onclick="deleteSong('${s.id}')">삭제</button>`:''}
+      <div style="display:flex;gap:6px">
+        ${(isAdmin||isLeader)?`<button class="action-btn leader-action" style="width:auto;padding:6px 12px;margin:0;font-size:11px" onclick="confirmSong('${s.id}')">확정</button>`:''}
+        ${(isAdmin||s.proposed_by===myName)?`<button class="action-btn danger" style="width:auto;padding:6px 10px;margin:0;font-size:11px" onclick="deleteSong('${s.id}')">삭제</button>`:''}
+      </div>
     </div>
   </div>`;
-}
-
-async function startRound() {
-  const input = document.getElementById('roundProposers').value.trim();
-  if (!input) return showToast('제안자를 입력해주세요','error');
-  const proposers = input.split(/[,，\s]+/).map(s=>s.trim()).filter(Boolean);
-  if (proposers.length === 0) return showToast('제안자를 입력해주세요','error');
-
-  // 기존 라운드 비활성화
-  await db.from('band_rounds').update({is_active:false}).eq('is_active',true);
-  const lastRound = rounds[0];
-  const nextNum   = lastRound ? lastRound.round_num+1 : 1;
-
-  const {error} = await db.from('band_rounds').insert({round_num:nextNum, proposers, is_active:true});
-  if (error) return showToast('라운드 시작 실패: '+error.message,'error');
-  document.getElementById('roundProposers').value='';
-  showToast(`🎬 Round ${nextNum} 시작!`,'success');
-  await loadAll();
-  renderSongsTab();
-}
-
-async function endRound() {
-  if (!confirm('라운드를 종료할까요?')) return;
-  await db.from('band_rounds').update({is_active:false}).eq('is_active',true);
-  showToast('라운드 종료됨','success');
-  await loadAll(); renderSongsTab();
 }
 
 async function proposeSong() {
@@ -1386,15 +1297,12 @@ async function proposeSong() {
   const artist = document.getElementById('songArtist').value.trim();
   const yt     = document.getElementById('songYt').value.trim();
   if (!title) return showToast('곡 제목을 입력해주세요','error');
-  const activeRound = rounds.find(r=>r.is_active);
-  if (!activeRound) return showToast('진행 중인 라운드가 없어요','error');
 
   const {error} = await db.from('band_songs').insert({
-    round_id: activeRound.id,
-    title, artist, proposed_by: myName, youtube_url: yt||null
+    title, artist: artist||null, proposed_by: myName, youtube_url: yt||null
   });
-  if (error) return showToast('제안 실패: '+error.message,'error');
-  showToast('🎵 곡 제안 완료!','success');
+  if (error) return showToast('추가 실패: '+error.message,'error');
+  showToast('🎵 곡 추가됨!','success');
   ['songTitle','songArtist','songYt'].forEach(id=>{ document.getElementById(id).value=''; });
   await loadAll(); renderSongsTab();
 }
