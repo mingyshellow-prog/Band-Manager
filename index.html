@@ -138,6 +138,10 @@
   .cal-day.confirmed-day{background:linear-gradient(135deg,var(--mint-light),#b8f0e0);border-color:var(--mint-deep)!important;box-shadow:0 2px 10px rgba(58,184,150,.25);}
   .cal-day.confirmed-day .day-num{color:var(--mint-deep);}
 
+  /* 드래그 범위 선택 */
+  .cal-day.in-range{background:var(--ocean-pale)!important;border-color:var(--ocean-mid)!important;}
+  .cal-day.in-range .day-num{color:var(--ocean-deep)!important;}
+
   /* 선택된 날 링 */
   .cal-day.selected::after{content:'';position:absolute;inset:-1px;border-radius:11px;border:2.5px solid var(--ocean-deep);pointer-events:none;z-index:2;}
 
@@ -615,7 +619,10 @@ let myEmail = '';
 let isLeader = false, isAdmin = false;
 let proposals = [], votes = [], settles = [];
 let curYear, curMonth;
-let selectedDate = null;
+let selectedDate = null;      // 마지막 클릭/포커스 날짜
+let dragStartDate = null;     // 드래그 시작 날짜
+let isDragging = false;       // 드래그 중 여부
+let selectedDates = new Set(); // 다중 선택된 날짜들
 
 const HOLIDAYS = {
   '2024-01-01':'신정','2024-02-09':'설날 연휴','2024-02-10':'설날','2024-02-11':'설날 연휴','2024-02-12':'대체공휴일','2024-03-01':'삼일절','2024-04-10':'국회의원선거일','2024-05-05':'어린이날','2024-05-06':'대체공휴일','2024-05-15':'부처님오신날','2024-06-06':'현충일','2024-08-15':'광복절','2024-09-16':'추석 연휴','2024-09-17':'추석','2024-09-18':'추석 연휴','2024-10-03':'개천절','2024-10-09':'한글날','2024-12-25':'크리스마스',
@@ -744,6 +751,8 @@ function changeMonth(dir) {
   if(curMonth>11){curMonth=0;curYear++;}
   if(curMonth<0){curMonth=11;curYear--;}
   selectedDate = null;
+  selectedDates.clear();
+  dragStartDate = null;
   renderCalendar();
   document.getElementById('sideCard').innerHTML = `<div class="empty-hint"><span class="e">👆</span><p>날짜를 클릭하면<br>가능 여부를 표시할 수 있어요</p></div>`;
 }
@@ -781,7 +790,8 @@ function renderCalendar() {
     const prop   = propMap[ds];
     const dv     = voteMap[ds]||[];
     const myVote = dv.find(v=>v.voter_name===myName && v.available);
-    const isSel  = ds===selectedDate;
+    const isSel   = ds===selectedDate;
+    const isMulti = selectedDates.has(ds);
 
     let cls='cal-day';
     if(dow===0) cls+=' sunday';
@@ -790,7 +800,7 @@ function renderCalendar() {
     if(isToday) cls+=' today';
     if(prop?.is_confirmed) cls+=' confirmed-day';
     else if(myVote)        cls+=' my-available';
-    if(isSel)              cls+=' selected';
+    if(isSel||isMulti)     cls+=' selected';
 
     // 이름 태그 (가능한 사람들)
     const availVoters = dv.filter(v=>v.available);
@@ -803,7 +813,7 @@ function renderCalendar() {
     const star   = prop?.is_confirmed ? '<span class="confirmed-star">★</span>' : '';
     const htip   = isHol ? `<span class="holiday-name">${HOLIDAYS[ds]}</span>` : '';
 
-    html+=`<div class="${cls}" data-ds="${ds}" onpointerdown="calPointerDown(event,'${ds}')" onpointerup="calPointerUp(event,'${ds}')">
+    html+=`<div class="${cls}" data-ds="${ds}" onpointerdown="calPointerDown(event,'${ds}')" onpointermove="calPointerMove(event,'${ds}')" onpointerup="calPointerUp(event,'${ds}')">
       ${star}${htip}
       <span class="day-num">${d}</span>
       <div class="name-tags">${nameTags}${moreTag}</div>
@@ -817,12 +827,163 @@ function renderCalendar() {
   document.getElementById('calGrid').innerHTML=html;
 }
 
-// ── 달력 드래그 방지 클릭 ──
+// ── 달력 드래그 + Shift+방향키 ──
 let _pdX=0, _pdY=0;
-function calPointerDown(e,ds){ _pdX=e.clientX; _pdY=e.clientY; }
-function calPointerUp(e,ds){
+
+// 두 날짜 사이의 모든 날짜 배열 반환
+function datesBetween(ds1, ds2) {
+  const d1 = new Date(ds1+'T00:00:00');
+  const d2 = new Date(ds2+'T00:00:00');
+  const [start, end] = d1 <= d2 ? [d1,d2] : [d2,d1];
+  const result = [];
+  const cur = new Date(start);
+  while(cur <= end) {
+    result.push(toDS(cur));
+    cur.setDate(cur.getDate()+1);
+  }
+  return result;
+}
+
+// 날짜에서 N일 이동
+function shiftDate(ds, days) {
+  const d = new Date(ds+'T00:00:00');
+  d.setDate(d.getDate()+days);
+  return toDS(d);
+}
+
+// 드래그 중 범위 하이라이트 (DOM 직접 업데이트, 리렌더 없이)
+function updateDragHighlight(endDs) {
+  const range = new Set(datesBetween(dragStartDate, endDs));
+  document.querySelectorAll('.cal-day[data-ds]').forEach(el => {
+    const ds = el.dataset.ds;
+    if(range.has(ds)) el.classList.add('in-range');
+    else el.classList.remove('in-range');
+  });
+}
+
+function calPointerDown(e, ds) {
+  _pdX=e.clientX; _pdY=e.clientY;
+  isDragging=false;
+  dragStartDate=ds;
+  e.currentTarget.setPointerCapture(e.pointerId);
+}
+
+function calPointerMove(e, ds) {
   const dx=Math.abs(e.clientX-_pdX), dy=Math.abs(e.clientY-_pdY);
-  if(dx<6&&dy<6) dayClick(ds); // 5px 이내면 클릭으로 인정
+  if(!isDragging && (dx>6||dy>6)) isDragging=true;
+  if(isDragging && dragStartDate) updateDragHighlight(ds);
+}
+
+function calPointerUp(e, ds) {
+  const dx=Math.abs(e.clientX-_pdX), dy=Math.abs(e.clientY-_pdY);
+
+  // 드래그 범위 하이라이트 제거
+  document.querySelectorAll('.cal-day.in-range').forEach(el=>el.classList.remove('in-range'));
+
+  if(!isDragging || (dx<6&&dy<6)) {
+    // 단순 클릭
+    selectedDates.clear();
+    selectedDate=ds;
+    renderCalendar();
+    renderSide(ds);
+  } else {
+    // 드래그 범위 선택
+    const range = datesBetween(dragStartDate, ds).filter(d => {
+      // 해당 월 날짜만
+      return d.startsWith(`${curYear}-${String(curMonth+1).padStart(2,'0')}`);
+    });
+    selectedDates = new Set(range);
+    selectedDate = ds;
+    isDragging=false;
+    renderCalendar();
+    renderSideMulti(range);
+  }
+  isDragging=false;
+}
+
+// Shift+방향키
+document.addEventListener('keydown', e => {
+  if(!selectedDate) return;
+  if(!document.getElementById('tab-dates') || document.getElementById('tab-dates').style.display==='none') return;
+
+  const keyMap = { ArrowRight:1, ArrowLeft:-1, ArrowDown:7, ArrowUp:-7 };
+  if(!keyMap[e.key]) return;
+  e.preventDefault();
+
+  const next = shiftDate(selectedDate, keyMap[e.key]);
+  // 달 넘어가면 이동
+  const [ny, nm] = next.split('-').map(Number);
+  if(nm-1 !== curMonth || ny !== curYear) {
+    curMonth = nm-1; curYear = ny;
+  }
+
+  if(e.shiftKey) {
+    // Shift+방향키: 범위 확장
+    const anchor = dragStartDate || selectedDate;
+    dragStartDate = anchor;
+    const range = datesBetween(anchor, next);
+    selectedDates = new Set(range);
+    selectedDate = next;
+    renderCalendar();
+    renderSideMulti([...selectedDates]);
+  } else {
+    // 방향키만: 단순 이동
+    selectedDates.clear();
+    dragStartDate = next;
+    selectedDate = next;
+    renderCalendar();
+    renderSide(next);
+  }
+});
+
+// ── 다중 선택 사이드 패널 ──
+function renderSideMulti(dates) {
+  if(!dates||dates.length===0) return;
+  const card=document.getElementById('sideCard');
+  const sorted=[...dates].sort();
+  const first=sorted[0], last=sorted[sorted.length-1];
+  const d1=new Date(first+'T00:00:00'), d2=new Date(last+'T00:00:00');
+  const WD=['일','월','화','수','목','금','토'];
+  const fmt=d=>`${d.getMonth()+1}/${d.getDate()}(${WD[d.getDay()]})`;
+
+  card.innerHTML=`
+    <div class="side-header">
+      <div class="side-header-title">${fmt(d1)} ~ ${fmt(d2)}</div>
+      <div class="side-header-sub">${dates.length}일 선택됨</div>
+    </div>
+    <div class="side-body">
+      <span class="field-label">선택된 날짜 전체에 적용</span>
+      <button class="avail-btn on" onclick="toggleAvailMulti(${JSON.stringify(sorted)},true)">
+        ✓ 전체 가능으로 표시
+      </button>
+      <button class="avail-btn off" onclick="toggleAvailMulti(${JSON.stringify(sorted)},false)">
+        ✗ 전체 불가로 표시
+      </button>
+      <div style="margin-top:10px;font-size:12px;color:var(--text3)">
+        ${sorted.map(ds=>{
+          const d=new Date(ds+'T00:00:00');
+          return `<span style="display:inline-block;margin:2px 3px;padding:2px 7px;background:var(--foam);border-radius:6px;border:1px solid var(--border)">${d.getMonth()+1}/${d.getDate()}</span>`;
+        }).join('')}
+      </div>
+    </div>`;
+}
+
+async function toggleAvailMulti(dates, available) {
+  for(const ds of dates) {
+    let prop=proposals.find(p=>p.proposed_date===ds);
+    if(!prop){
+      const {data,error}=await db.from('band_date_proposals').insert({proposed_date:ds,proposed_by:myName,note:null}).select().single();
+      if(error) continue;
+      prop=data; proposals.push(prop);
+    }
+    await db.from('band_date_votes').upsert(
+      {proposal_id:prop.id, voter_name:myName, available},
+      {onConflict:'proposal_id,voter_name'}
+    );
+  }
+  showToast(available?`✓ ${dates.length}일 가능으로 표시!`:`✗ ${dates.length}일 불가로 표시!`,'success');
+  await loadAll();
+  renderSideMulti(dates);
 }
 
 // ── 날짜 클릭 ──
