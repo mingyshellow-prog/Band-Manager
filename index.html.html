@@ -1,0 +1,893 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Band Manager</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ocean-deep:  #3d84aa;
+    --ocean-mid:   #5ba3c9;
+    --ocean-light: #8dc8e2;
+    --ocean-pale:  #c8e8f5;
+    --foam:        #eaf6fb;
+    --foam2:       #f4fafd;
+    --white:       #ffffff;
+    --border:      #c2e0f0;
+    --border2:     #ddeef8;
+    --mint:        #8edfc8;
+    --mint-light:  #d0f5ea;
+    --mint-deep:   #3ab896;
+    --coral:       #f4a088;
+    --coral-light: #fcd8d0;
+    --sun:         #ffd97d;
+    --sun-light:   #fff4c8;
+    --holiday-bg:  #fff0f0;
+    --holiday:     #e07070;
+    --purple:      #b8a0e0;
+    --purple-light:#f0eafc;
+    --gold:        #f5c842;
+    --gold-light:  #fff8dc;
+    --text:        #2a5870;
+    --text2:       #4d8aaa;
+    --text3:       #8dbdd4;
+    --shadow:      rgba(61,132,170,0.10);
+    --shadow2:     rgba(61,132,170,0.18);
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{
+    background:linear-gradient(155deg,#e4f4fc 0%,#d0ecf7 50%,#e8f8fb 100%);
+    min-height:100vh; font-family:'Noto Sans KR',sans-serif;
+    color:var(--text); overflow-x:hidden; user-select:none;
+  }
+  body::before{content:'';position:fixed;bottom:-80px;left:-60px;width:480px;height:360px;background:radial-gradient(ellipse,rgba(93,183,212,.14) 0%,transparent 70%);pointer-events:none;z-index:0;}
+  body::after{content:'';position:fixed;top:-60px;right:-40px;width:400px;height:320px;background:radial-gradient(ellipse,rgba(142,223,200,.16) 0%,transparent 70%);pointer-events:none;z-index:0;}
+
+  /* ── 헤더 ── */
+  header{position:relative;z-index:10;background:rgba(255,255,255,.78);backdrop-filter:blur(18px);border-bottom:1.5px solid rgba(194,224,240,.7);padding:0 28px;}
+  .header-top{display:flex;align-items:center;justify-content:space-between;padding:16px 0 12px;}
+  .logo{display:flex;align-items:center;gap:10px;}
+  .logo-icon{width:38px;height:38px;background:linear-gradient(135deg,var(--ocean-mid),var(--ocean-deep));border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:18px;box-shadow:0 4px 14px rgba(61,132,170,.3);}
+  .logo-text{font-family:'Nunito',sans-serif;font-weight:800;font-size:20px;color:var(--ocean-deep);}
+  .logo-sub{display:block;font-size:10px;color:var(--text3);letter-spacing:1.5px;text-transform:uppercase;margin-top:-3px;}
+  .header-right{display:flex;align-items:center;gap:8px;}
+  .role-badge{padding:4px 10px;border-radius:20px;font-size:11px;font-weight:700;font-family:'Nunito',sans-serif;}
+  .role-badge.leader{background:var(--gold-light);color:#a07800;border:1.5px solid var(--gold);}
+  .role-badge.admin{background:#f0e8fc;color:#7040b0;border:1.5px solid var(--purple);}
+  .user-badge{display:flex;align-items:center;gap:8px;background:var(--foam);border:1.5px solid var(--border);border-radius:24px;padding:7px 16px;font-size:13px;color:var(--text2);font-weight:600;cursor:pointer;transition:all .2s;font-family:'Nunito',sans-serif;}
+  .user-badge:hover{border-color:var(--ocean-mid);color:var(--ocean-deep);background:var(--white);box-shadow:0 3px 12px var(--shadow);}
+  .user-dot{width:8px;height:8px;border-radius:50%;background:var(--mint);border:2px solid var(--mint-light);flex-shrink:0;}
+  .tabs{display:flex;gap:2px;overflow-x:auto;scrollbar-width:none;}
+  .tabs::-webkit-scrollbar{display:none;}
+  .tab{padding:10px 18px 12px;font-size:13px;font-weight:700;color:var(--text3);cursor:pointer;border-bottom:2.5px solid transparent;transition:all .2s;white-space:nowrap;font-family:'Nunito',sans-serif;}
+  .tab:hover{color:var(--text2);}
+  .tab.active{color:var(--ocean-deep);border-bottom-color:var(--ocean-mid);}
+
+  /* ── 컨테이너 ── */
+  .container{position:relative;z-index:1;max-width:960px;margin:0 auto;padding:24px 20px 60px;}
+
+  /* ── 모달 ── */
+  .modal-overlay{position:fixed;inset:0;background:rgba(190,228,244,.5);backdrop-filter:blur(14px);z-index:100;display:flex;align-items:center;justify-content:center;}
+  .modal-card{background:var(--white);border-radius:28px;padding:44px 40px;width:340px;text-align:center;box-shadow:0 24px 64px rgba(61,132,170,.18);border:1.5px solid rgba(194,224,240,.6);animation:pop .4s cubic-bezier(.34,1.56,.64,1);}
+  @keyframes pop{from{transform:scale(.88);opacity:0}to{transform:scale(1);opacity:1}}
+  .modal-emoji{font-size:52px;display:block;margin-bottom:16px;animation:float 3s ease-in-out infinite;}
+  @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
+  .modal-title{font-family:'Nunito',sans-serif;font-weight:800;font-size:24px;color:var(--ocean-deep);margin-bottom:6px;}
+  .modal-desc{font-size:13px;color:var(--text2);line-height:1.7;margin-bottom:28px;}
+
+  /* ── 인풋 ── */
+  .input{width:100%;background:var(--foam);border:2px solid var(--border);border-radius:14px;padding:12px 16px;color:var(--text);font-size:15px;font-family:'Noto Sans KR',sans-serif;outline:none;transition:all .2s;margin-bottom:12px;}
+  .input:focus{border-color:var(--ocean-mid);background:var(--white);box-shadow:0 0 0 4px rgba(91,163,201,.13);}
+  .input::placeholder{color:var(--text3);}
+
+  /* ── 버튼 ── */
+  .btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;padding:11px 22px;border-radius:12px;font-size:13px;font-weight:700;font-family:'Nunito',sans-serif;cursor:pointer;border:none;transition:all .2s;}
+  .btn-primary{background:linear-gradient(135deg,var(--ocean-mid),var(--ocean-deep));color:#fff;width:100%;padding:14px;font-size:15px;box-shadow:0 6px 20px rgba(61,132,170,.28);}
+  .btn-primary:hover{transform:translateY(-2px);box-shadow:0 10px 28px rgba(61,132,170,.36);}
+
+  /* ── 달력 레이아웃 ── */
+  .calendar-layout{display:grid;grid-template-columns:1fr 290px;gap:18px;align-items:start;}
+  @media(max-width:740px){.calendar-layout{grid-template-columns:1fr;}}
+
+  .calendar-card{background:var(--white);border:1.5px solid var(--border);border-radius:24px;box-shadow:0 6px 28px var(--shadow);overflow:hidden;}
+  .cal-nav{display:flex;align-items:center;justify-content:space-between;padding:18px 22px 14px;border-bottom:1.5px solid var(--border2);}
+  .cal-month-title{font-family:'Nunito',sans-serif;font-weight:800;font-size:20px;color:var(--ocean-deep);}
+  .cal-nav-btn{width:34px;height:34px;background:var(--foam);border:1.5px solid var(--border);border-radius:10px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:18px;color:var(--text2);transition:all .18s;}
+  .cal-nav-btn:hover{background:var(--ocean-pale);border-color:var(--ocean-mid);color:var(--ocean-deep);}
+
+  .cal-tip{padding:10px 22px;background:var(--foam2);border-bottom:1.5px solid var(--border2);font-size:12px;color:var(--text3);font-weight:500;}
+  .cal-tip b{color:var(--ocean-deep);}
+
+  .cal-weekdays{display:grid;grid-template-columns:repeat(7,1fr);padding:8px 14px 4px;}
+  .cal-weekday{text-align:center;font-size:11px;font-weight:700;color:var(--text3);font-family:'Nunito',sans-serif;letter-spacing:.5px;padding:4px 0;}
+  .cal-weekday.sun{color:var(--holiday);}
+  .cal-weekday.sat{color:var(--ocean-mid);}
+
+  .cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;padding:4px 10px 16px;}
+
+  .cal-day{
+    aspect-ratio:1;border-radius:10px;
+    display:flex;flex-direction:column;
+    align-items:center;justify-content:center;
+    cursor:pointer;transition:all .15s;
+    position:relative;font-family:'Nunito',sans-serif;
+    border:1.5px solid transparent;gap:1px;
+    -webkit-tap-highlight-color:transparent;
+    overflow:hidden;
+  }
+  .cal-day:hover:not(.empty):not(.other-month){background:var(--foam);border-color:var(--border);transform:scale(1.06);}
+  .cal-day.empty{cursor:default;}
+  .cal-day.other-month{opacity:.22;cursor:default;pointer-events:none;}
+
+  .day-num{font-size:12px;font-weight:800;line-height:1;color:var(--text);z-index:1;}
+  .cal-day.sunday   .day-num{color:var(--holiday);}
+  .cal-day.saturday .day-num{color:var(--ocean-mid);}
+  .cal-day.holiday  .day-num{color:var(--holiday);}
+
+  .cal-day.today{background:var(--sun-light);border-color:var(--sun);}
+  .cal-day.today .day-num{color:#b07a00;}
+
+  /* 내가 가능 표시한 날 */
+  .cal-day.my-available{background:var(--mint-light);border-color:var(--mint);}
+  .cal-day.my-available .day-num{color:var(--mint-deep);}
+
+  /* 확정된 날 */
+  .cal-day.confirmed-day{background:linear-gradient(135deg,var(--mint-light),#b8f0e0);border-color:var(--mint-deep)!important;box-shadow:0 2px 10px rgba(58,184,150,.25);}
+  .cal-day.confirmed-day .day-num{color:var(--mint-deep);}
+
+  /* 선택된 날 링 */
+  .cal-day.selected::after{content:'';position:absolute;inset:-1px;border-radius:11px;border:2.5px solid var(--ocean-deep);pointer-events:none;z-index:2;}
+
+  /* 공휴일 */
+  .cal-day.holiday:not(.my-available):not(.confirmed-day){background:var(--holiday-bg);}
+  .holiday-name{position:absolute;bottom:calc(100% + 6px);left:50%;transform:translateX(-50%);background:var(--text);color:#fff;font-size:10px;font-weight:600;padding:3px 8px;border-radius:6px;white-space:nowrap;pointer-events:none;opacity:0;transition:opacity .15s;z-index:20;font-family:'Noto Sans KR',sans-serif;}
+  .cal-day.holiday:hover .holiday-name{opacity:1;}
+
+  /* 이름 태그들 (달력 셀 안) */
+  .name-tags{display:flex;flex-wrap:wrap;gap:1px;justify-content:center;padding:0 2px;max-width:100%;}
+  .name-tag{font-size:8px;font-weight:700;font-family:'Nunito',sans-serif;padding:1px 3px;border-radius:3px;background:var(--mint-deep);color:#fff;white-space:nowrap;max-width:28px;overflow:hidden;text-overflow:ellipsis;}
+  .name-tag.leader-tag{background:var(--gold);color:#7a5800;}
+
+  .confirmed-star{position:absolute;top:2px;right:3px;font-size:8px;z-index:1;}
+
+  /* ── 사이드 패널 ── */
+  .side-panel{display:flex;flex-direction:column;gap:14px;}
+  .side-card{background:var(--white);border:1.5px solid var(--border);border-radius:20px;box-shadow:0 4px 20px var(--shadow);overflow:hidden;}
+  .side-header{background:linear-gradient(135deg,var(--ocean-pale),var(--foam));padding:16px 20px 12px;border-bottom:1.5px solid var(--border2);}
+  .side-header-title{font-family:'Nunito',sans-serif;font-weight:800;font-size:18px;color:var(--ocean-deep);line-height:1.2;}
+  .side-header-sub{font-size:12px;color:var(--text3);margin-top:3px;font-weight:500;}
+  .side-body{padding:16px 18px;}
+
+  .field-label{font-size:11px;font-weight:700;color:var(--text3);letter-spacing:1px;text-transform:uppercase;font-family:'Nunito',sans-serif;margin-bottom:8px;display:block;}
+
+  /* 투표 버튼 */
+  .avail-btn{width:100%;padding:14px;border-radius:14px;font-size:16px;font-weight:800;font-family:'Nunito',sans-serif;cursor:pointer;border:2px solid transparent;transition:all .18s;text-align:center;margin-bottom:10px;}
+  .avail-btn.on{background:var(--mint-light);color:var(--mint-deep);border-color:rgba(142,223,200,.5);}
+  .avail-btn.on:hover,.avail-btn.on.active{background:var(--mint);border-color:var(--mint-deep);box-shadow:0 4px 16px rgba(142,223,200,.5);transform:translateY(-2px);}
+  .avail-btn.off{background:var(--coral-light);color:#c05840;border-color:rgba(244,160,136,.4);}
+  .avail-btn.off:hover,.avail-btn.off.active{background:#f4bfb4;border-color:var(--coral);box-shadow:0 4px 16px rgba(244,160,136,.4);transform:translateY(-2px);}
+
+  /* 액션 버튼 */
+  .action-btn{width:100%;padding:11px;border-radius:12px;font-size:13px;font-weight:700;font-family:'Nunito',sans-serif;cursor:pointer;border:none;transition:all .2s;margin-bottom:7px;display:flex;align-items:center;justify-content:center;gap:6px;}
+  .action-btn.leader-action{background:linear-gradient(135deg,var(--gold),#e8a800);color:#5a3c00;box-shadow:0 3px 14px rgba(245,200,66,.4);}
+  .action-btn.leader-action:hover{transform:translateY(-1px);box-shadow:0 6px 18px rgba(245,200,66,.5);}
+  .action-btn.danger{background:var(--coral-light);color:#c05840;}
+  .action-btn.danger:hover{background:#f4bfb4;}
+
+  /* 투표자 칩 */
+  .voter-list{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px;}
+  .voter-chip{display:flex;align-items:center;gap:4px;padding:4px 11px;border-radius:20px;font-size:12px;font-weight:700;font-family:'Nunito',sans-serif;}
+  .voter-chip.yes{background:var(--mint-light);color:var(--mint-deep);}
+  .voter-chip.leader-chip{background:var(--gold-light);color:#8a6000;border:1px solid var(--gold);}
+
+  .empty-hint{padding:24px 18px;text-align:center;color:var(--text3);}
+  .empty-hint .e{font-size:36px;display:block;margin-bottom:10px;opacity:.5;animation:float 3s ease-in-out infinite;}
+  .empty-hint p{font-size:13px;line-height:1.7;}
+
+  /* 범례 */
+  .legend-card{background:rgba(255,255,255,.72);border:1.5px solid var(--border2);border-radius:16px;padding:14px 16px;}
+  .legend-title{font-size:11px;font-weight:700;color:var(--text3);letter-spacing:1px;text-transform:uppercase;font-family:'Nunito',sans-serif;margin-bottom:9px;}
+  .legend-items{display:flex;flex-direction:column;gap:6px;}
+  .legend-item{display:flex;align-items:center;gap:9px;font-size:12px;color:var(--text2);font-weight:500;}
+  .legend-dot{width:20px;height:20px;border-radius:6px;border:1.5px solid transparent;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:9px;}
+
+  /* ── 정산 탭 ── */
+  .settle-layout{display:grid;grid-template-columns:1fr 1fr;gap:18px;align-items:start;}
+  @media(max-width:680px){.settle-layout{grid-template-columns:1fr;}}
+
+  .settle-card{background:var(--white);border:1.5px solid var(--border);border-radius:20px;box-shadow:0 4px 20px var(--shadow);overflow:hidden;}
+  .settle-card-header{padding:16px 20px 12px;border-bottom:1.5px solid var(--border2);background:linear-gradient(135deg,var(--ocean-pale),var(--foam));}
+  .settle-card-title{font-family:'Nunito',sans-serif;font-weight:800;font-size:16px;color:var(--ocean-deep);}
+  .settle-body{padding:18px 20px;}
+
+  .form-row{display:flex;flex-direction:column;gap:5px;margin-bottom:13px;}
+  .form-label{font-size:11px;font-weight:700;color:var(--text3);letter-spacing:1px;text-transform:uppercase;font-family:'Nunito',sans-serif;}
+  .form-input{background:var(--foam);border:1.5px solid var(--border);border-radius:10px;padding:10px 13px;color:var(--text);font-size:14px;font-family:'Noto Sans KR',sans-serif;outline:none;transition:all .2s;width:100%;}
+  .form-input:focus{border-color:var(--ocean-mid);background:var(--white);}
+  .form-input::placeholder{color:var(--text3);}
+
+  /* 정산 결과 카드 */
+  .settle-result-card{background:var(--white);border:1.5px solid var(--border);border-radius:20px;box-shadow:0 4px 20px var(--shadow);overflow:hidden;}
+
+  /* 공유용 카드 (캡처 영역) */
+  .share-card{
+    background:linear-gradient(145deg,#e8f6fd,#d4eef8);
+    border:2px solid var(--ocean-pale);
+    border-radius:20px; padding:24px;
+    font-family:'Nunito',sans-serif;
+    position:relative; overflow:hidden;
+  }
+  .share-card::before{
+    content:'🌊'; position:absolute;
+    right:-10px; bottom:-20px;
+    font-size:80px; opacity:.08;
+  }
+  .share-card-title{
+    font-weight:900; font-size:18px;
+    color:var(--ocean-deep); margin-bottom:4px;
+  }
+  .share-card-date{font-size:12px;color:var(--text3);margin-bottom:18px;font-weight:500;}
+
+  .share-total{
+    background:var(--ocean-deep); color:#fff;
+    border-radius:12px; padding:14px 18px;
+    margin-bottom:14px;
+  }
+  .share-total-label{font-size:11px;letter-spacing:1px;opacity:.7;margin-bottom:2px;}
+  .share-total-amount{font-size:28px;font-weight:900;}
+  .share-total-detail{font-size:11px;opacity:.7;margin-top:2px;}
+
+  .share-per-person{
+    background:var(--white); border:1.5px solid var(--border);
+    border-radius:12px; padding:14px 18px; margin-bottom:14px;
+  }
+  .share-per-label{font-size:11px;color:var(--text3);letter-spacing:1px;margin-bottom:4px;}
+  .share-per-amount{font-size:24px;font-weight:900;color:var(--mint-deep);}
+  .share-per-sub{font-size:11px;color:var(--text3);margin-top:2px;}
+
+  .share-account{
+    background:linear-gradient(135deg,var(--mint-light),#c0f0e0);
+    border-radius:12px; padding:14px 18px;
+    border:1.5px solid var(--mint);
+  }
+  .share-account-label{font-size:11px;color:var(--mint-deep);letter-spacing:1px;margin-bottom:6px;font-weight:700;}
+  .share-account-bank{font-size:13px;font-weight:700;color:var(--text);}
+  .share-account-num{font-size:18px;font-weight:900;color:var(--ocean-deep);letter-spacing:1px;margin:3px 0;}
+  .share-account-name{font-size:12px;color:var(--text2);}
+
+  .share-members{margin-top:14px;}
+  .share-members-title{font-size:11px;color:var(--text3);letter-spacing:1px;margin-bottom:8px;font-weight:700;}
+  .share-member-row{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:8px 12px; border-radius:10px; background:rgba(255,255,255,.6);
+    margin-bottom:5px; border:1px solid rgba(194,224,240,.5);
+  }
+  .share-member-name{font-size:13px;font-weight:700;color:var(--text);}
+  .share-member-amount{font-size:13px;font-weight:900;color:var(--mint-deep);}
+  .share-member-status{font-size:11px;color:var(--text3);}
+
+  /* 정산 히스토리 목록 */
+  .settle-list{display:flex;flex-direction:column;gap:10px;}
+  .settle-item{
+    background:var(--white);border:1.5px solid var(--border);
+    border-radius:14px;padding:14px 18px;
+    cursor:pointer;transition:all .18s;
+    box-shadow:0 2px 10px var(--shadow);
+  }
+  .settle-item:hover{border-color:var(--ocean-mid);transform:translateY(-1px);box-shadow:0 6px 18px var(--shadow2);}
+  .settle-item-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;}
+  .settle-item-name{font-weight:700;font-size:15px;color:var(--text);font-family:'Nunito',sans-serif;}
+  .settle-item-amount{font-weight:900;font-size:16px;color:var(--ocean-deep);font-family:'Nunito',sans-serif;}
+  .settle-item-sub{font-size:12px;color:var(--text3);}
+
+  /* 토스트 */
+  .toast{position:fixed;bottom:24px;right:24px;background:var(--white);border:2px solid var(--border);border-radius:14px;padding:12px 18px;font-size:13px;font-weight:600;font-family:'Nunito',sans-serif;color:var(--text);z-index:200;transform:translateY(80px);opacity:0;transition:all .3s cubic-bezier(.34,1.56,.64,1);box-shadow:0 8px 30px var(--shadow2);max-width:260px;}
+  .toast.show{transform:translateY(0);opacity:1;}
+  .toast.success{border-color:var(--mint);}
+  .toast.error{border-color:var(--coral);}
+
+  .coming-soon{text-align:center;padding:90px 0;}
+  .coming-soon .big{font-family:'Nunito',sans-serif;font-weight:900;font-size:48px;color:var(--border);letter-spacing:2px;margin-bottom:14px;}
+  .coming-soon p{font-size:15px;color:var(--text3);}
+
+  /* 섹션 헤더 */
+  .section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;}
+  .section-title{font-family:'Nunito',sans-serif;font-weight:800;font-size:18px;color:var(--ocean-deep);}
+  .section-sub{font-size:12px;color:var(--text3);font-weight:400;margin-left:8px;}
+
+  @media(max-width:600px){
+    header{padding:0 14px;}
+    .container{padding:18px 12px 60px;}
+    .modal-card{width:88vw;padding:36px 22px;}
+    .tab{padding:10px 12px 12px;font-size:12px;}
+  }
+</style>
+</head>
+<body>
+
+<!-- 이름 모달 -->
+<div class="modal-overlay" id="nameModal">
+  <div class="modal-card">
+    <span class="modal-emoji">🌊</span>
+    <div class="modal-title">Band Manager</div>
+    <p class="modal-desc">이름을 입력하면<br>모든 기능을 사용할 수 있어요!</p>
+    <input class="input" id="nameInput" placeholder="내 이름 입력..." maxlength="12" autocomplete="off" style="text-align:center">
+    <button class="btn btn-primary" onclick="saveName()">시작하기 🎸</button>
+  </div>
+</div>
+
+<!-- 헤더 -->
+<header>
+  <div class="header-top">
+    <div class="logo">
+      <div class="logo-icon">🎸</div>
+      <div>
+        <div class="logo-text">Band Manager</div>
+        <span class="logo-sub">Schedule · Songs · Score</span>
+      </div>
+    </div>
+    <div class="header-right">
+      <div class="role-badge" id="roleBadge" style="display:none"></div>
+      <div class="user-badge" onclick="changeName()">
+        <div class="user-dot"></div>
+        <span id="userDisplay">...</span>
+      </div>
+    </div>
+  </div>
+  <nav class="tabs">
+    <div class="tab active" onclick="showTab('dates',this)">📅 날짜 정하기</div>
+    <div class="tab" onclick="showTab('songs',this)">🎵 곡 정하기</div>
+    <div class="tab" onclick="showTab('scores',this)">📄 악보 창고</div>
+    <div class="tab" onclick="showTab('videos',this)">🎬 연습 영상</div>
+    <div class="tab" onclick="showTab('settle',this)">💰 정산</div>
+    <div class="tab" onclick="showTab('recruit',this)">🎸 Recruit</div>
+  </nav>
+</header>
+
+<div class="container">
+
+  <!-- ── 날짜 정하기 ── -->
+  <div id="tab-dates">
+    <div class="calendar-layout">
+      <div class="calendar-card">
+        <div class="cal-nav">
+          <button class="cal-nav-btn" onclick="changeMonth(-1)">‹</button>
+          <div class="cal-month-title" id="calTitle"></div>
+          <button class="cal-nav-btn" onclick="changeMonth(1)">›</button>
+        </div>
+        <div class="cal-tip">
+          <b>내가 가능한 날짜를 클릭</b>해서 표시하세요 · 리더가 최종 날짜를 확정해요
+        </div>
+        <div class="cal-weekdays">
+          <div class="cal-weekday sun">일</div>
+          <div class="cal-weekday">월</div>
+          <div class="cal-weekday">화</div>
+          <div class="cal-weekday">수</div>
+          <div class="cal-weekday">목</div>
+          <div class="cal-weekday">금</div>
+          <div class="cal-weekday sat">토</div>
+        </div>
+        <div class="cal-grid" id="calGrid"></div>
+      </div>
+
+      <div class="side-panel">
+        <div class="side-card" id="sideCard">
+          <div class="empty-hint">
+            <span class="e">👆</span>
+            <p>날짜를 클릭하면<br>가능 여부를 표시할 수 있어요</p>
+          </div>
+        </div>
+        <div class="legend-card">
+          <div class="legend-title">범례</div>
+          <div class="legend-items">
+            <div class="legend-item"><div class="legend-dot" style="background:var(--mint-light);border-color:var(--mint)">✓</div>내가 가능 표시한 날</div>
+            <div class="legend-item"><div class="legend-dot" style="background:linear-gradient(135deg,var(--mint-light),#b8f0e0);border-color:var(--mint-deep)">★</div>리더가 확정한 날</div>
+            <div class="legend-item"><div class="legend-dot" style="background:var(--sun-light);border-color:var(--sun)"></div>오늘</div>
+            <div class="legend-item"><div class="legend-dot" style="background:var(--holiday-bg);border-color:rgba(224,112,112,.4);color:var(--holiday);font-size:10px">●</div>공휴일</div>
+            <div class="legend-item"><div class="legend-dot" style="background:var(--gold-light);border-color:var(--gold)">👑</div>리더 이름</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── 정산 탭 ── -->
+  <div id="tab-settle" style="display:none">
+    <div class="section-header">
+      <div class="section-title">💰 정산 <span class="section-sub">합주비 1/N 정산</span></div>
+    </div>
+    <div class="settle-layout">
+
+      <!-- 좌측: 새 정산 입력 (리더만) / 히스토리 -->
+      <div>
+        <!-- 리더 전용 입력 폼 -->
+        <div id="leaderSettleForm" style="display:none">
+          <div class="settle-card" style="margin-bottom:18px">
+            <div class="settle-card-header">
+              <div class="settle-card-title">👑 새 정산 만들기</div>
+            </div>
+            <div class="settle-body">
+              <div class="form-row">
+                <label class="form-label">합주실 이름</label>
+                <input class="form-input" id="sRoomName" placeholder="ex) 홍대 스튜디오A">
+              </div>
+              <div class="form-row">
+                <label class="form-label">날짜</label>
+                <input class="form-input" type="date" id="sDate">
+              </div>
+              <div class="form-row">
+                <label class="form-label">시간</label>
+                <input class="form-input" id="sTime" placeholder="ex) 14:00 ~ 17:00 (3시간)">
+              </div>
+              <div class="form-row">
+                <label class="form-label">총 금액 (원)</label>
+                <input class="form-input" type="number" id="sTotalAmt" placeholder="ex) 90000" oninput="calcSettle()">
+              </div>
+              <div class="form-row">
+                <label class="form-label">인원수</label>
+                <input class="form-input" type="number" id="sMemberCnt" placeholder="ex) 5" min="1" oninput="calcSettle()">
+              </div>
+              <div class="form-row">
+                <label class="form-label">결제자 계좌</label>
+                <input class="form-input" id="sBank" placeholder="ex) 카카오뱅크">
+                <input class="form-input" id="sAccountNum" placeholder="계좌번호 ex) 3333-01-1234567" style="margin-top:6px">
+                <input class="form-input" id="sAccountName" placeholder="예금주 ex) 민지" style="margin-top:6px">
+              </div>
+
+              <!-- 미리보기 -->
+              <div id="settlePreview" style="display:none;margin-bottom:14px">
+                <div style="font-size:11px;font-weight:700;color:var(--text3);letter-spacing:1px;text-transform:uppercase;font-family:'Nunito',sans-serif;margin-bottom:8px">미리보기</div>
+                <div style="background:var(--foam);border:1.5px solid var(--border);border-radius:12px;padding:12px 16px;">
+                  <div style="display:flex;justify-content:space-between;align-items:center">
+                    <span style="font-size:13px;color:var(--text2)">1인당 금액</span>
+                    <span style="font-size:20px;font-weight:900;color:var(--mint-deep);font-family:'Nunito',sans-serif" id="previewAmt">-</span>
+                  </div>
+                </div>
+              </div>
+
+              <button class="action-btn leader-action" onclick="createSettle()">💰 정산 카드 생성</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- 비리더 안내 -->
+        <div id="memberSettleHint" style="display:none;margin-bottom:18px">
+          <div class="settle-card">
+            <div class="settle-body" style="text-align:center;padding:28px 20px">
+              <div style="font-size:36px;margin-bottom:10px">💸</div>
+              <div style="font-size:14px;color:var(--text2);line-height:1.7">리더가 정산 카드를 생성하면<br>여기서 확인하고 송금할 수 있어요!</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 정산 히스토리 -->
+        <div class="settle-card">
+          <div class="settle-card-header">
+            <div class="settle-card-title">📋 정산 내역</div>
+          </div>
+          <div class="settle-body">
+            <div id="settleList">
+              <div style="text-align:center;padding:30px 0;color:var(--text3);font-size:13px">아직 정산 내역이 없어요</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 우측: 정산 카드 (캡처용) -->
+      <div>
+        <div id="settleCardArea">
+          <div class="settle-card">
+            <div class="settle-body" style="text-align:center;padding:40px 20px">
+              <div style="font-size:40px;margin-bottom:12px;animation:float 3s ease-in-out infinite">💳</div>
+              <div style="font-size:14px;color:var(--text2);line-height:1.7">정산 내역을 선택하면<br>공유용 카드가 여기 나와요!</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- 나머지 탭 -->
+  <div id="tab-songs"   style="display:none"><div class="coming-soon"><div class="big">COMING SOON</div><p>🎵 곡 정하기 기능 준비 중이에요</p></div></div>
+  <div id="tab-scores"  style="display:none"><div class="coming-soon"><div class="big">COMING SOON</div><p>📄 악보 창고 기능 준비 중이에요</p></div></div>
+  <div id="tab-videos"  style="display:none"><div class="coming-soon"><div class="big">COMING SOON</div><p>🎬 연습 영상 기능 준비 중이에요</p></div></div>
+  <div id="tab-recruit" style="display:none"><div class="coming-soon"><div class="big">COMING SOON</div><p>🎸 Recruit 기능 준비 중이에요</p></div></div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ── 설정 ──
+const SUPABASE_URL = 'https://tdovjsqkquybktmedewu.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_O03HB6BfZzOe1tFYGDDVuw_KtJKNoSu';
+const LEADER_KEYWORD = '우준';
+const ADMIN_KEYWORD  = 'mingy';
+
+const { createClient } = supabase;
+const db = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+let myName = localStorage.getItem('bm_name') || '';
+let isLeader = false, isAdmin = false;
+let proposals = [], votes = [], settles = [];
+let curYear, curMonth;
+let selectedDate = null;
+
+const HOLIDAYS = {
+  '2024-01-01':'신정','2024-02-09':'설날 연휴','2024-02-10':'설날','2024-02-11':'설날 연휴','2024-02-12':'대체공휴일','2024-03-01':'삼일절','2024-04-10':'국회의원선거일','2024-05-05':'어린이날','2024-05-06':'대체공휴일','2024-05-15':'부처님오신날','2024-06-06':'현충일','2024-08-15':'광복절','2024-09-16':'추석 연휴','2024-09-17':'추석','2024-09-18':'추석 연휴','2024-10-03':'개천절','2024-10-09':'한글날','2024-12-25':'크리스마스',
+  '2025-01-01':'신정','2025-01-28':'설날 연휴','2025-01-29':'설날','2025-01-30':'설날 연휴','2025-03-01':'삼일절','2025-05-05':'어린이날','2025-05-06':'부처님오신날','2025-06-06':'현충일','2025-08-15':'광복절','2025-10-03':'개천절','2025-10-05':'추석 연휴','2025-10-06':'추석','2025-10-07':'추석 연휴','2025-10-08':'대체공휴일','2025-10-09':'한글날','2025-12-25':'크리스마스',
+  '2026-01-01':'신정','2026-02-16':'설날 연휴','2026-02-17':'설날','2026-02-18':'설날 연휴','2026-03-01':'삼일절','2026-05-05':'어린이날','2026-05-24':'부처님오신날','2026-06-06':'현충일','2026-08-15':'광복절','2026-09-24':'추석 연휴','2026-09-25':'추석','2026-09-26':'추석 연휴','2026-10-03':'개천절','2026-10-09':'한글날','2026-12-25':'크리스마스',
+};
+
+// ── 초기화 ──
+window.onload = () => {
+  const now = new Date();
+  curYear = now.getFullYear(); curMonth = now.getMonth();
+  document.getElementById('nameInput').addEventListener('keydown', e => { if(e.key==='Enter') saveName(); });
+  if (myName) {
+    document.getElementById('nameModal').style.display = 'none';
+    initUser(myName);
+    loadAll();
+  } else {
+    setTimeout(() => document.getElementById('nameInput').focus(), 100);
+  }
+};
+
+function initUser(name) {
+  isLeader = name.includes(LEADER_KEYWORD);
+  isAdmin  = name.includes(ADMIN_KEYWORD);
+  document.getElementById('userDisplay').textContent = name;
+  const rb = document.getElementById('roleBadge');
+  if (isAdmin) {
+    rb.style.display = 'block'; rb.className = 'role-badge admin'; rb.textContent = '⚙ 어드민';
+  } else if (isLeader) {
+    rb.style.display = 'block'; rb.className = 'role-badge leader'; rb.textContent = '👑 리더';
+  } else {
+    rb.style.display = 'none';
+  }
+  // 정산 폼 표시 여부
+  if (document.getElementById('leaderSettleForm')) {
+    document.getElementById('leaderSettleForm').style.display = (isLeader||isAdmin) ? 'block' : 'none';
+    document.getElementById('memberSettleHint').style.display = (isLeader||isAdmin) ? 'none' : 'block';
+  }
+}
+
+function saveName() {
+  const n = document.getElementById('nameInput').value.trim();
+  if (!n) return showToast('이름을 입력해주세요 🌊','error');
+  myName = n; localStorage.setItem('bm_name', n);
+  document.getElementById('nameModal').style.display = 'none';
+  initUser(n);
+  loadAll();
+}
+function changeName() {
+  const n = prompt('이름 변경:', myName);
+  if (!n?.trim()) return;
+  myName = n.trim(); localStorage.setItem('bm_name', myName);
+  initUser(myName);
+  showToast('이름 변경 완료! 🌊','success');
+  renderCalendar();
+}
+function showTab(tab, el) {
+  document.querySelectorAll('[id^="tab-"]').forEach(t => t.style.display='none');
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('tab-'+tab).style.display = 'block';
+  el.classList.add('active');
+  if (tab==='settle') renderSettleList();
+}
+
+// ── 데이터 로드 ──
+async function loadAll() {
+  const [pR, vR, sR] = await Promise.all([
+    db.from('band_date_proposals').select('*'),
+    db.from('band_date_votes').select('*'),
+    db.from('band_settlements').select('*').order('created_at', {ascending:false})
+  ]);
+  proposals = pR.data||[];
+  votes     = vR.data||[];
+  settles   = sR.data||[];
+  renderCalendar();
+}
+
+// ── 달력 렌더링 ──
+function changeMonth(dir) {
+  curMonth += dir;
+  if(curMonth>11){curMonth=0;curYear++;}
+  if(curMonth<0){curMonth=11;curYear--;}
+  selectedDate = null;
+  renderCalendar();
+  document.getElementById('sideCard').innerHTML = `<div class="empty-hint"><span class="e">👆</span><p>날짜를 클릭하면<br>가능 여부를 표시할 수 있어요</p></div>`;
+}
+
+function renderCalendar() {
+  const MO=['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월'];
+  document.getElementById('calTitle').textContent = `${curYear}년 ${MO[curMonth]}`;
+
+  const todayStr  = toDS(new Date());
+  const firstDow  = new Date(curYear, curMonth, 1).getDay();
+  const daysInMo  = new Date(curYear, curMonth+1, 0).getDate();
+  const daysInPr  = new Date(curYear, curMonth, 0).getDate();
+
+  // 날짜별 인덱스
+  const propMap={}, voteMap={};
+  proposals.forEach(p => { propMap[p.proposed_date] = p; });
+  votes.forEach(v => {
+    const p = proposals.find(pp=>pp.id===v.proposal_id);
+    if(p){
+      if(!voteMap[p.proposed_date]) voteMap[p.proposed_date]=[];
+      voteMap[p.proposed_date].push(v);
+    }
+  });
+
+  let html='';
+  for(let i=0;i<firstDow;i++){
+    html+=`<div class="cal-day other-month"><span class="day-num">${daysInPr-firstDow+1+i}</span></div>`;
+  }
+
+  for(let d=1;d<=daysInMo;d++){
+    const ds  = `${curYear}-${String(curMonth+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const dow = new Date(curYear,curMonth,d).getDay();
+    const isHol  = !!HOLIDAYS[ds];
+    const isToday= ds===todayStr;
+    const prop   = propMap[ds];
+    const dv     = voteMap[ds]||[];
+    const myVote = dv.find(v=>v.voter_name===myName && v.available);
+    const isSel  = ds===selectedDate;
+
+    let cls='cal-day';
+    if(dow===0) cls+=' sunday';
+    if(dow===6) cls+=' saturday';
+    if(isHol)   cls+=' holiday';
+    if(isToday) cls+=' today';
+    if(prop?.is_confirmed) cls+=' confirmed-day';
+    else if(myVote)        cls+=' my-available';
+    if(isSel)              cls+=' selected';
+
+    // 이름 태그 (가능한 사람들)
+    const availVoters = dv.filter(v=>v.available);
+    const nameTags = availVoters.slice(0,3).map(v=>{
+      const ldr = v.voter_name.includes(LEADER_KEYWORD);
+      return `<span class="name-tag ${ldr?'leader-tag':''}">${v.voter_name.slice(0,2)}</span>`;
+    }).join('');
+    const moreTag = availVoters.length>3 ? `<span class="name-tag" style="background:var(--text3)">+${availVoters.length-3}</span>` : '';
+
+    const star   = prop?.is_confirmed ? '<span class="confirmed-star">★</span>' : '';
+    const htip   = isHol ? `<span class="holiday-name">${HOLIDAYS[ds]}</span>` : '';
+
+    html+=`<div class="${cls}" onclick="dayClick('${ds}')">
+      ${star}${htip}
+      <span class="day-num">${d}</span>
+      <div class="name-tags">${nameTags}${moreTag}</div>
+    </div>`;
+  }
+
+  const total=firstDow+daysInMo;
+  const rem=total%7===0?0:7-(total%7);
+  for(let i=1;i<=rem;i++) html+=`<div class="cal-day other-month"><span class="day-num">${i}</span></div>`;
+
+  document.getElementById('calGrid').innerHTML=html;
+}
+
+// ── 날짜 클릭 ──
+function dayClick(ds) {
+  selectedDate=ds;
+  renderCalendar();
+  renderSide(ds);
+}
+
+function renderSide(ds) {
+  const card=document.getElementById('sideCard');
+  const d=new Date(ds+'T00:00:00');
+  const WD=['일','월','화','수','목','금','토'];
+  const MO=['1','2','3','4','5','6','7','8','9','10','11','12'];
+  const isHol=!!HOLIDAYS[ds];
+  const prop=proposals.find(p=>p.proposed_date===ds);
+  const dv=prop?votes.filter(v=>v.proposal_id===prop.id):[];
+  const myVote=dv.find(v=>v.voter_name===myName);
+  const availVoters=dv.filter(v=>v.available);
+
+  const holBadge=isHol?`<span style="background:var(--holiday-bg);color:var(--holiday);border:1px solid rgba(224,112,112,.35);border-radius:8px;padding:2px 8px;font-size:11px;font-weight:700;font-family:'Nunito',sans-serif">${HOLIDAYS[ds]}</span>`:'';
+
+  const chips=availVoters.length
+    ?availVoters.map(v=>{
+        const ldr=v.voter_name.includes(LEADER_KEYWORD);
+        return `<div class="voter-chip ${ldr?'leader-chip':'yes'}">${ldr?'👑':''} ${v.voter_name}</div>`;
+      }).join('')
+    :`<span style="font-size:12px;color:var(--text3)">아직 아무도 표시 안 했어요</span>`;
+
+  // 내 현재 상태
+  const isMeAvail = myVote?.available === true;
+
+  const leaderActions = (isLeader||isAdmin) && prop ? `
+    ${!prop.is_confirmed && availVoters.length>0
+      ?`<button class="action-btn leader-action" style="margin-top:4px" onclick="confirmDate('${prop.id}','${ds}')">📌 이 날짜로 확정</button>`:''}
+    ${prop.is_confirmed
+      ?`<div style="text-align:center;padding:8px;font-size:13px;color:var(--mint-deep);font-weight:700;font-family:'Nunito',sans-serif">🎉 확정된 날짜!</div>`:''}
+    ${(isAdmin)
+      ?`<button class="action-btn danger" onclick="deleteProposal('${prop.id}','${ds}')">제안 삭제 (어드민)</button>`:''}
+  `:''
+
+  card.innerHTML=`
+    <div class="side-header">
+      <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+        <div class="side-header-title">${MO[d.getMonth()]}월 ${d.getDate()}일 (${WD[d.getDay()]})</div>
+        ${holBadge}
+      </div>
+      <div class="side-header-sub">가능 ${availVoters.length}명</div>
+    </div>
+    <div class="side-body">
+      <span class="field-label">내 가능 여부</span>
+      <button class="avail-btn on ${isMeAvail?'active':''}" onclick="toggleAvail('${ds}',true)">
+        ✓ 가능해요
+      </button>
+      <button class="avail-btn off ${myVote&&!myVote.available?'active':''}" onclick="toggleAvail('${ds}',false)">
+        ✗ 불가예요
+      </button>
+      <div class="voters-section" style="margin-top:12px">
+        <span class="field-label">가능한 멤버 (${availVoters.length}명)</span>
+        <div class="voter-list">${chips}</div>
+      </div>
+      ${leaderActions}
+    </div>`;
+}
+
+// ── 가능 여부 토글 ──
+async function toggleAvail(ds, available) {
+  // proposal 없으면 자동 생성
+  let prop=proposals.find(p=>p.proposed_date===ds);
+  if(!prop){
+    const {data,error}=await db.from('band_date_proposals').insert({proposed_date:ds,proposed_by:myName,note:null}).select().single();
+    if(error) return showToast('오류: '+error.message,'error');
+    prop=data; proposals.push(prop);
+  }
+  const {error}=await db.from('band_date_votes').upsert(
+    {proposal_id:prop.id,voter_name:myName,available},
+    {onConflict:'proposal_id,voter_name'}
+  );
+  if(error) return showToast('저장 실패: '+error.message,'error');
+  showToast(available?'✓ 가능으로 표시했어요!':'✗ 불가로 표시했어요!','success');
+  await loadAll();
+  renderSide(ds);
+}
+
+// ── 날짜 확정 (리더) ──
+async function confirmDate(id,ds){
+  if(!confirm('이 날짜로 확정할까요?')) return;
+  await db.from('band_date_proposals').update({is_confirmed:false}).neq('id',id);
+  const {error}=await db.from('band_date_proposals').update({is_confirmed:true}).eq('id',id);
+  if(error) return showToast('확정 실패: '+error.message,'error');
+  showToast('🎉 날짜 확정!','success');
+  await loadAll(); renderSide(ds);
+}
+
+// ── 삭제 (어드민) ──
+async function deleteProposal(id,ds){
+  if(!confirm('삭제할까요?')) return;
+  await db.from('band_date_proposals').delete().eq('id',id);
+  await loadAll(); renderSide(ds);
+}
+
+// ── 정산 ──
+function calcSettle(){
+  const total=parseInt(document.getElementById('sTotalAmt')?.value)||0;
+  const cnt=parseInt(document.getElementById('sMemberCnt')?.value)||0;
+  const prev=document.getElementById('settlePreview');
+  if(total>0&&cnt>0){
+    const per=Math.ceil(total/cnt);
+    document.getElementById('previewAmt').textContent=per.toLocaleString()+'원';
+    prev.style.display='block';
+  } else {
+    prev.style.display='none';
+  }
+}
+
+async function createSettle(){
+  const roomName=document.getElementById('sRoomName').value.trim();
+  const date=document.getElementById('sDate').value;
+  const time=document.getElementById('sTime').value.trim();
+  const totalAmt=parseInt(document.getElementById('sTotalAmt').value)||0;
+  const memberCnt=parseInt(document.getElementById('sMemberCnt').value)||0;
+  const bank=document.getElementById('sBank').value.trim();
+  const accountNum=document.getElementById('sAccountNum').value.trim();
+  const accountName=document.getElementById('sAccountName').value.trim();
+
+  if(!roomName||!date||!totalAmt||!memberCnt) return showToast('필수 항목을 채워주세요','error');
+
+  const perPerson=Math.ceil(totalAmt/memberCnt);
+  const {data,error}=await db.from('band_settlements').insert({
+    room_name:roomName, date, time, total_amount:totalAmt,
+    member_count:memberCnt, per_person:perPerson,
+    bank, account_num:accountNum, account_name:accountName,
+    created_by:myName
+  }).select().single();
+
+  if(error) return showToast('생성 실패: '+error.message,'error');
+  showToast('💰 정산 카드 생성 완료!','success');
+  settles.unshift(data);
+  renderSettleList();
+  renderSettleCard(data);
+
+  // 폼 초기화
+  ['sRoomName','sDate','sTime','sTotalAmt','sMemberCnt','sBank','sAccountNum','sAccountName']
+    .forEach(id=>{ document.getElementById(id).value=''; });
+  document.getElementById('settlePreview').style.display='none';
+}
+
+function renderSettleList(){
+  const el=document.getElementById('settleList');
+  if(!settles.length){
+    el.innerHTML=`<div style="text-align:center;padding:30px 0;color:var(--text3);font-size:13px">아직 정산 내역이 없어요</div>`;
+    return;
+  }
+  el.innerHTML=settles.map(s=>`
+    <div class="settle-item" onclick="renderSettleCard(${JSON.stringify(s).replace(/"/g,'&quot;')})">
+      <div class="settle-item-top">
+        <div class="settle-item-name">${s.room_name}</div>
+        <div class="settle-item-amount">${(s.per_person||0).toLocaleString()}원/인</div>
+      </div>
+      <div class="settle-item-sub">${s.date||''} ${s.time?'· '+s.time:''} · ${s.member_count}명</div>
+    </div>`).join('');
+}
+
+function renderSettleCard(s){
+  const el=document.getElementById('settleCardArea');
+  const dt=s.date?new Date(s.date+'T00:00:00'):null;
+  const MO=['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월'];
+  const dateStr=dt?`${dt.getFullYear()}년 ${MO[dt.getMonth()]} ${dt.getDate()}일`:'';
+
+  el.innerHTML=`
+    <div style="margin-bottom:10px;display:flex;align-items:center;justify-content:space-between">
+      <span style="font-size:12px;font-weight:700;color:var(--text3);font-family:'Nunito',sans-serif">📸 캡처해서 공유하세요!</span>
+    </div>
+    <div class="share-card" id="shareCardInner">
+      <div class="share-card-title">🎸 합주 정산</div>
+      <div class="share-card-date">${s.room_name} · ${dateStr} ${s.time?'· '+s.time:''}</div>
+
+      <div class="share-total">
+        <div class="share-total-label">TOTAL</div>
+        <div class="share-total-amount">${(s.total_amount||0).toLocaleString()}원</div>
+        <div class="share-total-detail">${s.member_count}명 참여</div>
+      </div>
+
+      <div class="share-per-person">
+        <div class="share-per-label">1인당 금액</div>
+        <div class="share-per-amount">${(s.per_person||0).toLocaleString()}원</div>
+        <div class="share-per-sub">총 ${(s.total_amount||0).toLocaleString()}원 ÷ ${s.member_count}명</div>
+      </div>
+
+      ${s.account_num?`
+      <div class="share-account">
+        <div class="share-account-label">💳 송금 계좌</div>
+        <div class="share-account-bank">${s.bank||''}</div>
+        <div class="share-account-num">${s.account_num}</div>
+        <div class="share-account-name">예금주: ${s.account_name||''}</div>
+      </div>`:''}
+
+      <div style="margin-top:14px;text-align:center;font-size:11px;color:var(--text3);font-family:'Nunito',sans-serif">
+        정산 요청: ${s.created_by||''} · Band Manager
+      </div>
+    </div>
+    ${(isAdmin)?`<button class="action-btn danger" style="margin-top:10px" onclick="deleteSettle('${s.id}')">정산 삭제 (어드민)</button>`:''}
+  `;
+}
+
+async function deleteSettle(id){
+  if(!confirm('정산을 삭제할까요?')) return;
+  await db.from('band_settlements').delete().eq('id',id);
+  settles=settles.filter(s=>s.id!==id);
+  renderSettleList();
+  document.getElementById('settleCardArea').innerHTML=`<div class="settle-card"><div class="settle-body" style="text-align:center;padding:40px 20px"><div style="font-size:40px;margin-bottom:12px">💳</div><div style="font-size:14px;color:var(--text2);line-height:1.7">정산 내역을 선택하면<br>공유용 카드가 여기 나와요!</div></div></div>`;
+}
+
+// ── 유틸 ──
+function toDS(d){ return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; }
+function showToast(msg,type='success'){
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.className=`toast ${type} show`;
+  setTimeout(()=>t.classList.remove('show'),2800);
+}
+</script>
+</body>
+</html>
