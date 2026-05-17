@@ -327,10 +327,81 @@
   .voter-names{font-size:11px;color:var(--text3);font-style:italic;}
 
   .round-info-card{background:var(--white);border:1.5px solid var(--border);border-radius:20px;box-shadow:0 4px 20px var(--shadow);overflow:hidden;}
+  .song-bundle{background:var(--white);border:1.5px solid var(--border);border-radius:20px;box-shadow:0 4px 20px var(--shadow);overflow:hidden;margin-bottom:14px;}
+  .song-bundle-header{padding:14px 18px 10px;border-bottom:1.5px solid var(--border2);display:flex;align-items:center;justify-content:space-between;}
+  .bundle-proposer{font-size:12px;font-weight:700;color:var(--text3);font-family:'Nunito',sans-serif;}
+  .bundle-songs{padding:10px 18px;}
+  .bundle-song-row{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border2);}
+  .bundle-song-row:last-child{border-bottom:none;}
+  .bundle-song-num{width:22px;height:22px;border-radius:50%;background:var(--ocean-pale);color:var(--ocean-deep);font-size:11px;font-weight:800;font-family:'Nunito',sans-serif;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+  .bundle-song-info{flex:1;min-width:0;}
+  .bundle-song-title{font-weight:700;font-size:14px;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .bundle-song-artist{font-size:11px;color:var(--text2);}
+  .bundle-song-yt{font-size:11px;color:var(--ocean-mid);font-weight:600;text-decoration:none;border:1px solid var(--border);border-radius:6px;padding:2px 7px;flex-shrink:0;}
+  .bundle-song-yt:hover{background:var(--ocean-pale);}
+  .bundle-footer{padding:10px 18px 14px;display:flex;align-items:center;justify-content:space-between;gap:10px;}
+  .add-song-row{display:flex;flex-direction:column;gap:8px;padding:10px 0;border-bottom:1px solid var(--border2);}
+  .add-song-row:last-child{border-bottom:none;}
+  .song-count-badge{background:var(--ocean-pale);color:var(--ocean-deep);border-radius:10px;padding:2px 9px;font-size:11px;font-weight:700;font-family:'Nunito',sans-serif;}
 
   .coming-soon{text-align:center;padding:90px 0;}
   .coming-soon .big{font-family:'Nunito',sans-serif;font-weight:900;font-size:48px;color:var(--border);letter-spacing:2px;margin-bottom:14px;}
   .coming-soon p{font-size:15px;color:var(--text3);}
+
+  /* ── 악보 창고 ── */
+  .scores-layout{display:grid;grid-template-columns:1fr 270px;gap:18px;align-items:start;}
+  @media(max-width:740px){.scores-layout{grid-template-columns:1fr;}}
+  .filter-bar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;}
+  .filter-chip{padding:6px 14px;border-radius:20px;font-size:12px;font-weight:700;font-family:'Nunito',sans-serif;cursor:pointer;border:1.5px solid var(--border);background:var(--foam);color:var(--text3);transition:all .18s;}
+  .filter-chip:hover{border-color:var(--ocean-mid);color:var(--ocean-deep);}
+  .filter-chip.active{background:var(--ocean-pale);border-color:var(--ocean-mid);color:var(--ocean-deep);}
+  .search-bar{position:relative;margin-bottom:16px;}
+  .search-bar input{width:100%;background:var(--white);border:1.5px solid var(--border);border-radius:14px;padding:10px 16px 10px 38px;font-size:13px;color:var(--text);outline:none;transition:all .2s;font-family:'Noto Sans KR',sans-serif;}
+  .search-bar input:focus{border-color:var(--ocean-mid);box-shadow:0 0 0 3px rgba(91,163,201,.13);}
+  .search-bar::before{content:'🔍';position:absolute;left:12px;top:50%;transform:translateY(-50%);font-size:14px;}
+  .score-cards{display:flex;flex-direction:column;gap:12px;}
+  .score-card{background:var(--white);border:1.5px solid var(--border);border-radius:18px;padding:16px 18px;box-shadow:0 4px 18px var(--shadow);display:flex;align-items:center;gap:14px;transition:all .2s;cursor:pointer;text-decoration:none;}
+  .score-card:hover{transform:translateY(-2px);box-shadow:0 8px 26px var(--shadow2);border-color:var(--ocean-mid);}
+  .score-icon{width:44px;height:44px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;}
+  .score-icon.guitar{background:linear-gradient(135deg,#ffecd2,#fcb69f);}
+  .score-icon.bass{background:linear-gradient(135deg,#a1c4fd,#c2e9fb);}
+  .score-icon.drum{background:linear-gradient(135deg,#ffeaa7,#fddb92);}
+  .score-icon.keys{background:linear-gradient(135deg,#d4fc79,#96e6a1);}
+  .score-icon.vocal{background:linear-gradient(135deg,#f093fb,#f5576c);}
+  .score-icon.all{background:linear-gradient(135deg,var(--ocean-pale),var(--ocean-light));}
+  .score-info{flex:1;min-width:0;}
+  .score-title{font-family:'Nunito',sans-serif;font-weight:800;font-size:15px;color:var(--text);margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .score-artist{font-size:12px;color:var(--text2);margin-bottom:4px;}
+  .score-meta{display:flex;gap:8px;align-items:center;flex-wrap:wrap;}
+  .score-tag{display:inline-block;padding:2px 8px;border-radius:8px;font-size:11px;font-weight:700;font-family:'Nunito',sans-serif;}
+  .score-tag.guitar{background:#fff0e8;color:#d45500;}
+  .score-tag.bass{background:#e8f0ff;color:#3366cc;}
+  .score-tag.drum{background:#fff8e0;color:#cc8800;}
+  .score-tag.keys{background:#eafff0;color:#2a8a3a;}
+  .score-tag.vocal{background:#ffeef8;color:#c0306a;}
+  .score-tag.all{background:var(--ocean-pale);color:var(--ocean-deep);}
+  .score-uploader{font-size:11px;color:var(--text3);}
+  .score-arrow{font-size:18px;color:var(--text3);flex-shrink:0;}
+
+  /* ── 연습 영상 ── */
+  .videos-layout{display:grid;grid-template-columns:1fr 270px;gap:18px;align-items:start;}
+  @media(max-width:740px){.videos-layout{grid-template-columns:1fr;}}
+  .video-cards{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+  @media(max-width:600px){.video-cards{grid-template-columns:1fr;}}
+  .video-card{background:var(--white);border:1.5px solid var(--border);border-radius:18px;overflow:hidden;box-shadow:0 4px 18px var(--shadow);transition:all .2s;}
+  .video-card:hover{transform:translateY(-2px);box-shadow:0 8px 26px var(--shadow2);}
+  .video-thumb{width:100%;aspect-ratio:16/9;background:var(--foam);display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;}
+  .video-thumb iframe{width:100%;height:100%;border:none;}
+  .video-thumb-placeholder{display:flex;flex-direction:column;align-items:center;gap:6px;color:var(--text3);}
+  .video-thumb-placeholder span{font-size:32px;}
+  .video-thumb-placeholder p{font-size:11px;}
+  .video-info{padding:12px 14px;}
+  .video-title{font-family:'Nunito',sans-serif;font-weight:800;font-size:14px;color:var(--text);margin-bottom:2px;}
+  .video-song{font-size:12px;color:var(--text2);margin-bottom:6px;}
+  .video-meta{display:flex;align-items:center;justify-content:space-between;}
+  .video-uploader{font-size:11px;color:var(--text3);}
+  .video-link{font-size:11px;color:var(--ocean-mid);font-weight:600;text-decoration:none;}
+  .video-link:hover{color:var(--ocean-deep);}
 
   /* 섹션 헤더 */
   .section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;}
@@ -535,40 +606,34 @@
   <!-- 나머지 탭 -->
   <div id="tab-songs" style="display:none">
     <div class="section-header">
-      <div class="section-title">🎵 곡 정하기 <span class="section-sub">투표로 곡을 골라요</span></div>
+      <div class="section-title">🎵 곡 정하기 <span class="section-sub">세트로 제안하고 곡별로 투표해요</span></div>
     </div>
     <div class="songs-layout">
-      <!-- 좌: 곡 카드 목록 -->
+      <!-- 좌: 세트 카드 목록 -->
       <div>
         <div id="songCardsArea">
-          <div class="empty-hint"><span class="e">🎵</span><p>아직 제안된 곡이 없어요<br>오른쪽에서 곡을 추가해보세요!</p></div>
+          <div class="empty-hint"><span class="e">🎵</span><p>아직 제안된 곡이 없어요<br>오른쪽에서 세트를 추가해보세요!</p></div>
         </div>
       </div>
-      <!-- 우: 곡 추가 폼 -->
+      <!-- 우: 곡 세트 추가 폼 -->
       <div class="side-panel">
         <div class="round-info-card">
           <div class="side-header">
-            <div class="side-header-title">🎵 곡 추가하기</div>
-            <div class="side-header-sub">누구나 곡을 올릴 수 있어요</div>
+            <div class="side-header-title">🎵 곡 세트 제안</div>
+            <div class="side-header-sub">3~5곡을 한 세트로 올려요 <span class="song-count-badge" id="songFormCount">0/5</span></div>
           </div>
           <div class="side-body">
-            <div class="form-row">
-              <label class="form-label">곡 제목 *</label>
-              <input class="form-input" id="songTitle" placeholder="ex) Superstition">
+            <div id="songFormRows">
+              <!-- JS로 렌더 -->
             </div>
-            <div class="form-row">
-              <label class="form-label">아티스트</label>
-              <input class="form-input" id="songArtist" placeholder="ex) Stevie Wonder">
+            <div style="display:flex;gap:8px;margin-top:8px;">
+              <button class="action-btn" style="background:var(--foam);color:var(--text2);border:1.5px solid var(--border);" onclick="addSongFormRow()">+ 곡 추가</button>
+              <button class="action-btn leader-action" onclick="proposeBundle()">🎵 세트 올리기</button>
             </div>
-            <div class="form-row">
-              <label class="form-label">유튜브 링크</label>
-              <input class="form-input" id="songYt" placeholder="https://youtube.com/...">
-            </div>
-            <button class="action-btn leader-action" onclick="proposeSong()">🎵 올리기</button>
           </div>
         </div>
         <!-- 확정된 곡 -->
-        <div class="round-info-card">
+        <div class="round-info-card" style="margin-top:14px;">
           <div class="side-header">
             <div class="side-header-title">✅ 확정된 곡</div>
           </div>
@@ -579,8 +644,105 @@
       </div>
     </div>
   </div>
-  <div id="tab-scores"  style="display:none"><div class="coming-soon"><div class="big">COMING SOON</div><p>📄 악보 창고 기능 준비 중이에요</p></div></div>
-  <div id="tab-videos"  style="display:none"><div class="coming-soon"><div class="big">COMING SOON</div><p>🎬 연습 영상 기능 준비 중이에요</p></div></div>
+  <div id="tab-scores" style="display:none">
+    <div class="section-header">
+      <div class="section-title">📄 악보 창고 <span class="section-sub">구글드라이브 링크로 악보를 모아요</span></div>
+    </div>
+    <div class="scores-layout">
+      <!-- 좌: 악보 카드 -->
+      <div>
+        <div class="search-bar"><input type="text" id="scoreSearch" placeholder="곡명, 아티스트 검색..." oninput="renderScoresTab()"></div>
+        <div class="filter-bar" id="scoreFilterBar">
+          <div class="filter-chip active" data-filter="all" onclick="setScoreFilter('all',this)">전체</div>
+          <div class="filter-chip" data-filter="guitar" onclick="setScoreFilter('guitar',this)">🎸 기타</div>
+          <div class="filter-chip" data-filter="bass" onclick="setScoreFilter('bass',this)">🎵 베이스</div>
+          <div class="filter-chip" data-filter="drum" onclick="setScoreFilter('drum',this)">🥁 드럼</div>
+          <div class="filter-chip" data-filter="keys" onclick="setScoreFilter('keys',this)">🎹 건반</div>
+          <div class="filter-chip" data-filter="vocal" onclick="setScoreFilter('vocal',this)">🎤 보컬</div>
+        </div>
+        <div class="score-cards" id="scoreCardsArea">
+          <div class="empty-hint"><span class="e">📄</span><p>아직 악보가 없어요<br>오른쪽에서 추가해보세요!</p></div>
+        </div>
+      </div>
+      <!-- 우: 악보 추가 폼 -->
+      <div class="side-panel">
+        <div class="round-info-card">
+          <div class="side-header">
+            <div class="side-header-title">📄 악보 추가</div>
+            <div class="side-header-sub">구글드라이브 공유 링크를 넣어주세요</div>
+          </div>
+          <div class="side-body">
+            <div class="form-row">
+              <label class="form-label">곡 제목 *</label>
+              <input class="form-input" id="scoreTitle" placeholder="ex) Superstition">
+            </div>
+            <div class="form-row">
+              <label class="form-label">아티스트</label>
+              <input class="form-input" id="scoreArtist" placeholder="ex) Stevie Wonder">
+            </div>
+            <div class="form-row">
+              <label class="form-label">악기 *</label>
+              <select class="form-input" id="scoreInstrument">
+                <option value="all">전체 (공통 악보)</option>
+                <option value="guitar">🎸 기타</option>
+                <option value="bass">🎵 베이스</option>
+                <option value="drum">🥁 드럼</option>
+                <option value="keys">🎹 건반</option>
+                <option value="vocal">🎤 보컬</option>
+              </select>
+            </div>
+            <div class="form-row">
+              <label class="form-label">구글드라이브 링크 *</label>
+              <input class="form-input" id="scoreLink" placeholder="https://drive.google.com/...">
+            </div>
+            <div class="form-row">
+              <label class="form-label">메모</label>
+              <input class="form-input" id="scoreMemo" placeholder="ex) 카포 2 버전">
+            </div>
+            <button class="action-btn leader-action" onclick="addScore()">📄 악보 추가</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="tab-videos" style="display:none">
+    <div class="section-header">
+      <div class="section-title">🎬 연습 영상 <span class="section-sub">유튜브/드라이브 링크로 영상을 모아요</span></div>
+    </div>
+    <div class="videos-layout">
+      <!-- 좌: 영상 카드 -->
+      <div>
+        <div id="videoCardsArea" class="video-cards">
+          <div class="empty-hint" style="grid-column:1/-1"><span class="e">🎬</span><p>아직 영상이 없어요<br>오른쪽에서 추가해보세요!</p></div>
+        </div>
+      </div>
+      <!-- 우: 영상 추가 폼 -->
+      <div class="side-panel">
+        <div class="round-info-card">
+          <div class="side-header">
+            <div class="side-header-title">🎬 영상 추가</div>
+            <div class="side-header-sub">유튜브 또는 드라이브 링크</div>
+          </div>
+          <div class="side-body">
+            <div class="form-row">
+              <label class="form-label">영상 제목 *</label>
+              <input class="form-input" id="videoTitle" placeholder="ex) Superstition 합주 240301">
+            </div>
+            <div class="form-row">
+              <label class="form-label">관련 곡</label>
+              <input class="form-input" id="videoSong" placeholder="ex) Superstition">
+            </div>
+            <div class="form-row">
+              <label class="form-label">링크 *</label>
+              <input class="form-input" id="videoUrl" placeholder="https://youtu.be/... 또는 drive.google.com/...">
+            </div>
+            <button class="action-btn leader-action" onclick="addVideo()">🎬 영상 추가</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
   <div id="tab-recruit" style="display:none"><div class="coming-soon"><div class="big">COMING SOON</div><p>🎸 Recruit 기능 준비 중이에요</p></div></div>
 </div>
 
@@ -703,25 +865,33 @@ function showTab(tab, el) {
   document.getElementById('tab-'+tab).style.display = 'block';
   el.classList.add('active');
   if (tab==='settle') renderSettleList();
-  if (tab==='songs')  renderSongsTab();
+  if (tab==='songs')  { renderSongsTab(); initSongForm(); }
+  if (tab==='scores') renderScoresTab();
+  if (tab==='videos') renderVideosTab();
 }
 
 // ── 데이터 로드 ──
-let songs=[], songVotes=[], rounds=[];
+let songs=[], songVotes=[], rounds=[], scores=[], videos=[], bundles=[];
 
 async function loadAll() {
-  const [pR, vR, sR, soR, svR] = await Promise.all([
+  const [pR, vR, sR, soR, svR, scR, viR, buR] = await Promise.all([
     db.from('band_date_proposals').select('*'),
     db.from('band_date_votes').select('*'),
     db.from('band_settlements').select('*').order('created_at', {ascending:false}),
     db.from('band_songs').select('*').order('created_at', {ascending:true}),
     db.from('band_song_votes').select('*'),
+    db.from('band_scores').select('*').order('created_at', {ascending:false}),
+    db.from('band_videos').select('*').order('created_at', {ascending:false}),
+    db.from('band_song_bundles').select('*').order('created_at', {ascending:false}),
   ]);
   proposals  = pR.data||[];
   votes      = vR.data||[];
   settles    = sR.data||[];
   songs      = soR.data||[];
   songVotes  = svR.data||[];
+  scores     = scR.data||[];
+  videos     = viR.data||[];
+  bundles    = buR.data||[];
   renderCalendar();
 }
 
@@ -1230,25 +1400,102 @@ async function deleteSettle(id){
   document.getElementById('settleCardArea').innerHTML=`<div class="settle-card"><div class="settle-body" style="text-align:center;padding:40px 20px"><div style="font-size:40px;margin-bottom:12px">💳</div><div style="font-size:14px;color:var(--text2);line-height:1.7">정산 내역을 선택하면<br>공유용 카드가 여기 나와요!</div></div></div>`;
 }
 
-// ── 곡 정하기 ──
+// ── 곡 정하기 (번들 방식) ──
+let songFormRows = [];
+let currentScoreFilter = 'all';
+
+function initSongForm() {
+  songFormRows = [{title:'',artist:'',yt:''}];
+  renderSongForm();
+}
+
+function renderSongForm() {
+  const el = document.getElementById('songFormRows');
+  const count = document.getElementById('songFormCount');
+  if (!el) return;
+  count.textContent = `${songFormRows.length}/5`;
+  el.innerHTML = songFormRows.map((r,i)=>`
+    <div class="add-song-row">
+      <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px;">
+        <div class="bundle-song-num">${i+1}</div>
+        <span style="font-size:12px;font-weight:700;color:var(--text2)">곡 ${i+1}</span>
+        ${songFormRows.length>1?`<button onclick="removeSongFormRow(${i})" style="margin-left:auto;background:none;border:none;cursor:pointer;color:var(--text3);font-size:16px;">✕</button>`:''}
+      </div>
+      <input class="form-input" placeholder="곡 제목 *" value="${r.title}" oninput="songFormRows[${i}].title=this.value">
+      <input class="form-input" placeholder="아티스트" value="${r.artist}" oninput="songFormRows[${i}].artist=this.value" style="margin-top:4px">
+      <input class="form-input" placeholder="유튜브 링크" value="${r.yt}" oninput="songFormRows[${i}].yt=this.value" style="margin-top:4px">
+    </div>
+  `).join('');
+}
+
+function addSongFormRow() {
+  if (songFormRows.length >= 5) return showToast('최대 5곡까지 추가할 수 있어요','error');
+  songFormRows.push({title:'',artist:'',yt:''});
+  renderSongForm();
+}
+
+function removeSongFormRow(i) {
+  songFormRows.splice(i,1);
+  renderSongForm();
+}
+
 function renderSongsTab() {
   const pendingSongs   = songs.filter(s=>!s.is_confirmed);
   const confirmedSongs = songs.filter(s=>s.is_confirmed);
 
-  // 투표 많은 순 정렬
-  const sorted = [...pendingSongs].sort((a,b)=>{
-    const va = songVotes.filter(v=>v.song_id===a.id).length;
-    const vb = songVotes.filter(v=>v.song_id===b.id).length;
-    return vb-va;
+  const bundleMap = {};
+  bundles.forEach(b => { bundleMap[b.id] = {...b, songs:[]}; });
+  pendingSongs.forEach(s => {
+    if (s.bundle_id && bundleMap[s.bundle_id]) bundleMap[s.bundle_id].songs.push(s);
+  });
+  const soloSongs = pendingSongs.filter(s=>!s.bundle_id);
+
+  const area = document.getElementById('songCardsArea');
+  const bundleList = Object.values(bundleMap).filter(b=>b.songs.length>0);
+
+  let html = '';
+  bundleList.forEach(b => {
+    const bundleSongs = b.songs;
+    html += `<div class="song-bundle">
+      <div class="song-bundle-header">
+        <div class="bundle-proposer">🎸 ${b.proposed_by} 의 세트 제안</div>
+        <div style="display:flex;gap:6px;align-items:center">
+          <span class="song-count-badge">${bundleSongs.length}곡</span>
+          ${(isAdmin||b.proposed_by===myName)?`<button class="action-btn danger" style="width:auto;padding:4px 10px;margin:0;font-size:11px" onclick="deleteBundle('${b.id}')">삭제</button>`:''}
+        </div>
+      </div>
+      <div class="bundle-songs">
+        ${bundleSongs.map((s,idx)=>{
+          const myVote = songVotes.find(v=>v.song_id===s.id && v.voter_name===myName);
+          const voteList = songVotes.filter(v=>v.song_id===s.id);
+          return `<div class="bundle-song-row">
+            <div class="bundle-song-num">${idx+1}</div>
+            <div class="bundle-song-info">
+              <div class="bundle-song-title">${s.title}</div>
+              <div class="bundle-song-artist">${s.artist||'아티스트 미입력'}</div>
+            </div>
+            ${s.youtube_url?`<a class="bundle-song-yt" href="${s.youtube_url}" target="_blank">▶ YT</a>`:''}
+            <button class="vote-btn ${myVote?'voted':''}" style="padding:5px 12px;font-size:12px;" onclick="toggleSongVote('${s.id}',${!!myVote})">
+              ❤️ ${voteList.length}
+            </button>
+          </div>`;
+        }).join('')}
+      </div>
+      <div class="bundle-footer">
+        <div style="font-size:12px;color:var(--text3)">곡별로 ❤️ 눌러서 투표해요</div>
+        ${(isAdmin||isLeader)?`<button class="action-btn leader-action" style="width:auto;padding:6px 14px;margin:0;font-size:12px" onclick="confirmBundle('${b.id}')">전체 확정</button>`:''}
+      </div>
+    </div>`;
   });
 
-  // 메인 카드 영역
-  const area = document.getElementById('songCardsArea');
-  area.innerHTML = sorted.length
-    ? sorted.map(s=>songCardHTML(s)).join('')
-    : `<div class="empty-hint"><span class="e">🎵</span><p>아직 제안된 곡이 없어요<br>오른쪽에서 곡을 추가해보세요!</p></div>`;
+  soloSongs.forEach(s => {
+    const myVote = songVotes.find(v=>v.song_id===s.id && v.voter_name===myName);
+    const voteList = songVotes.filter(v=>v.song_id===s.id);
+    html += songCardHTML(s, myVote, voteList);
+  });
 
-  // 확정된 곡 사이드
+  area.innerHTML = html || `<div class="empty-hint"><span class="e">🎵</span><p>아직 제안된 곡이 없어요<br>오른쪽에서 세트를 추가해보세요!</p></div>`;
+
   const cs = document.getElementById('confirmedSongsArea');
   cs.innerHTML = confirmedSongs.length
     ? confirmedSongs.map(s=>`
@@ -1262,28 +1509,18 @@ function renderSongsTab() {
     : `<div style="font-size:13px;color:var(--text3);text-align:center;padding:8px 0">아직 없어요</div>`;
 }
 
-function songCardHTML(s) {
-  const myVote   = songVotes.find(v=>v.song_id===s.id && v.voter_name===myName);
-  const voteList = songVotes.filter(v=>v.song_id===s.id);
-  const voterNames = voteList.map(v=>v.voter_name).join(', ');
-  const isLeaderProposer = s.proposed_by.includes(LEADER_KEYWORD);
-
+function songCardHTML(s, myVote, voteList) {
   return `<div class="song-card">
-    <div class="song-card-header">
-      <div class="song-proposer">${isLeaderProposer?'👑':'🎸'} ${s.proposed_by}</div>
-    </div>
+    <div class="song-card-header"><div class="song-proposer">🎸 ${s.proposed_by}</div></div>
     <div class="song-card-body">
       <div class="song-title">${s.title}</div>
       <div class="song-artist">${s.artist||'아티스트 미입력'}</div>
       ${s.youtube_url?`<a class="song-yt-link" href="${s.youtube_url}" target="_blank">▶ 유튜브로 듣기</a>`:''}
     </div>
     <div class="song-card-footer">
-      <div>
-        <button class="vote-btn ${myVote?'voted':''}" onclick="toggleSongVote('${s.id}',${!!myVote})">
-          ❤️ ${myVote?'취소':'좋아요'} ${voteList.length}
-        </button>
-        ${voterNames?`<div class="voter-names" style="margin-top:4px">${voterNames}</div>`:''}
-      </div>
+      <button class="vote-btn ${myVote?'voted':''}" onclick="toggleSongVote('${s.id}',${!!myVote})">
+        ❤️ ${myVote?'취소':'좋아요'} ${(voteList||[]).length}
+      </button>
       <div style="display:flex;gap:6px">
         ${(isAdmin||isLeader)?`<button class="action-btn leader-action" style="width:auto;padding:6px 12px;margin:0;font-size:11px" onclick="confirmSong('${s.id}')">확정</button>`:''}
         ${(isAdmin||s.proposed_by===myName)?`<button class="action-btn danger" style="width:auto;padding:6px 10px;margin:0;font-size:11px" onclick="deleteSong('${s.id}')">삭제</button>`:''}
@@ -1292,18 +1529,19 @@ function songCardHTML(s) {
   </div>`;
 }
 
-async function proposeSong() {
-  const title  = document.getElementById('songTitle').value.trim();
-  const artist = document.getElementById('songArtist').value.trim();
-  const yt     = document.getElementById('songYt').value.trim();
-  if (!title) return showToast('곡 제목을 입력해주세요','error');
-
-  const {error} = await db.from('band_songs').insert({
-    title, artist: artist||null, proposed_by: myName, youtube_url: yt||null
-  });
-  if (error) return showToast('추가 실패: '+error.message,'error');
-  showToast('🎵 곡 추가됨!','success');
-  ['songTitle','songArtist','songYt'].forEach(id=>{ document.getElementById(id).value=''; });
+async function proposeBundle() {
+  const valid = songFormRows.filter(r=>r.title.trim());
+  if (valid.length < 1) return showToast('곡 제목을 1개 이상 입력해주세요','error');
+  const {data:bData, error:bErr} = await db.from('band_song_bundles').insert({proposed_by:myName}).select().single();
+  if (bErr) return showToast('세트 생성 실패: '+bErr.message,'error');
+  const inserts = valid.map(r=>({
+    title:r.title.trim(), artist:r.artist.trim()||null,
+    youtube_url:r.yt.trim()||null, proposed_by:myName, bundle_id:bData.id
+  }));
+  const {error:sErr} = await db.from('band_songs').insert(inserts);
+  if (sErr) return showToast('곡 추가 실패: '+sErr.message,'error');
+  showToast(`🎵 ${valid.length}곡 세트 제안 완료!`,'success');
+  initSongForm();
   await loadAll(); renderSongsTab();
 }
 
@@ -1319,10 +1557,26 @@ async function toggleSongVote(songId, hasVoted) {
   await loadAll(); renderSongsTab();
 }
 
+async function confirmBundle(bundleId) {
+  if (!confirm('이 세트의 전체 곡을 확정할까요?')) return;
+  const ids = songs.filter(s=>s.bundle_id===bundleId).map(s=>s.id);
+  await db.from('band_songs').update({is_confirmed:true}).in('id',ids);
+  showToast('✅ 세트 전체 확정!','success');
+  await loadAll(); renderSongsTab();
+}
+
 async function confirmSong(id) {
   if (!confirm('이 곡을 확정할까요?')) return;
   await db.from('band_songs').update({is_confirmed:true}).eq('id',id);
   showToast('✅ 곡 확정!','success');
+  await loadAll(); renderSongsTab();
+}
+
+async function deleteBundle(bundleId) {
+  if (!confirm('이 세트 전체를 삭제할까요?')) return;
+  await db.from('band_songs').delete().eq('bundle_id',bundleId);
+  await db.from('band_song_bundles').delete().eq('id',bundleId);
+  showToast('삭제됨','success');
   await loadAll(); renderSongsTab();
 }
 
@@ -1331,6 +1585,129 @@ async function deleteSong(id) {
   await db.from('band_songs').delete().eq('id',id);
   await loadAll(); renderSongsTab();
 }
+
+// ── 악보 창고 ──
+const INSTRUMENT_LABEL = {all:'전체',guitar:'🎸 기타',bass:'🎵 베이스',drum:'🥁 드럼',keys:'🎹 건반',vocal:'🎤 보컬'};
+
+function setScoreFilter(filter, el) {
+  currentScoreFilter = filter;
+  document.querySelectorAll('#scoreFilterBar .filter-chip').forEach(c=>c.classList.remove('active'));
+  el.classList.add('active');
+  renderScoresTab();
+}
+
+function renderScoresTab() {
+  const q = (document.getElementById('scoreSearch')?.value||'').toLowerCase();
+  let filtered = scores.filter(s=>{
+    const matchInstrument = currentScoreFilter==='all' || s.instrument===currentScoreFilter;
+    const matchSearch = !q || s.title.toLowerCase().includes(q) || (s.artist||'').toLowerCase().includes(q);
+    return matchInstrument && matchSearch;
+  });
+  const area = document.getElementById('scoreCardsArea');
+  if (!area) return;
+  if (!filtered.length) {
+    area.innerHTML = `<div class="empty-hint"><span class="e">📄</span><p>악보가 없어요</p></div>`;
+    return;
+  }
+  const iconMap = {all:'📋',guitar:'🎸',bass:'🎵',drum:'🥁',keys:'🎹',vocal:'🎤'};
+  area.innerHTML = filtered.map(s=>`
+    <a class="score-card" href="${s.drive_url}" target="_blank">
+      <div class="score-icon ${s.instrument}">${iconMap[s.instrument]||'📄'}</div>
+      <div class="score-info">
+        <div class="score-title">${s.title}</div>
+        <div class="score-artist">${s.artist||''}</div>
+        <div class="score-meta">
+          <span class="score-tag ${s.instrument}">${INSTRUMENT_LABEL[s.instrument]||s.instrument}</span>
+          ${s.memo?`<span class="score-uploader">${s.memo}</span>`:''}
+          <span class="score-uploader">by ${s.uploaded_by}</span>
+        </div>
+      </div>
+      <div class="score-arrow">↗</div>
+      ${(isAdmin||s.uploaded_by===myName)?`<button class="action-btn danger" style="width:auto;padding:4px 8px;margin:0;font-size:11px;flex-shrink:0" onclick="event.preventDefault();deleteScore('${s.id}')">삭제</button>`:''}
+    </a>
+  `).join('');
+}
+
+async function addScore() {
+  const title = document.getElementById('scoreTitle').value.trim();
+  const artist = document.getElementById('scoreArtist').value.trim();
+  const instrument = document.getElementById('scoreInstrument').value;
+  const link = document.getElementById('scoreLink').value.trim();
+  const memo = document.getElementById('scoreMemo').value.trim();
+  if (!title) return showToast('곡 제목을 입력해주세요','error');
+  if (!link) return showToast('구글드라이브 링크를 입력해주세요','error');
+  if (!link.startsWith('http')) return showToast('올바른 링크를 입력해주세요','error');
+  const {error} = await db.from('band_scores').insert({
+    title, artist:artist||null, instrument, drive_url:link, memo:memo||null, uploaded_by:myName
+  });
+  if (error) return showToast('추가 실패: '+error.message,'error');
+  showToast('📄 악보 추가됨!','success');
+  ['scoreTitle','scoreArtist','scoreLink','scoreMemo'].forEach(id=>{ document.getElementById(id).value=''; });
+  document.getElementById('scoreInstrument').value='all';
+  await loadAll(); renderScoresTab();
+}
+
+async function deleteScore(id) {
+  if (!confirm('악보를 삭제할까요?')) return;
+  await db.from('band_scores').delete().eq('id',id);
+  await loadAll(); renderScoresTab();
+}
+
+// ── 연습 영상 ──
+function getYoutubeId(url) {
+  const m = url.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|shorts\/))([^&?/\s]{11})/);
+  return m ? m[1] : null;
+}
+
+function renderVideosTab() {
+  const area = document.getElementById('videoCardsArea');
+  if (!area) return;
+  if (!videos.length) {
+    area.innerHTML = `<div class="empty-hint" style="grid-column:1/-1"><span class="e">🎬</span><p>아직 영상이 없어요<br>오른쪽에서 추가해보세요!</p></div>`;
+    return;
+  }
+  area.innerHTML = videos.map(v=>{
+    const ytId = getYoutubeId(v.url||'');
+    const thumb = ytId
+      ? `<img src="https://img.youtube.com/vi/${ytId}/mqdefault.jpg" style="width:100%;height:100%;object-fit:cover;">`
+      : `<div class="video-thumb-placeholder"><span>🎬</span><p>드라이브 영상</p></div>`;
+    return `<div class="video-card">
+      <div class="video-thumb">${thumb}</div>
+      <div class="video-info">
+        <div class="video-title">${v.title}</div>
+        ${v.song_name?`<div class="video-song">🎵 ${v.song_name}</div>`:''}
+        <div class="video-meta">
+          <span class="video-uploader">by ${v.uploaded_by}</span>
+          <a class="video-link" href="${v.url}" target="_blank">▶ 영상 보기</a>
+        </div>
+        ${(isAdmin||v.uploaded_by===myName)?`<button class="action-btn danger" style="width:100%;padding:5px;margin-top:8px;font-size:11px" onclick="deleteVideo('${v.id}')">삭제</button>`:''}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+async function addVideo() {
+  const title = document.getElementById('videoTitle').value.trim();
+  const song = document.getElementById('videoSong').value.trim();
+  const url = document.getElementById('videoUrl').value.trim();
+  if (!title) return showToast('영상 제목을 입력해주세요','error');
+  if (!url) return showToast('링크를 입력해주세요','error');
+  if (!url.startsWith('http')) return showToast('올바른 링크를 입력해주세요','error');
+  const {error} = await db.from('band_videos').insert({
+    title, song_name:song||null, url, uploaded_by:myName
+  });
+  if (error) return showToast('추가 실패: '+error.message,'error');
+  showToast('🎬 영상 추가됨!','success');
+  ['videoTitle','videoSong','videoUrl'].forEach(id=>{ document.getElementById(id).value=''; });
+  await loadAll(); renderVideosTab();
+}
+
+async function deleteVideo(id) {
+  if (!confirm('영상을 삭제할까요?')) return;
+  await db.from('band_videos').delete().eq('id',id);
+  await loadAll(); renderVideosTab();
+}
+
 
 // ── 유틸 ──
 function toDS(d){ return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; }
