@@ -307,14 +307,16 @@
 </head>
 <body>
 
-<!-- 이름 모달 -->
-<div class="modal-overlay" id="nameModal">
+<!-- 로그인 모달 -->
+<div class="modal-overlay" id="loginModal">
   <div class="modal-card">
-    <span class="modal-emoji">🌊</span>
+    <span class="modal-emoji">🎸</span>
     <div class="modal-title">Band Manager</div>
-    <p class="modal-desc">이름을 입력하면<br>모든 기능을 사용할 수 있어요!</p>
-    <input class="input" id="nameInput" placeholder="내 이름 입력..." maxlength="12" autocomplete="off" style="text-align:center">
-    <button class="btn btn-primary" onclick="saveName()">시작하기 🎸</button>
+    <p class="modal-desc" id="loginDesc">팀 계정으로 로그인하세요</p>
+    <input class="input" id="loginEmail" type="email" placeholder="이메일" autocomplete="email">
+    <input class="input" id="loginPw" type="password" placeholder="비밀번호" autocomplete="current-password">
+    <div id="loginError" style="font-size:12px;color:#c05840;margin-bottom:10px;min-height:16px;font-weight:600;font-family:'Nunito',sans-serif"></div>
+    <button class="btn btn-primary" id="loginBtn" onclick="doLogin()">로그인 🌊</button>
   </div>
 </div>
 
@@ -330,7 +332,7 @@
     </div>
     <div class="header-right">
       <div class="role-badge" id="roleBadge" style="display:none"></div>
-      <div class="user-badge" onclick="changeName()">
+      <div class="user-badge" onclick="doLogout()">
         <div class="user-dot"></div>
         <span id="userDisplay">...</span>
       </div>
@@ -509,7 +511,8 @@ const ADMIN_KEYWORD  = 'mingy';
 const { createClient } = supabase;
 const db = createClient(SUPABASE_URL, SUPABASE_KEY);
 
-let myName = localStorage.getItem('bm_name') || '';
+let myName = '';
+let myEmail = '';
 let isLeader = false, isAdmin = false;
 let proposals = [], votes = [], settles = [];
 let curYear, curMonth;
@@ -522,23 +525,76 @@ const HOLIDAYS = {
 };
 
 // ── 초기화 ──
-window.onload = () => {
+window.onload = async () => {
   const now = new Date();
   curYear = now.getFullYear(); curMonth = now.getMonth();
-  document.getElementById('nameInput').addEventListener('keydown', e => { if(e.key==='Enter') saveName(); });
-  if (myName) {
-    document.getElementById('nameModal').style.display = 'none';
-    initUser(myName);
-    loadAll();
+
+  // Enter 키로 로그인
+  ['loginEmail','loginPw'].forEach(id => {
+    document.getElementById(id).addEventListener('keydown', e => {
+      if(e.key==='Enter') doLogin();
+    });
+  });
+
+  // 이미 세션이 있으면 바로 진입
+  const { data: { session } } = await db.auth.getSession();
+  if (session) {
+    await onLoginSuccess(session.user);
   } else {
-    setTimeout(() => document.getElementById('nameInput').focus(), 100);
+    document.getElementById('loginModal').style.display = 'flex';
+    setTimeout(() => document.getElementById('loginEmail').focus(), 100);
   }
 };
 
-function initUser(name) {
-  isLeader = name.includes(LEADER_KEYWORD);
-  isAdmin  = name.includes(ADMIN_KEYWORD);
-  document.getElementById('userDisplay').textContent = name;
+// ── 로그인 ──
+async function doLogin() {
+  const email = document.getElementById('loginEmail').value.trim();
+  const pw    = document.getElementById('loginPw').value;
+  const errEl = document.getElementById('loginError');
+  const btn   = document.getElementById('loginBtn');
+
+  if (!email || !pw) { errEl.textContent = '이메일과 비밀번호를 입력해주세요'; return; }
+
+  btn.textContent = '로그인 중...'; btn.disabled = true; errEl.textContent = '';
+
+  const { data, error } = await db.auth.signInWithPassword({ email, password: pw });
+
+  btn.textContent = '로그인 🌊'; btn.disabled = false;
+
+  if (error) {
+    errEl.textContent = '이메일 또는 비밀번호가 올바르지 않아요';
+    return;
+  }
+  await onLoginSuccess(data.user);
+}
+
+async function onLoginSuccess(user) {
+  myEmail = user.email || '';
+  // display_name: user_metadata.name 우선, 없으면 이메일 앞부분
+  myName = user.user_metadata?.name || user.email.split('@')[0];
+
+  document.getElementById('loginModal').style.display = 'none';
+  initUser();
+  await loadAll();
+}
+
+// ── 로그아웃 ──
+async function doLogout() {
+  if (!confirm('로그아웃 할까요?')) return;
+  await db.auth.signOut();
+  myName = ''; myEmail = '';
+  proposals = []; votes = []; settles = [];
+  document.getElementById('loginEmail').value = '';
+  document.getElementById('loginPw').value = '';
+  document.getElementById('loginError').textContent = '';
+  document.getElementById('loginModal').style.display = 'flex';
+  setTimeout(() => document.getElementById('loginEmail').focus(), 100);
+}
+
+function initUser() {
+  isLeader = myName.includes(LEADER_KEYWORD) || myEmail.includes(LEADER_KEYWORD.toLowerCase());
+  isAdmin  = myName.includes(ADMIN_KEYWORD)  || myEmail.includes(ADMIN_KEYWORD.toLowerCase());
+  document.getElementById('userDisplay').textContent = myName + ' (로그아웃)';
   const rb = document.getElementById('roleBadge');
   if (isAdmin) {
     rb.style.display = 'block'; rb.className = 'role-badge admin'; rb.textContent = '⚙ 어드민';
@@ -552,23 +608,6 @@ function initUser(name) {
     document.getElementById('leaderSettleForm').style.display = (isLeader||isAdmin) ? 'block' : 'none';
     document.getElementById('memberSettleHint').style.display = (isLeader||isAdmin) ? 'none' : 'block';
   }
-}
-
-function saveName() {
-  const n = document.getElementById('nameInput').value.trim();
-  if (!n) return showToast('이름을 입력해주세요 🌊','error');
-  myName = n; localStorage.setItem('bm_name', n);
-  document.getElementById('nameModal').style.display = 'none';
-  initUser(n);
-  loadAll();
-}
-function changeName() {
-  const n = prompt('이름 변경:', myName);
-  if (!n?.trim()) return;
-  myName = n.trim(); localStorage.setItem('bm_name', myName);
-  initUser(myName);
-  showToast('이름 변경 완료! 🌊','success');
-  renderCalendar();
 }
 function showTab(tab, el) {
   document.querySelectorAll('[id^="tab-"]').forEach(t => t.style.display='none');
