@@ -686,6 +686,10 @@
             <div class="side-header-sub">3~5곡을 한 세트로 올려요 <span class="song-count-badge" id="songFormCount">0/5</span></div>
           </div>
           <div class="side-body">
+            <div class="form-row" style="margin-bottom:10px">
+              <label class="form-label">세트 이름</label>
+              <input class="form-input" id="bundleTitleInput" placeholder="ex) 5월 합주 세트, 여름 분위기 모음">
+            </div>
             <div id="songFormRows">
               <!-- JS로 렌더 -->
             </div>
@@ -787,7 +791,7 @@
                 <div id="videoDropZone" style="border:2px dashed var(--border);border-radius:14px;padding:20px;text-align:center;cursor:pointer;transition:all .2s;background:var(--foam)" onclick="document.getElementById('videoFileInput').click()" ondragover="event.preventDefault();this.style.borderColor='var(--ocean-mid)'" ondragleave="this.style.borderColor='var(--border)'" ondrop="handleVideoDrop(event)">
                   <div style="font-size:28px;margin-bottom:6px">🎬</div>
                   <div style="font-size:12px;font-weight:700;color:var(--text2)">클릭하거나 파일을 드래그</div>
-                  <div style="font-size:11px;color:var(--text3);margin-top:2px">MP4, MOV, AVI 등 · 최대 50MB</div>
+                  <div style="font-size:11px;color:var(--text3);margin-top:2px">MP4, MOV, AVI 등 · 최대 100MB</div>
                 </div>
                 <input type="file" id="videoFileInput" accept="video/*" style="display:none" onchange="handleVideoFileSelect(this)">
                 <div id="videoFilePreview" style="display:none;margin-top:8px;padding:10px 12px;background:var(--foam);border:1.5px solid var(--border);border-radius:10px;font-size:12px;color:var(--text2)"></div>
@@ -1286,10 +1290,10 @@ function showTab(tab, el) {
 }
 
 // ── 데이터 로드 ──
-let songs=[], songVotes=[], rounds=[], scores=[], videos=[], bundles=[];
+let songs=[], songVotes=[], rounds=[], scores=[], videos=[], bundles=[], comments=[];
 
 async function loadAll() {
-  const [pR, vR, sR, soR, svR, scR, viR, buR] = await Promise.all([
+  const [pR, vR, sR, soR, svR, scR, viR, buR, coR] = await Promise.all([
     db.from('band_date_proposals').select('*'),
     db.from('band_date_votes').select('*'),
     db.from('band_settlements').select('*').order('created_at', {ascending:false}),
@@ -1298,6 +1302,7 @@ async function loadAll() {
     db.from('band_scores').select('*').order('created_at', {ascending:false}),
     db.from('band_videos').select('*').order('created_at', {ascending:false}),
     db.from('band_song_bundles').select('*').order('created_at', {ascending:false}),
+    db.from('band_song_comments').select('*').order('created_at', {ascending:true}),
   ]);
   proposals  = pR.data||[];
   votes      = vR.data||[];
@@ -1307,6 +1312,7 @@ async function loadAll() {
   scores     = scR.data||[];
   videos     = viR.data||[];
   bundles    = buR.data||[];
+  comments   = coR.data||[];
   renderCalendar();
 }
 
@@ -1600,27 +1606,33 @@ function renderSide(ds) {
   const dv=prop?votes.filter(v=>v.proposal_id===prop.id):[];
   const myVote=dv.find(v=>v.voter_name===myName);
   const availVoters=dv.filter(v=>v.available);
+  const unavailVoters=dv.filter(v=>!v.available);
 
   const holBadge=isHol?`<span style="background:var(--holiday-bg);color:var(--holiday);border:1px solid rgba(224,112,112,.35);border-radius:8px;padding:2px 8px;font-size:11px;font-weight:700;font-family:'Nunito',sans-serif">${HOLIDAYS[ds]}</span>`:'';
 
-  const chips=availVoters.length
+  const availChips=availVoters.length
     ?availVoters.map(v=>{
         const ldr=v.voter_name.includes(LEADER_KEYWORD);
         return `<div class="voter-chip ${ldr?'leader-chip':'yes'}">${ldr?'👑':''} ${v.voter_name}</div>`;
       }).join('')
     :`<span style="font-size:12px;color:var(--text3)">아직 아무도 표시 안 했어요</span>`;
 
-  // 내 현재 상태
+  const unavailChips=unavailVoters.length
+    ?unavailVoters.map(v=>`<div class="voter-chip no">✗ ${v.voter_name}${v.note?` (${v.note})`:''}</div>`).join('')
+    :'';
+
   const isMeAvail = myVote?.available === true;
+  const isMeUnavail = myVote?.available === false;
+  const myReason = myVote?.note || '';
 
   const leaderActions = (isLeader||isAdmin) && prop ? `
     ${!prop.is_confirmed && availVoters.length>0
       ?`<button class="action-btn leader-action" style="margin-top:4px" onclick="confirmDate('${prop.id}','${ds}')">📌 이 날짜로 확정</button>`:''}
     ${prop.is_confirmed
       ?`<div style="text-align:center;padding:8px;font-size:13px;color:var(--mint-deep);font-weight:700;font-family:'Nunito',sans-serif">🎉 확정된 날짜!</div>`:''}
-    ${(isAdmin)
+    ${isAdmin
       ?`<button class="action-btn danger" onclick="deleteProposal('${prop.id}','${ds}')">제안 삭제 (어드민)</button>`:''}
-  `:''
+  `:'';
 
   card.innerHTML=`
     <div class="side-header">
@@ -1628,25 +1640,29 @@ function renderSide(ds) {
         <div class="side-header-title">${MO[d.getMonth()]}월 ${d.getDate()}일 (${WD[d.getDay()]})</div>
         ${holBadge}
       </div>
-      <div class="side-header-sub">가능 ${availVoters.length}명</div>
+      <div class="side-header-sub">가능 ${availVoters.length}명 · 불가 ${unavailVoters.length}명</div>
     </div>
     <div class="side-body">
       <span class="field-label">내 가능 여부</span>
-      <button class="avail-btn on ${isMeAvail?'active':''}" onclick="toggleAvail('${ds}',true,null)">
-        ✓ 가능해요
-      </button>
+      <button class="avail-btn on ${isMeAvail?'active':''}" id="btnYes">✓ 가능해요</button>
       <div style="margin-top:8px">
-        <input class="form-input" id="unavailReason" placeholder="불가 사유 (선택, 예: 약속 있음)" style="margin-bottom:6px" value="${myVote&&!myVote.available&&prop?.note?prop.note:''}">
-        <button class="avail-btn off ${myVote&&!myVote.available?'active':''}" onclick="toggleAvail('${ds}',false,document.getElementById('unavailReason')?.value.trim()||null)">
-          ✗ 불가예요
-        </button>
+        <input class="form-input" id="unavailReason" placeholder="불가 사유 (선택, 예: 약속 있음)" style="margin-bottom:6px" value="${myReason}">
+        <button class="avail-btn off ${isMeUnavail?'active':''}" id="btnNo">✗ 불가예요</button>
       </div>
       <div class="voters-section" style="margin-top:12px">
         <span class="field-label">가능한 멤버 (${availVoters.length}명)</span>
-        <div class="voter-list">${chips}</div>
+        <div class="voter-list">${availChips}</div>
+        ${unavailVoters.length?`<div style="margin-top:8px"><span class="field-label">불가 멤버</span><div class="voter-list">${unavailChips}</div></div>`:''}
       </div>
       ${leaderActions}
     </div>`;
+
+  // 이벤트 직접 바인딩 (onclick 문자열 충돌 방지)
+  document.getElementById('btnYes').addEventListener('click', () => toggleAvail(ds, true, null));
+  document.getElementById('btnNo').addEventListener('click', () => {
+    const reason = document.getElementById('unavailReason')?.value.trim() || null;
+    toggleAvail(ds, false, reason);
+  });
 }
 
 // ── 가능 여부 토글 ──
@@ -1928,9 +1944,13 @@ function renderSongsTab() {
   let html = '';
   bundleList.forEach(b => {
     const bundleSongs = b.songs;
+    const bundleComments = comments.filter(c=>c.bundle_id===b.id);
     html += `<div class="song-bundle">
       <div class="song-bundle-header">
-        <div class="bundle-proposer">🎸 ${b.proposed_by} 의 세트 제안</div>
+        <div>
+          <div style="font-family:'Nunito',sans-serif;font-weight:800;font-size:15px;color:var(--ocean-deep)">${b.title||'세트 제안'}</div>
+          <div class="bundle-proposer" style="margin-top:2px">🎸 ${b.proposed_by}</div>
+        </div>
         <div style="display:flex;gap:6px;align-items:center">
           <span class="song-count-badge">${bundleSongs.length}곡</span>
           ${(isAdmin||b.proposed_by===myName)?`<button class="action-btn danger" style="width:auto;padding:4px 10px;margin:0;font-size:11px" onclick="deleteBundle('${b.id}')">삭제</button>`:''}
@@ -1946,7 +1966,6 @@ function renderSongsTab() {
               <div class="bundle-song-title">${s.title}</div>
               <div class="bundle-song-artist">${s.artist||'아티스트 미입력'}</div>
             </div>
-            
             <button class="vote-btn ${myVote?'voted':''}" style="padding:5px 12px;font-size:12px;" onclick="toggleSongVote('${s.id}',${!!myVote})">
               ❤️ ${voteList.length}
             </button>
@@ -1956,6 +1975,27 @@ function renderSongsTab() {
       <div class="bundle-footer">
         <div style="font-size:12px;color:var(--text3)">곡별로 ❤️ 눌러서 투표해요</div>
         ${(isAdmin||isLeader)?`<button class="action-btn leader-action" style="width:auto;padding:6px 14px;margin:0;font-size:12px" onclick="confirmBundle('${b.id}')">전체 확정</button>`:''}
+      </div>
+      <div style="padding:12px 16px;border-top:1.5px solid var(--border2)">
+        <div style="font-size:11px;font-weight:700;color:var(--text3);letter-spacing:1px;text-transform:uppercase;font-family:'Nunito',sans-serif;margin-bottom:10px">💬 댓글 (${bundleComments.length})</div>
+        <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:10px" id="comments-${b.id}">
+          ${bundleComments.length ? bundleComments.map(c=>`
+            <div style="display:flex;gap:8px;align-items:flex-start">
+              <div style="width:28px;height:28px;border-radius:50%;background:var(--ocean-pale);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:var(--ocean-deep);font-family:'Nunito',sans-serif;flex-shrink:0">${c.is_anonymous?'?':c.author.charAt(0)}</div>
+              <div style="flex:1;background:var(--foam);border-radius:10px;padding:8px 12px;border:1px solid var(--border2)">
+                <div style="font-size:11px;font-weight:700;color:var(--text2);font-family:'Nunito',sans-serif;margin-bottom:3px">${c.is_anonymous?'익명':c.author}</div>
+                <div style="font-size:13px;color:var(--text)">${c.content}</div>
+              </div>
+              ${(isAdmin||(!c.is_anonymous&&c.author===myName))?`<button onclick="deleteComment('${c.id}')" style="background:none;border:none;color:var(--text3);cursor:pointer;font-size:11px;flex-shrink:0;padding:4px">✕</button>`:''}
+            </div>`).join('') : `<div style="font-size:12px;color:var(--text3);text-align:center;padding:8px 0">첫 댓글을 남겨보세요!</div>`}
+        </div>
+        <div style="display:flex;gap:8px;align-items:center">
+          <input class="form-input" id="ci-${b.id}" placeholder="댓글 입력..." style="flex:1;padding:8px 12px;font-size:13px">
+          <label style="display:flex;align-items:center;gap:4px;font-size:11px;font-weight:600;color:var(--text3);white-space:nowrap;cursor:pointer">
+            <input type="checkbox" id="ca-${b.id}" style="accent-color:var(--ocean-mid)"> 익명
+          </label>
+          <button onclick="addComment('${b.id}')" style="background:var(--ocean-mid);color:#fff;border:none;border-radius:8px;padding:8px 14px;font-size:12px;font-weight:700;font-family:'Nunito',sans-serif;cursor:pointer;white-space:nowrap">전송</button>
+        </div>
       </div>
     </div>`;
   });
@@ -2004,15 +2044,17 @@ function songCardHTML(s, myVote, voteList) {
 async function proposeBundle() {
   const valid = songFormRows.filter(r=>r.title.trim());
   if (valid.length < 1) return showToast('곡 제목을 1개 이상 입력해주세요','error');
-  const {data:bData, error:bErr} = await db.from('band_song_bundles').insert({proposed_by:myName}).select().single();
+  const bundleTitle = document.getElementById('bundleTitleInput')?.value.trim() || '세트 제안';
+  const {data:bData, error:bErr} = await db.from('band_song_bundles').insert({proposed_by:myName, title:bundleTitle}).select().single();
   if (bErr) return showToast('세트 생성 실패: '+bErr.message,'error');
   const inserts = valid.map(r=>({
     title:r.title.trim(), artist:r.artist.trim()||null,
-    youtube_url:r.yt.trim()||null, proposed_by:myName, bundle_id:bData.id
+    youtube_url:null, proposed_by:myName, bundle_id:bData.id
   }));
   const {error:sErr} = await db.from('band_songs').insert(inserts);
   if (sErr) return showToast('곡 추가 실패: '+sErr.message,'error');
   showToast(`🎵 ${valid.length}곡 세트 제안 완료!`,'success');
+  if(document.getElementById('bundleTitleInput')) document.getElementById('bundleTitleInput').value='';
   initSongForm();
   await loadAll(); renderSongsTab();
 }
@@ -2041,6 +2083,28 @@ async function confirmSong(id) {
   if (!confirm('이 곡을 확정할까요?')) return;
   await db.from('band_songs').update({is_confirmed:true}).eq('id',id);
   showToast('✅ 곡 확정!','success');
+  await loadAll(); renderSongsTab();
+}
+
+async function addComment(bundleId) {
+  const input = document.getElementById(`ci-${bundleId}`);
+  const isAnon = document.getElementById(`ca-${bundleId}`)?.checked || false;
+  const content = input?.value.trim();
+  if (!content) return showToast('댓글을 입력해주세요', 'error');
+  const { error } = await db.from('band_song_comments').insert({
+    bundle_id: bundleId,
+    author: myName,
+    is_anonymous: isAnon,
+    content
+  });
+  if (error) return showToast('댓글 실패: ' + error.message, 'error');
+  if (input) input.value = '';
+  await loadAll(); renderSongsTab();
+}
+
+async function deleteComment(id) {
+  if (!confirm('댓글을 삭제할까요?')) return;
+  await db.from('band_song_comments').delete().eq('id', id);
   await loadAll(); renderSongsTab();
 }
 
@@ -2138,7 +2202,7 @@ function switchVideoTab(mode) {
 function handleVideoFileSelect(input) {
   const file = input.files[0];
   if (!file) return;
-  if (file.size > 50 * 1024 * 1024) return showToast('50MB 이하 파일만 업로드 가능해요','error');
+  if (file.size > 100 * 1024 * 1024) return showToast('100MB 이하 파일만 업로드 가능해요','error');
   videoSelectedFile = file;
   const preview = document.getElementById('videoFilePreview');
   const sizeMB = (file.size / 1024 / 1024).toFixed(1);
@@ -2232,7 +2296,7 @@ async function addVideo() {
     // ── 파일 업로드 ──
     const file = videoSelectedFile || document.getElementById('videoFileInput').files[0];
     if (!file) return showToast('파일을 선택해주세요','error');
-    if (file.size > 50 * 1024 * 1024) return showToast('50MB 이하 파일만 가능해요','error');
+    if (file.size > 100 * 1024 * 1024) return showToast('100MB 이하 파일만 가능해요','error');
 
     const ext = file.name.split('.').pop();
     const path = `videos/${Date.now()}_${myName.replace(/\s/g,'_')}.${ext}`;
