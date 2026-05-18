@@ -808,7 +808,48 @@
       </div>
     </div>
   </div>
-  <div id="tab-recruit" style="display:none"><div class="coming-soon"><div class="big">COMING SOON</div><p>🎸 Recruit 기능 준비 중이에요</p></div></div>
+  <div id="tab-recruit" style="display:none">
+    <div class="section-header">
+      <div class="section-title">🎸 Recruit <span class="section-sub">멤버 신청 현황</span></div>
+      <a href="recruit.html" target="_blank" class="btn" style="background:linear-gradient(135deg,var(--ocean-mid),var(--ocean-deep));color:#fff;text-decoration:none;padding:9px 16px;border-radius:10px;font-size:12px">↗ 모집 페이지 열기</a>
+    </div>
+
+    <!-- 비리더 안내 -->
+    <div id="recruitMemberHint" style="display:none">
+      <div class="settle-card">
+        <div class="settle-body" style="text-align:center;padding:40px 20px">
+          <div style="font-size:40px;margin-bottom:12px">🎸</div>
+          <div style="font-size:14px;color:var(--text2);line-height:1.8">
+            모집 페이지를 공유하면<br>신청자 목록은 리더/어드민이 확인해요!
+          </div>
+          <a href="recruit.html" target="_blank" style="display:inline-block;margin-top:18px;padding:12px 24px;background:linear-gradient(135deg,var(--ocean-mid),var(--ocean-deep));color:#fff;border-radius:12px;font-weight:700;font-family:'Nunito',sans-serif;text-decoration:none;font-size:14px">↗ 모집 페이지 보기</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- 리더/어드민 신청자 목록 -->
+    <div id="recruitLeaderView" style="display:none">
+      <!-- 통계 -->
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px" id="recruitStats">
+        <div class="settle-card" style="text-align:center;padding:16px">
+          <div style="font-family:'Nunito',sans-serif;font-weight:900;font-size:26px;color:var(--ocean-deep)" id="statTotal">0</div>
+          <div style="font-size:11px;color:var(--text3)">전체 신청</div>
+        </div>
+        <div class="settle-card" style="text-align:center;padding:16px">
+          <div style="font-family:'Nunito',sans-serif;font-weight:900;font-size:26px;color:var(--sun)" id="statPending">0</div>
+          <div style="font-size:11px;color:var(--text3)">검토 중</div>
+        </div>
+        <div class="settle-card" style="text-align:center;padding:16px">
+          <div style="font-family:'Nunito',sans-serif;font-weight:900;font-size:26px;color:var(--mint-deep)" id="statApproved">0</div>
+          <div style="font-size:11px;color:var(--text3)">승인됨</div>
+        </div>
+      </div>
+      <!-- 신청자 카드 목록 -->
+      <div id="applicationList">
+        <div style="text-align:center;padding:40px;color:var(--text3);font-size:13px">아직 신청자가 없어요</div>
+      </div>
+    </div>
+  </div>
 
   <!-- 프로필 탭 -->
   <div id="tab-members" style="display:none">
@@ -1036,6 +1077,83 @@ async function doLogout() {
 }
 
 // ── 프로필 탭 렌더링 ──
+// ── Recruit 탭 ──
+async function renderRecruitTab() {
+  const isPriv = isLeader || isAdmin;
+  document.getElementById('recruitMemberHint').style.display  = isPriv ? 'none'  : 'block';
+  document.getElementById('recruitLeaderView').style.display  = isPriv ? 'block' : 'none';
+  if (!isPriv) return;
+
+  const { data, error } = await db.from('band_applications').select('*').order('created_at', { ascending: false });
+  if (error) return showToast('로드 실패: ' + error.message, 'error');
+
+  const apps = data || [];
+  const pending  = apps.filter(a => a.status === 'pending').length;
+  const approved = apps.filter(a => a.status === 'approved').length;
+
+  document.getElementById('statTotal').textContent    = apps.length;
+  document.getElementById('statPending').textContent  = pending;
+  document.getElementById('statApproved').textContent = approved;
+
+  const list = document.getElementById('applicationList');
+  if (!apps.length) {
+    list.innerHTML = '<div style="text-align:center;padding:40px;color:var(--text3);font-size:13px">아직 신청자가 없어요</div>';
+    return;
+  }
+
+  const statusColor = { pending:'var(--sun)', approved:'var(--mint-deep)', rejected:'var(--coral)' };
+  const statusLabel = { pending:'검토 중', approved:'✓ 승인', rejected:'✗ 거절' };
+
+  list.innerHTML = apps.map(a => {
+    const dt = new Date(a.created_at);
+    const dateStr = `${dt.getMonth()+1}/${dt.getDate()} ${String(dt.getHours()).padStart(2,'0')}:${String(dt.getMinutes()).padStart(2,'0')}`;
+    return `
+    <div class="settle-card" style="margin-bottom:12px">
+      <div class="settle-body" style="padding:18px 20px">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap">
+          <div style="flex:1;min-width:0">
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;flex-wrap:wrap">
+              <span style="font-family:'Nunito',sans-serif;font-weight:800;font-size:16px;color:var(--ocean-deep)">${a.name}</span>
+              ${a.age ? `<span style="font-size:12px;color:var(--text3)">${a.age}</span>` : ''}
+              <span style="background:var(--ocean-pale);color:var(--ocean-deep);border-radius:8px;padding:2px 9px;font-size:11px;font-weight:700;font-family:'Nunito',sans-serif">${a.role}</span>
+            </div>
+            <div style="font-size:13px;color:var(--text2);margin-bottom:4px">📞 ${a.contact}</div>
+            ${a.genres ? `<div style="font-size:12px;color:var(--text3)">🎵 ${a.genres}</div>` : ''}
+            ${a.bands ? `<div style="font-size:12px;color:var(--text3)">🎸 ${a.bands}</div>` : ''}
+            ${a.practice_time ? `<div style="font-size:12px;color:var(--text3)">📅 ${a.practice_time}</div>` : ''}
+            ${a.food ? `<div style="font-size:12px;color:var(--text3)">🍕 ${a.food}</div>` : ''}
+            ${a.memo ? `<div style="font-size:12px;color:var(--text2);margin-top:6px;background:var(--foam);border-radius:8px;padding:8px 10px;border:1px solid var(--border2)">"${a.memo}"</div>` : ''}
+            <div style="font-size:11px;color:var(--text3);margin-top:6px">${dateStr} 신청</div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:6px;align-items:flex-end;flex-shrink:0">
+            <span style="background:${statusColor[a.status]||'var(--border)'};color:#fff;border-radius:8px;padding:4px 11px;font-size:11px;font-weight:700;font-family:'Nunito',sans-serif">${statusLabel[a.status]||a.status}</span>
+            ${a.status==='pending' ? `
+              <button onclick="updateAppStatus('${a.id}','approved')" style="background:var(--mint-light);color:var(--mint-deep);border:1.5px solid var(--mint);border-radius:8px;padding:5px 12px;font-size:11px;font-weight:700;font-family:'Nunito',sans-serif;cursor:pointer">✓ 승인</button>
+              <button onclick="updateAppStatus('${a.id}','rejected')" style="background:var(--coral-light);color:#c05840;border:1.5px solid var(--coral);border-radius:8px;padding:5px 12px;font-size:11px;font-weight:700;font-family:'Nunito',sans-serif;cursor:pointer">✗ 거절</button>
+            ` : `
+              <button onclick="updateAppStatus('${a.id}','pending')" style="background:var(--foam);color:var(--text3);border:1.5px solid var(--border);border-radius:8px;padding:5px 12px;font-size:11px;font-weight:700;font-family:'Nunito',sans-serif;cursor:pointer">↺ 되돌리기</button>
+            `}
+            ${isAdmin ? `<button onclick="deleteApp('${a.id}')" style="background:transparent;color:var(--text3);border:none;font-size:11px;cursor:pointer;font-family:'Nunito',sans-serif">삭제</button>` : ''}
+          </div>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+async function updateAppStatus(id, status) {
+  const { error } = await db.from('band_applications').update({ status }).eq('id', id);
+  if (error) return showToast('업데이트 실패', 'error');
+  showToast(status === 'approved' ? '✓ 승인했어요!' : status === 'rejected' ? '✗ 거절했어요' : '되돌렸어요', 'success');
+  renderRecruitTab();
+}
+
+async function deleteApp(id) {
+  if (!confirm('신청을 삭제할까요?')) return;
+  await db.from('band_applications').delete().eq('id', id);
+  renderRecruitTab();
+}
+
 function renderMembersTab() {
   document.getElementById('memberNameDisplay').textContent = myName || '-';
   document.getElementById('memberEmailDisplay').textContent = myEmail || '-';
@@ -1164,6 +1282,7 @@ function showTab(tab, el) {
   if (tab==='scores')  renderScoresTab();
   if (tab==='videos')  renderVideosTab();
   if (tab==='members') renderMembersTab();
+  if (tab==='recruit') renderRecruitTab();
 }
 
 // ── 데이터 로드 ──
