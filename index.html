@@ -501,7 +501,7 @@
     <div class="tab" onclick="showTab('videos',this)">🎬 연습 영상</div>
     <div class="tab" onclick="showTab('settle',this)">💰 정산</div>
     <div class="tab" onclick="showTab('recruit',this)">🎸 Recruit</div>
-    <div class="tab" onclick="showTab('members',this)">👤 멤버 관리</div>
+    <div class="tab" onclick="showTab('members',this)">👤 프로필</div>
   </nav>
 </header>
 
@@ -701,14 +701,6 @@
       <!-- 좌: 악보 카드 -->
       <div>
         <div class="search-bar"><input type="text" id="scoreSearch" placeholder="곡명, 아티스트 검색..." oninput="renderScoresTab()"></div>
-        <div class="filter-bar" id="scoreFilterBar">
-          <div class="filter-chip active" data-filter="all" onclick="setScoreFilter('all',this)">전체</div>
-          <div class="filter-chip" data-filter="guitar" onclick="setScoreFilter('guitar',this)">🎸 기타</div>
-          <div class="filter-chip" data-filter="bass" onclick="setScoreFilter('bass',this)">🎵 베이스</div>
-          <div class="filter-chip" data-filter="drum" onclick="setScoreFilter('drum',this)">🥁 드럼</div>
-          <div class="filter-chip" data-filter="keys" onclick="setScoreFilter('keys',this)">🎹 건반</div>
-          <div class="filter-chip" data-filter="vocal" onclick="setScoreFilter('vocal',this)">🎤 보컬</div>
-        </div>
         <div class="score-cards" id="scoreCardsArea">
           <div class="empty-hint"><span class="e">📄</span><p>아직 악보가 없어요<br>오른쪽에서 추가해보세요!</p></div>
         </div>
@@ -730,23 +722,12 @@
               <input class="form-input" id="scoreArtist" placeholder="ex) Stevie Wonder">
             </div>
             <div class="form-row">
-              <label class="form-label">악기 *</label>
-              <select class="form-input" id="scoreInstrument">
-                <option value="all">전체 (공통 악보)</option>
-                <option value="guitar">🎸 기타</option>
-                <option value="bass">🎵 베이스</option>
-                <option value="drum">🥁 드럼</option>
-                <option value="keys">🎹 건반</option>
-                <option value="vocal">🎤 보컬</option>
-              </select>
-            </div>
-            <div class="form-row">
               <label class="form-label">구글드라이브 링크 *</label>
               <input class="form-input" id="scoreLink" placeholder="https://drive.google.com/...">
             </div>
             <div class="form-row">
               <label class="form-label">메모</label>
-              <input class="form-input" id="scoreMemo" placeholder="ex) 카포 2 버전">
+              <input class="form-input" id="scoreMemo" placeholder="ex) 카포 2 버전, 베이스 악보">
             </div>
             <button class="action-btn leader-action" onclick="addScore()">📄 악보 추가</button>
           </div>
@@ -815,37 +796,70 @@
   </div>
   <div id="tab-recruit" style="display:none"><div class="coming-soon"><div class="big">COMING SOON</div><p>🎸 Recruit 기능 준비 중이에요</p></div></div>
 
-  <!-- 멤버 관리 탭 -->
+  <!-- 프로필 탭 -->
   <div id="tab-members" style="display:none">
-    <div style="max-width:480px;margin:0 auto">
+    <div style="max-width:680px;margin:0 auto">
 
-      <!-- 내 프로필 카드 -->
+      <!-- 프로필 헤더 카드 -->
       <div class="settle-card" style="margin-bottom:18px">
-        <div class="settle-card-header">
-          <div class="settle-card-title">👤 내 프로필</div>
-        </div>
-        <div class="settle-body">
-          <div style="display:flex;align-items:center;gap:14px;margin-bottom:20px">
-            <div style="width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,var(--ocean-mid),var(--ocean-deep));display:flex;align-items:center;justify-content:center;font-size:22px;box-shadow:0 4px 14px rgba(61,132,170,.3)" id="memberAvatar">😊</div>
-            <div>
-              <div style="font-family:'Nunito',sans-serif;font-weight:800;font-size:18px;color:var(--ocean-deep)" id="memberNameDisplay">-</div>
+        <div class="settle-body" style="padding:24px">
+          <div style="display:flex;align-items:center;gap:18px;margin-bottom:24px">
+            <div style="width:64px;height:64px;border-radius:50%;background:linear-gradient(135deg,var(--ocean-mid),var(--ocean-deep));display:flex;align-items:center;justify-content:center;font-size:26px;font-weight:800;color:#fff;font-family:'Nunito',sans-serif;box-shadow:0 6px 20px rgba(61,132,170,.3);flex-shrink:0" id="memberAvatar">?</div>
+            <div style="flex:1">
+              <div style="font-family:'Nunito',sans-serif;font-weight:800;font-size:22px;color:var(--ocean-deep)" id="memberNameDisplay">-</div>
               <div style="font-size:12px;color:var(--text3);margin-top:2px" id="memberEmailDisplay">-</div>
-              <div id="memberRoleDisplay" style="margin-top:4px"></div>
+              <div id="memberRoleDisplay" style="margin-top:6px"></div>
+            </div>
+          </div>
+
+          <!-- 통계 -->
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:22px" id="profileStats">
+            <div style="background:var(--foam);border:1.5px solid var(--border2);border-radius:12px;padding:12px;text-align:center">
+              <div style="font-family:'Nunito',sans-serif;font-weight:900;font-size:22px;color:var(--ocean-deep)" id="statSongs">0</div>
+              <div style="font-size:11px;color:var(--text3);margin-top:2px">제안한 곡</div>
+            </div>
+            <div style="background:var(--foam);border:1.5px solid var(--border2);border-radius:12px;padding:12px;text-align:center">
+              <div style="font-family:'Nunito',sans-serif;font-weight:900;font-size:22px;color:var(--mint-deep)" id="statDates">0</div>
+              <div style="font-size:11px;color:var(--text3);margin-top:2px">가능 표시 날</div>
+            </div>
+            <div style="background:var(--foam);border:1.5px solid var(--border2);border-radius:12px;padding:12px;text-align:center">
+              <div style="font-family:'Nunito',sans-serif;font-weight:900;font-size:22px;color:var(--coral)" id="statScores">0</div>
+              <div style="font-size:11px;color:var(--text3);margin-top:2px">올린 악보</div>
             </div>
           </div>
 
           <!-- 이름 변경 -->
-          <div class="form-row" style="margin-bottom:14px">
+          <div class="form-row" style="margin-bottom:0">
             <label class="form-label">표시 이름 변경</label>
             <div style="display:flex;gap:8px">
-              <input class="form-input" id="newNameInput" placeholder="새 이름 입력..." style="flex:1">
+              <input class="form-input" id="newNameInput" placeholder="새 이름 입력..." style="flex:1;margin-bottom:0">
               <button class="action-btn leader-action" style="width:auto;padding:10px 16px;margin-bottom:0;white-space:nowrap" onclick="updateDisplayName()">변경</button>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- 비번 변경 카드 -->
+      <!-- 내가 제안한 곡들 -->
+      <div class="settle-card" style="margin-bottom:18px">
+        <div class="settle-card-header">
+          <div class="settle-card-title">🎵 내가 제안한 곡들</div>
+        </div>
+        <div class="settle-body" id="profileSongsList">
+          <div style="text-align:center;padding:20px;color:var(--text3);font-size:13px">아직 제안한 곡이 없어요</div>
+        </div>
+      </div>
+
+      <!-- 내가 올린 악보 -->
+      <div class="settle-card" style="margin-bottom:18px">
+        <div class="settle-card-header">
+          <div class="settle-card-title">📄 내가 올린 악보</div>
+        </div>
+        <div class="settle-body" id="profileScoresList">
+          <div style="text-align:center;padding:20px;color:var(--text3);font-size:13px">아직 올린 악보가 없어요</div>
+        </div>
+      </div>
+
+      <!-- 비번 변경 -->
       <div class="settle-card" style="margin-bottom:18px">
         <div class="settle-card-header">
           <div class="settle-card-title">🔑 비밀번호 변경</div>
@@ -949,12 +963,35 @@ async function doLogin() {
 
 async function onLoginSuccess(user) {
   myEmail = user.email || '';
-  // display_name: user_metadata.name 우선, 없으면 이메일 앞부분
   myName = user.user_metadata?.name || user.email.split('@')[0];
+
+  // Supabase band_members 에서 역할 조회
+  const { data: member } = await db.from('band_members')
+    .select('role, display_name')
+    .eq('email', myEmail)
+    .single();
+
+  if (member) {
+    isLeader = member.role === 'leader';
+    isAdmin  = member.role === 'admin';
+    // display_name이 있으면 우선 사용
+    if (member.display_name) myName = member.display_name;
+  } else {
+    // 테이블에 없으면 새로 등록
+    await db.from('band_members').insert({ email: myEmail, display_name: myName, role: 'member' });
+    isLeader = false; isAdmin = false;
+  }
 
   document.getElementById('loginModal').style.display = 'none';
   initUser();
   await loadAll();
+
+  // 새로고침 시 마지막 탭 복원
+  const savedTab = localStorage.getItem('bm_last_tab');
+  if (savedTab) {
+    const tabEl = document.querySelector(`.tab[onclick="showTab('${savedTab}',this)"]`);
+    if (tabEl) showTab(savedTab, tabEl);
+  }
 }
 
 // ── 로그아웃 ──
@@ -970,7 +1007,7 @@ async function doLogout() {
   setTimeout(() => document.getElementById('loginEmail').focus(), 100);
 }
 
-// ── 멤버 관리 탭 렌더링 ──
+// ── 프로필 탭 렌더링 ──
 function renderMembersTab() {
   document.getElementById('memberNameDisplay').textContent = myName || '-';
   document.getElementById('memberEmailDisplay').textContent = myEmail || '-';
@@ -989,6 +1026,46 @@ function renderMembersTab() {
   } else {
     roleEl.innerHTML = '<span style="background:var(--foam);color:var(--text3);border:1.5px solid var(--border);border-radius:20px;padding:3px 10px;font-size:11px;font-weight:700;font-family:Nunito,sans-serif">🎸 멤버</span>';
   }
+
+  // 통계
+  const mySongs  = songs.filter(s => s.proposed_by === myName);
+  const myDates  = votes.filter(v => v.voter_name === myName && v.available);
+  const myScores = scores.filter(s => s.uploaded_by === myName);
+  document.getElementById('statSongs').textContent  = mySongs.length;
+  document.getElementById('statDates').textContent  = myDates.length;
+  document.getElementById('statScores').textContent = myScores.length;
+
+  // 내가 제안한 곡
+  const songsList = document.getElementById('profileSongsList');
+  if (mySongs.length) {
+    songsList.innerHTML = mySongs.map(s => `
+      <div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border2)">
+        <div style="width:36px;height:36px;border-radius:10px;background:var(--ocean-pale);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0">🎵</div>
+        <div style="flex:1;min-width:0">
+          <div style="font-weight:700;font-size:14px;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${s.title}</div>
+          <div style="font-size:12px;color:var(--text3)">${s.artist||'아티스트 미입력'}</div>
+        </div>
+        ${s.is_confirmed ? '<span style="background:var(--mint-light);color:var(--mint-deep);border-radius:8px;padding:2px 8px;font-size:11px;font-weight:700;font-family:Nunito,sans-serif;flex-shrink:0">✓ 확정</span>' : ''}
+      </div>`).join('');
+  } else {
+    songsList.innerHTML = '<div style="text-align:center;padding:20px;color:var(--text3);font-size:13px">아직 제안한 곡이 없어요</div>';
+  }
+
+  // 내가 올린 악보
+  const scoresList = document.getElementById('profileScoresList');
+  if (myScores.length) {
+    scoresList.innerHTML = myScores.map(s => `
+      <div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border2)">
+        <div style="width:36px;height:36px;border-radius:10px;background:var(--foam);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0">📄</div>
+        <div style="flex:1;min-width:0">
+          <div style="font-weight:700;font-size:14px;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${s.title}</div>
+          <div style="font-size:12px;color:var(--text3)">${s.artist||''} ${s.memo?'· '+s.memo:''}</div>
+        </div>
+        <a href="${s.drive_url}" target="_blank" style="font-size:12px;color:var(--ocean-mid);font-weight:700;text-decoration:none;flex-shrink:0">↗ 열기</a>
+      </div>`).join('');
+  } else {
+    scoresList.innerHTML = '<div style="text-align:center;padding:20px;color:var(--text3);font-size:13px">아직 올린 악보가 없어요</div>';
+  }
 }
 
 // ── 이름 변경 ──
@@ -997,8 +1074,12 @@ async function updateDisplayName() {
   if (!newName) return showToast('이름을 입력해주세요', 'error');
   if (newName === myName) return showToast('현재와 같은 이름이에요', 'error');
 
+  // Supabase Auth 메타데이터 업데이트
   const { error } = await db.auth.updateUser({ data: { name: newName } });
   if (error) return showToast('변경 실패: ' + error.message, 'error');
+
+  // band_members 테이블도 동기화
+  await db.from('band_members').update({ display_name: newName }).eq('email', myEmail);
 
   myName = newName;
   initUser();
@@ -1029,9 +1110,8 @@ async function changePassword() {
 }
 
 function initUser() {
-  isLeader = myName.includes(LEADER_KEYWORD) || myEmail.includes(LEADER_KEYWORD.toLowerCase());
-  isAdmin  = myName.includes(ADMIN_KEYWORD)  || myEmail.includes(ADMIN_KEYWORD.toLowerCase());
-  document.getElementById('userDisplay').textContent = myName + ' (로그아웃)';
+  // 역할은 onLoginSuccess에서 이미 설정됨 (Supabase 기반)
+  document.getElementById('userDisplay').textContent = myName;
   const rb = document.getElementById('roleBadge');
   if (isAdmin) {
     rb.style.display = 'block'; rb.className = 'role-badge admin'; rb.textContent = '⚙ 어드민';
@@ -1040,7 +1120,6 @@ function initUser() {
   } else {
     rb.style.display = 'none';
   }
-  // 달력 초기화 버튼 (리더/어드민만)
   const resetBtn = document.getElementById('calResetBtn');
   if (resetBtn) resetBtn.style.display = (isLeader||isAdmin) ? 'flex' : 'none';
   document.getElementById('leaderSettleForm').style.display = (isLeader||isAdmin) ? 'block' : 'none';
@@ -1051,6 +1130,7 @@ function showTab(tab, el) {
   document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
   document.getElementById('tab-'+tab).style.display = 'block';
   el.classList.add('active');
+  localStorage.setItem('bm_last_tab', tab); // 탭 위치 저장
   if (tab==='settle')  renderSettleList();
   if (tab==='songs')   { renderSongsTab(); initSongForm(); }
   if (tab==='scores')  renderScoresTab();
@@ -1843,10 +1923,8 @@ function setScoreFilter(filter, el) {
 
 function renderScoresTab() {
   const q = (document.getElementById('scoreSearch')?.value||'').toLowerCase();
-  let filtered = scores.filter(s=>{
-    const matchInstrument = currentScoreFilter==='all' || s.instrument===currentScoreFilter;
-    const matchSearch = !q || s.title.toLowerCase().includes(q) || (s.artist||'').toLowerCase().includes(q);
-    return matchInstrument && matchSearch;
+  let filtered = scores.filter(s => {
+    return !q || s.title.toLowerCase().includes(q) || (s.artist||'').toLowerCase().includes(q);
   });
   const area = document.getElementById('scoreCardsArea');
   if (!area) return;
@@ -1854,41 +1932,41 @@ function renderScoresTab() {
     area.innerHTML = `<div class="empty-hint"><span class="e">📄</span><p>악보가 없어요</p></div>`;
     return;
   }
-  const iconMap = {all:'📋',guitar:'🎸',bass:'🎵',drum:'🥁',keys:'🎹',vocal:'🎤'};
-  area.innerHTML = filtered.map(s=>`
+  area.innerHTML = filtered.map(s => {
+    const dt = new Date(s.created_at);
+    const dateStr = `${dt.getMonth()+1}/${dt.getDate()}`;
+    return `
     <a class="score-card" href="${s.drive_url}" target="_blank">
-      <div class="score-icon ${s.instrument}">${iconMap[s.instrument]||'📄'}</div>
+      <div class="score-icon all">📄</div>
       <div class="score-info">
         <div class="score-title">${s.title}</div>
         <div class="score-artist">${s.artist||''}</div>
         <div class="score-meta">
-          <span class="score-tag ${s.instrument}">${INSTRUMENT_LABEL[s.instrument]||s.instrument}</span>
-          ${s.memo?`<span class="score-uploader">${s.memo}</span>`:''}
           <span class="score-uploader">by ${s.uploaded_by}</span>
+          <span class="score-uploader">${dateStr} 등록</span>
+          ${s.memo?`<span class="score-uploader">${s.memo}</span>`:''}
         </div>
       </div>
       <div class="score-arrow">↗</div>
       ${(isAdmin||s.uploaded_by===myName)?`<button class="action-btn danger" style="width:auto;padding:4px 8px;margin:0;font-size:11px;flex-shrink:0" onclick="event.preventDefault();deleteScore('${s.id}')">삭제</button>`:''}
-    </a>
-  `).join('');
+    </a>`;
+  }).join('');
 }
 
 async function addScore() {
   const title = document.getElementById('scoreTitle').value.trim();
   const artist = document.getElementById('scoreArtist').value.trim();
-  const instrument = document.getElementById('scoreInstrument').value;
   const link = document.getElementById('scoreLink').value.trim();
   const memo = document.getElementById('scoreMemo').value.trim();
   if (!title) return showToast('곡 제목을 입력해주세요','error');
   if (!link) return showToast('구글드라이브 링크를 입력해주세요','error');
   if (!link.startsWith('http')) return showToast('올바른 링크를 입력해주세요','error');
   const {error} = await db.from('band_scores').insert({
-    title, artist:artist||null, instrument, drive_url:link, memo:memo||null, uploaded_by:myName
+    title, artist:artist||null, instrument:'all', drive_url:link, memo:memo||null, uploaded_by:myName
   });
   if (error) return showToast('추가 실패: '+error.message,'error');
   showToast('📄 악보 추가됨!','success');
   ['scoreTitle','scoreArtist','scoreLink','scoreMemo'].forEach(id=>{ document.getElementById(id).value=''; });
-  document.getElementById('scoreInstrument').value='all';
   await loadAll(); renderScoresTab();
 }
 
