@@ -880,9 +880,8 @@ function initUser() {
   // 달력 초기화 버튼 (리더/어드민만)
   const resetBtn = document.getElementById('calResetBtn');
   if (resetBtn) resetBtn.style.display = (isLeader||isAdmin) ? 'flex' : 'none';
-    document.getElementById('leaderSettleForm').style.display = (isLeader||isAdmin) ? 'block' : 'none';
-    document.getElementById('memberSettleHint').style.display = (isLeader||isAdmin) ? 'none' : 'block';
-  }
+  document.getElementById('leaderSettleForm').style.display = (isLeader||isAdmin) ? 'block' : 'none';
+  document.getElementById('memberSettleHint').style.display = (isLeader||isAdmin) ? 'none' : 'block';
 }
 function showTab(tab, el) {
   document.querySelectorAll('[id^="tab-"]').forEach(t => t.style.display='none');
