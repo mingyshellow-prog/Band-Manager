@@ -468,7 +468,10 @@
         <div class="cal-nav">
           <button class="cal-nav-btn" onclick="changeMonth(-1)">‹</button>
           <div class="cal-month-title" id="calTitle"></div>
-          <button class="cal-nav-btn" onclick="changeMonth(1)">›</button>
+          <div style="display:flex;gap:6px;align-items:center">
+            <button id="calResetBtn" class="cal-nav-btn" style="display:none;width:auto;padding:0 10px;font-size:11px;font-weight:700;color:var(--coral);border-color:var(--coral-light);font-family:'Nunito',sans-serif" onclick="resetCalendar()">🗑 초기화</button>
+            <button class="cal-nav-btn" onclick="changeMonth(1)">›</button>
+          </div>
         </div>
         <div class="cal-tip">
           <b>내가 가능한 날짜를 클릭</b>해서 표시하세요 · 리더가 최종 날짜를 확정해요
@@ -722,7 +725,7 @@
         <div class="round-info-card">
           <div class="side-header">
             <div class="side-header-title">🎬 영상 추가</div>
-            <div class="side-header-sub">유튜브 또는 드라이브 링크</div>
+            <div class="side-header-sub">파일 직접 업로드 또는 링크</div>
           </div>
           <div class="side-body">
             <div class="form-row">
@@ -734,8 +737,29 @@
               <input class="form-input" id="videoSong" placeholder="ex) Superstition">
             </div>
             <div class="form-row">
-              <label class="form-label">링크 *</label>
-              <input class="form-input" id="videoUrl" placeholder="https://youtu.be/... 또는 drive.google.com/...">
+              <label class="form-label">업로드 방식</label>
+              <div style="display:flex;gap:8px;margin-bottom:8px">
+                <button class="filter-chip active" id="videoTabFile" onclick="switchVideoTab('file')">📁 파일</button>
+                <button class="filter-chip" id="videoTabLink" onclick="switchVideoTab('link')">🔗 링크</button>
+              </div>
+              <div id="videoFileArea">
+                <div id="videoDropZone" style="border:2px dashed var(--border);border-radius:14px;padding:20px;text-align:center;cursor:pointer;transition:all .2s;background:var(--foam)" onclick="document.getElementById('videoFileInput').click()" ondragover="event.preventDefault();this.style.borderColor='var(--ocean-mid)'" ondragleave="this.style.borderColor='var(--border)'" ondrop="handleVideoDrop(event)">
+                  <div style="font-size:28px;margin-bottom:6px">🎬</div>
+                  <div style="font-size:12px;font-weight:700;color:var(--text2)">클릭하거나 파일을 드래그</div>
+                  <div style="font-size:11px;color:var(--text3);margin-top:2px">MP4, MOV, AVI 등 · 최대 50MB</div>
+                </div>
+                <input type="file" id="videoFileInput" accept="video/*" style="display:none" onchange="handleVideoFileSelect(this)">
+                <div id="videoFilePreview" style="display:none;margin-top:8px;padding:10px 12px;background:var(--foam);border:1.5px solid var(--border);border-radius:10px;font-size:12px;color:var(--text2)"></div>
+              </div>
+              <div id="videoLinkArea" style="display:none">
+                <input class="form-input" id="videoUrl" placeholder="https://youtu.be/... 또는 drive.google.com/...">
+              </div>
+            </div>
+            <div id="videoUploadProgress" style="display:none;margin-bottom:8px">
+              <div style="font-size:12px;color:var(--text2);margin-bottom:4px">업로드 중...</div>
+              <div style="background:var(--border2);border-radius:10px;height:6px;overflow:hidden">
+                <div id="videoProgressBar" style="height:100%;background:linear-gradient(90deg,var(--ocean-mid),var(--mint-deep));width:0%;transition:width .3s;border-radius:10px"></div>
+              </div>
             </div>
             <button class="action-btn leader-action" onclick="addVideo()">🎬 영상 추가</button>
           </div>
@@ -853,8 +877,9 @@ function initUser() {
   } else {
     rb.style.display = 'none';
   }
-  // 정산 폼 표시 여부
-  if (document.getElementById('leaderSettleForm')) {
+  // 달력 초기화 버튼 (리더/어드민만)
+  const resetBtn = document.getElementById('calResetBtn');
+  if (resetBtn) resetBtn.style.display = (isLeader||isAdmin) ? 'flex' : 'none';
     document.getElementById('leaderSettleForm').style.display = (isLeader||isAdmin) ? 'block' : 'none';
     document.getElementById('memberSettleHint').style.display = (isLeader||isAdmin) ? 'none' : 'block';
   }
@@ -963,7 +988,7 @@ function renderCalendar() {
     const star   = prop?.is_confirmed ? '<span class="confirmed-star">★</span>' : '';
     const htip   = isHol ? `<span class="holiday-name">${HOLIDAYS[ds]}</span>` : '';
 
-    html+=`<div class="${cls}" data-ds="${ds}" onpointerdown="calPointerDown(event,'${ds}')" onpointermove="calPointerMove(event,'${ds}')" onpointerup="calPointerUp(event,'${ds}')">
+    html+=`<div class="${cls}" data-ds="${ds}" onpointerdown="calPointerDown(event,'${ds}')" onpointerup="calPointerUp(event,'${ds}')">
       ${star}${htip}
       <span class="day-num">${d}</span>
       <div class="name-tags">${nameTags}${moreTag}</div>
@@ -977,10 +1002,9 @@ function renderCalendar() {
   document.getElementById('calGrid').innerHTML=html;
 }
 
-// ── 달력 드래그 + Shift+방향키 ──
+// ── 달력 드래그 ──
 let _pdX=0, _pdY=0;
 
-// 두 날짜 사이의 모든 날짜 배열 반환
 function datesBetween(ds1, ds2) {
   const d1 = new Date(ds1+'T00:00:00');
   const d2 = new Date(ds2+'T00:00:00');
@@ -994,21 +1018,28 @@ function datesBetween(ds1, ds2) {
   return result;
 }
 
-// 날짜에서 N일 이동
 function shiftDate(ds, days) {
   const d = new Date(ds+'T00:00:00');
   d.setDate(d.getDate()+days);
   return toDS(d);
 }
 
-// 드래그 중 범위 하이라이트 (DOM 직접 업데이트, 리렌더 없이)
+function getDsFromPoint(x, y) {
+  const el = document.elementFromPoint(x, y)?.closest('.cal-day[data-ds]');
+  return el ? el.dataset.ds : null;
+}
+
 function updateDragHighlight(endDs) {
+  if (!dragStartDate || !endDs) return;
   const range = new Set(datesBetween(dragStartDate, endDs));
   document.querySelectorAll('.cal-day[data-ds]').forEach(el => {
-    const ds = el.dataset.ds;
-    if(range.has(ds)) el.classList.add('in-range');
+    if(range.has(el.dataset.ds)) el.classList.add('in-range');
     else el.classList.remove('in-range');
   });
+}
+
+function clearDragHighlight() {
+  document.querySelectorAll('.cal-day.in-range').forEach(el=>el.classList.remove('in-range'));
 }
 
 function calPointerDown(e, ds) {
@@ -1018,32 +1049,35 @@ function calPointerDown(e, ds) {
   e.currentTarget.setPointerCapture(e.pointerId);
 }
 
-function calPointerMove(e, ds) {
+// document 레벨에서 pointermove 처리 (setPointerCapture 덕분에 캡처됨)
+document.addEventListener('pointermove', e => {
+  if (!dragStartDate) return;
   const dx=Math.abs(e.clientX-_pdX), dy=Math.abs(e.clientY-_pdY);
-  if(!isDragging && (dx>6||dy>6)) isDragging=true;
-  if(isDragging && dragStartDate) updateDragHighlight(ds);
-}
+  if (!isDragging && (dx>8||dy>8)) isDragging=true;
+  if (isDragging) {
+    const ds = getDsFromPoint(e.clientX, e.clientY);
+    if (ds) updateDragHighlight(ds);
+  }
+});
 
 function calPointerUp(e, ds) {
-  const dx=Math.abs(e.clientX-_pdX), dy=Math.abs(e.clientY-_pdY);
+  clearDragHighlight();
 
-  // 드래그 범위 하이라이트 제거
-  document.querySelectorAll('.cal-day.in-range').forEach(el=>el.classList.remove('in-range'));
-
-  if(!isDragging || (dx<6&&dy<6)) {
+  if (!isDragging) {
     // 단순 클릭
     selectedDates.clear();
     selectedDate=ds;
+    dragStartDate=null;
     renderCalendar();
     renderSide(ds);
   } else {
-    // 드래그 범위 선택
-    const range = datesBetween(dragStartDate, ds).filter(d => {
-      // 해당 월 날짜만
-      return d.startsWith(`${curYear}-${String(curMonth+1).padStart(2,'0')}`);
-    });
+    // 드래그 완료 — 범위 선택
+    const endDs = getDsFromPoint(e.clientX, e.clientY) || ds;
+    const monthPfx = `${curYear}-${String(curMonth+1).padStart(2,'0')}`;
+    const range = datesBetween(dragStartDate, endDs).filter(d => d.startsWith(monthPfx));
     selectedDates = new Set(range);
-    selectedDate = ds;
+    selectedDate = endDs;
+    dragStartDate=null;
     isDragging=false;
     renderCalendar();
     renderSideMulti(range);
@@ -1095,20 +1129,25 @@ function renderSideMulti(dates) {
   const d1=new Date(first+'T00:00:00'), d2=new Date(last+'T00:00:00');
   const WD=['일','월','화','수','목','금','토'];
   const fmt=d=>`${d.getMonth()+1}/${d.getDate()}(${WD[d.getDay()]})`;
+  const label = sorted.length===1 ? fmt(d1) : `${fmt(d1)} ~ ${fmt(d2)}`;
 
   card.innerHTML=`
     <div class="side-header">
-      <div class="side-header-title">${fmt(d1)} ~ ${fmt(d2)}</div>
+      <div class="side-header-title">${label}</div>
       <div class="side-header-sub">${dates.length}일 선택됨</div>
     </div>
     <div class="side-body">
-      <span class="field-label">선택된 날짜 전체에 적용</span>
-      <button class="avail-btn on" onclick="toggleAvailMulti(${JSON.stringify(sorted)},true)">
+      <span class="field-label">선택 날짜에 일괄 적용</span>
+      <button class="avail-btn on" onclick="toggleAvailMulti(${JSON.stringify(sorted)},true,null)">
         ✓ 전체 가능으로 표시
       </button>
-      <button class="avail-btn off" onclick="toggleAvailMulti(${JSON.stringify(sorted)},false)">
-        ✗ 전체 불가로 표시
-      </button>
+      <div style="margin-top:10px">
+        <div style="font-size:12px;font-weight:700;color:var(--text2);margin-bottom:6px">✗ 불가로 표시</div>
+        <input class="form-input" id="multiUnavailReason" placeholder="불가 사유 (선택, 예: 군대 등)" style="margin-bottom:6px">
+        <button class="avail-btn off" onclick="toggleAvailMulti(${JSON.stringify(sorted)},false,document.getElementById('multiUnavailReason')?.value.trim()||null)">
+          ✗ 전체 불가로 표시
+        </button>
+      </div>
       <div style="margin-top:10px;font-size:12px;color:var(--text3)">
         ${sorted.map(ds=>{
           const d=new Date(ds+'T00:00:00');
@@ -1118,13 +1157,15 @@ function renderSideMulti(dates) {
     </div>`;
 }
 
-async function toggleAvailMulti(dates, available) {
+async function toggleAvailMulti(dates, available, reason) {
   for(const ds of dates) {
     let prop=proposals.find(p=>p.proposed_date===ds);
     if(!prop){
-      const {data,error}=await db.from('band_date_proposals').insert({proposed_date:ds,proposed_by:myName,note:null}).select().single();
+      const {data,error}=await db.from('band_date_proposals').insert({proposed_date:ds,proposed_by:myName,note:reason||null}).select().single();
       if(error) continue;
       prop=data; proposals.push(prop);
+    } else if(!available && reason) {
+      await db.from('band_date_proposals').update({note:reason}).eq('id',prop.id);
     }
     await db.from('band_date_votes').upsert(
       {proposal_id:prop.id, voter_name:myName, available},
@@ -1135,6 +1176,7 @@ async function toggleAvailMulti(dates, available) {
   await loadAll();
   renderSideMulti(dates);
 }
+
 
 // ── 날짜 클릭 ──
 function dayClick(ds) {
@@ -1185,12 +1227,15 @@ function renderSide(ds) {
     </div>
     <div class="side-body">
       <span class="field-label">내 가능 여부</span>
-      <button class="avail-btn on ${isMeAvail?'active':''}" onclick="toggleAvail('${ds}',true)">
+      <button class="avail-btn on ${isMeAvail?'active':''}" onclick="toggleAvail('${ds}',true,null)">
         ✓ 가능해요
       </button>
-      <button class="avail-btn off ${myVote&&!myVote.available?'active':''}" onclick="toggleAvail('${ds}',false)">
-        ✗ 불가예요
-      </button>
+      <div style="margin-top:8px">
+        <input class="form-input" id="unavailReason" placeholder="불가 사유 (선택, 예: 약속 있음)" style="margin-bottom:6px" value="${myVote&&!myVote.available&&prop?.note?prop.note:''}">
+        <button class="avail-btn off ${myVote&&!myVote.available?'active':''}" onclick="toggleAvail('${ds}',false,document.getElementById('unavailReason')?.value.trim()||null)">
+          ✗ 불가예요
+        </button>
+      </div>
       <div class="voters-section" style="margin-top:12px">
         <span class="field-label">가능한 멤버 (${availVoters.length}명)</span>
         <div class="voter-list">${chips}</div>
@@ -1200,13 +1245,16 @@ function renderSide(ds) {
 }
 
 // ── 가능 여부 토글 ──
-async function toggleAvail(ds, available) {
-  // proposal 없으면 자동 생성
+async function toggleAvail(ds, available, reason) {
   let prop=proposals.find(p=>p.proposed_date===ds);
   if(!prop){
-    const {data,error}=await db.from('band_date_proposals').insert({proposed_date:ds,proposed_by:myName,note:null}).select().single();
+    const {data,error}=await db.from('band_date_proposals').insert({proposed_date:ds,proposed_by:myName,note:reason||null}).select().single();
     if(error) return showToast('오류: '+error.message,'error');
     prop=data; proposals.push(prop);
+  } else if(!available && reason) {
+    await db.from('band_date_proposals').update({note:reason}).eq('id',prop.id);
+  } else if(available) {
+    await db.from('band_date_proposals').update({note:null}).eq('id',prop.id);
   }
   const {error}=await db.from('band_date_votes').upsert(
     {proposal_id:prop.id,voter_name:myName,available},
@@ -1226,6 +1274,26 @@ async function confirmDate(id,ds){
   if(error) return showToast('확정 실패: '+error.message,'error');
   showToast('🎉 날짜 확정!','success');
   await loadAll(); renderSide(ds);
+}
+
+// ── 달력 초기화 (리더/어드민) ──
+async function resetCalendar() {
+  const monthPfx = `${curYear}-${String(curMonth+1).padStart(2,'0')}`;
+  const thisMonthProposals = proposals.filter(p=>p.proposed_date.startsWith(monthPfx));
+
+  if(!thisMonthProposals.length) return showToast('이번 달 데이터가 없어요','success');
+
+  const target = confirm(`이번 달(${curMonth+1}월) 전체 초기화할까요?\n\n확인 = 이번 달만\n취소 후 전체 초기화를 원하면 다시 알려주세요`);
+  if(!target) return;
+
+  const ids = thisMonthProposals.map(p=>p.id);
+  // 투표 먼저 삭제 후 제안 삭제
+  await db.from('band_date_votes').delete().in('proposal_id', ids);
+  await db.from('band_date_proposals').delete().in('id', ids);
+  showToast(`🗑 ${curMonth+1}월 달력 초기화 완료!`, 'success');
+  selectedDate=null; selectedDates.clear(); dragStartDate=null;
+  await loadAll();
+  document.getElementById('sideCard').innerHTML=`<div class="empty-hint"><span class="e">👆</span><p>날짜를 클릭하면<br>가능 여부를 표시할 수 있어요</p></div>`;
 }
 
 // ── 삭제 (어드민) ──
@@ -1654,6 +1722,67 @@ async function deleteScore(id) {
 }
 
 // ── 연습 영상 ──
+let videoSelectedFile = null;
+let videoMode = 'file'; // 'file' | 'link'
+
+function switchVideoTab(mode) {
+  videoMode = mode;
+  document.getElementById('videoFileArea').style.display = mode==='file' ? 'block' : 'none';
+  document.getElementById('videoLinkArea').style.display = mode==='link' ? 'block' : 'none';
+  document.getElementById('videoTabFile').classList.toggle('active', mode==='file');
+  document.getElementById('videoTabLink').classList.toggle('active', mode==='link');
+}
+
+function handleVideoFileSelect(input) {
+  const file = input.files[0];
+  if (!file) return;
+  if (file.size > 50 * 1024 * 1024) return showToast('50MB 이하 파일만 업로드 가능해요','error');
+  videoSelectedFile = file;
+  const preview = document.getElementById('videoFilePreview');
+  const sizeMB = (file.size / 1024 / 1024).toFixed(1);
+  preview.style.display = 'block';
+  preview.innerHTML = `<div style="display:flex;align-items:center;gap:8px">
+    <span style="font-size:20px">🎬</span>
+    <div>
+      <div style="font-weight:700;color:var(--text)">${file.name}</div>
+      <div style="color:var(--text3)">${sizeMB}MB</div>
+    </div>
+    <button onclick="clearVideoFile()" style="margin-left:auto;background:none;border:none;cursor:pointer;color:var(--text3);font-size:18px">✕</button>
+  </div>`;
+  const zone = document.getElementById('videoDropZone');
+  zone.style.borderColor = 'var(--ocean-mid)';
+  zone.style.background = 'var(--ocean-pale)';
+}
+
+function handleVideoDrop(e) {
+  e.preventDefault();
+  document.getElementById('videoDropZone').style.borderColor = 'var(--border)';
+  const file = e.dataTransfer.files[0];
+  if (!file || !file.type.startsWith('video/')) return showToast('영상 파일만 올려주세요','error');
+  const input = document.getElementById('videoFileInput');
+  const dt = new DataTransfer();
+  dt.items.add(file);
+  input.files = dt.files;
+  handleVideoFileSelect(input);
+}
+
+function clearVideoFile() {
+  videoSelectedFile = null;
+  document.getElementById('videoFileInput').value = '';
+  document.getElementById('videoFilePreview').style.display = 'none';
+  const zone = document.getElementById('videoDropZone');
+  zone.style.borderColor = 'var(--border)';
+  zone.style.background = 'var(--foam)';
+}
+
+function setVideoProgress(pct) {
+  const wrap = document.getElementById('videoUploadProgress');
+  const bar  = document.getElementById('videoProgressBar');
+  if (pct === null) { wrap.style.display='none'; bar.style.width='0%'; return; }
+  wrap.style.display = 'block';
+  bar.style.width = pct+'%';
+}
+
 function getYoutubeId(url) {
   const m = url.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|shorts\/))([^&?/\s]{11})/);
   return m ? m[1] : null;
@@ -1662,25 +1791,28 @@ function getYoutubeId(url) {
 function renderVideosTab() {
   const area = document.getElementById('videoCardsArea');
   if (!area) return;
+  // 탭 초기화 (파일 모드 기본)
+  switchVideoTab('file');
   if (!videos.length) {
     area.innerHTML = `<div class="empty-hint" style="grid-column:1/-1"><span class="e">🎬</span><p>아직 영상이 없어요<br>오른쪽에서 추가해보세요!</p></div>`;
     return;
   }
   area.innerHTML = videos.map(v=>{
     const ytId = getYoutubeId(v.url||'');
+    const isStorage = v.url?.includes('supabase') || v.storage_path;
     const thumb = ytId
       ? `<img src="https://img.youtube.com/vi/${ytId}/mqdefault.jpg" style="width:100%;height:100%;object-fit:cover;">`
-      : `<div class="video-thumb-placeholder"><span>🎬</span><p>드라이브 영상</p></div>`;
+      : `<div class="video-thumb-placeholder"><span>🎬</span><p>${isStorage?'업로드 영상':'드라이브 영상'}</p></div>`;
     return `<div class="video-card">
-      <div class="video-thumb">${thumb}</div>
+      <div class="video-thumb" style="cursor:pointer" onclick="window.open('${v.url}','_blank')">${thumb}</div>
       <div class="video-info">
         <div class="video-title">${v.title}</div>
         ${v.song_name?`<div class="video-song">🎵 ${v.song_name}</div>`:''}
         <div class="video-meta">
           <span class="video-uploader">by ${v.uploaded_by}</span>
-          <a class="video-link" href="${v.url}" target="_blank">▶ 영상 보기</a>
+          <a class="video-link" href="${v.url}" target="_blank">▶ 보기</a>
         </div>
-        ${(isAdmin||v.uploaded_by===myName)?`<button class="action-btn danger" style="width:100%;padding:5px;margin-top:8px;font-size:11px" onclick="deleteVideo('${v.id}')">삭제</button>`:''}
+        ${(isAdmin||v.uploaded_by===myName)?`<button class="action-btn danger" style="width:100%;padding:5px;margin-top:8px;font-size:11px" onclick="deleteVideo('${v.id}','${v.storage_path||''}')">삭제</button>`:''}
       </div>
     </div>`;
   }).join('');
@@ -1688,22 +1820,61 @@ function renderVideosTab() {
 
 async function addVideo() {
   const title = document.getElementById('videoTitle').value.trim();
-  const song = document.getElementById('videoSong').value.trim();
-  const url = document.getElementById('videoUrl').value.trim();
+  const song  = document.getElementById('videoSong').value.trim();
   if (!title) return showToast('영상 제목을 입력해주세요','error');
-  if (!url) return showToast('링크를 입력해주세요','error');
-  if (!url.startsWith('http')) return showToast('올바른 링크를 입력해주세요','error');
+
+  let finalUrl = '';
+  let storagePath = null;
+
+  if (videoMode === 'file') {
+    // ── 파일 업로드 ──
+    const file = videoSelectedFile || document.getElementById('videoFileInput').files[0];
+    if (!file) return showToast('파일을 선택해주세요','error');
+    if (file.size > 50 * 1024 * 1024) return showToast('50MB 이하 파일만 가능해요','error');
+
+    const ext = file.name.split('.').pop();
+    const path = `videos/${Date.now()}_${myName.replace(/\s/g,'_')}.${ext}`;
+    storagePath = path;
+
+    setVideoProgress(10);
+    const { data: upData, error: upErr } = await db.storage
+      .from('band-videos')
+      .upload(path, file, { contentType: file.type, upsert: false });
+
+    if (upErr) {
+      setVideoProgress(null);
+      return showToast('업로드 실패: '+upErr.message,'error');
+    }
+    setVideoProgress(80);
+
+    const { data: urlData } = db.storage.from('band-videos').getPublicUrl(path);
+    finalUrl = urlData.publicUrl;
+    setVideoProgress(100);
+
+  } else {
+    // ── 링크 방식 ──
+    finalUrl = document.getElementById('videoUrl').value.trim();
+    if (!finalUrl) return showToast('링크를 입력해주세요','error');
+    if (!finalUrl.startsWith('http')) return showToast('올바른 링크를 입력해주세요','error');
+  }
+
   const {error} = await db.from('band_videos').insert({
-    title, song_name:song||null, url, uploaded_by:myName
+    title, song_name:song||null, url:finalUrl, storage_path:storagePath, uploaded_by:myName
   });
-  if (error) return showToast('추가 실패: '+error.message,'error');
+  if (error) { setVideoProgress(null); return showToast('저장 실패: '+error.message,'error'); }
+
   showToast('🎬 영상 추가됨!','success');
+  setVideoProgress(null);
   ['videoTitle','videoSong','videoUrl'].forEach(id=>{ document.getElementById(id).value=''; });
+  clearVideoFile();
   await loadAll(); renderVideosTab();
 }
 
-async function deleteVideo(id) {
+async function deleteVideo(id, storagePath) {
   if (!confirm('영상을 삭제할까요?')) return;
+  if (storagePath) {
+    await db.storage.from('band-videos').remove([storagePath]);
+  }
   await db.from('band_videos').delete().eq('id',id);
   await loadAll(); renderVideosTab();
 }
