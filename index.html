@@ -424,8 +424,8 @@
     <span class="modal-emoji">🎸</span>
     <div class="modal-title">Band Manager</div>
     <p class="modal-desc" id="loginDesc">팀 계정으로 로그인하세요</p>
-    <input class="input" id="loginEmail" type="email" placeholder="이메일" autocomplete="email">
-    <input class="input" id="loginPw" type="password" placeholder="비밀번호" autocomplete="current-password">
+    <input class="input" id="loginEmail" type="email" placeholder="이메일" autocomplete="email" onkeydown="if(event.key==='Enter')doLogin()">
+    <input class="input" id="loginPw" type="password" placeholder="비밀번호" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()">
     <div id="loginError" style="font-size:12px;color:#c05840;margin-bottom:10px;min-height:16px;font-weight:600;font-family:'Nunito',sans-serif"></div>
     <button class="btn btn-primary" id="loginBtn" onclick="doLogin()">로그인 🌊</button>
   </div>
