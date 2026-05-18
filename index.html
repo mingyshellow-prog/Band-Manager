@@ -100,62 +100,107 @@
   .cal-tip{padding:10px 22px;background:var(--foam2);border-bottom:1.5px solid var(--border2);font-size:12px;color:var(--text3);font-weight:500;}
   .cal-tip b{color:var(--ocean-deep);}
 
-  .cal-weekdays{display:grid;grid-template-columns:repeat(7,1fr);padding:8px 14px 4px;}
-  .cal-weekday{text-align:center;font-size:11px;font-weight:700;color:var(--text3);font-family:'Nunito',sans-serif;letter-spacing:.5px;padding:4px 0;}
+  /* ── 구글 캘린더 스타일 달력 ── */
+  .cal-weekdays{display:grid;grid-template-columns:repeat(7,1fr);padding:8px 8px 0;}
+  .cal-weekday{text-align:center;font-size:11px;font-weight:700;color:var(--text3);font-family:'Nunito',sans-serif;letter-spacing:.5px;padding:6px 0;}
   .cal-weekday.sun{color:var(--holiday);}
   .cal-weekday.sat{color:var(--ocean-mid);}
 
-  .cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;padding:4px 10px 16px;}
+  /* 그리드: 7열, 각 셀 고정 높이 */
+  .cal-grid{
+    display:grid;
+    grid-template-columns:repeat(7,1fr);
+    grid-auto-rows: minmax(80px, auto);
+    border-left:1px solid var(--border2);
+    border-top:1px solid var(--border2);
+    margin:0 8px 12px;
+  }
 
   .cal-day{
-    aspect-ratio:1;border-radius:10px;
-    display:flex;flex-direction:column;
-    align-items:center;justify-content:center;
-    cursor:pointer;transition:all .15s;
-    position:relative;font-family:'Nunito',sans-serif;
-    border:1.5px solid transparent;gap:1px;
-    -webkit-tap-highlight-color:transparent;
+    border-right:1px solid var(--border2);
+    border-bottom:1px solid var(--border2);
+    padding:4px 5px;
+    cursor:pointer;
+    position:relative;
+    font-family:'Nunito',sans-serif;
+    transition:background .12s;
     user-select:none; -webkit-user-select:none;
-    overflow:hidden;
+    -webkit-tap-highlight-color:transparent;
+    min-height:80px;
+    display:flex; flex-direction:column; align-items:flex-start; gap:2px;
   }
-  .cal-day:hover:not(.empty):not(.other-month){background:var(--foam);border-color:var(--border);transform:scale(1.06);}
-  .cal-day.empty{cursor:default;}
-  .cal-day.other-month{opacity:.22;cursor:default;pointer-events:none;}
+  .cal-day:hover:not(.empty):not(.other-month){background:var(--foam);}
+  .cal-day.empty{cursor:default; border-right:1px solid var(--border2); border-bottom:1px solid var(--border2);}
+  .cal-day.other-month{opacity:.35;cursor:default;pointer-events:none;}
 
-  .day-num{font-size:12px;font-weight:800;line-height:1;color:var(--text);z-index:1;}
+  /* 날짜 숫자 - 구글 캘린더처럼 원형 */
+  .day-num{
+    font-size:13px;font-weight:700;line-height:1;
+    color:var(--text);z-index:1;
+    width:26px;height:26px;
+    display:flex;align-items:center;justify-content:center;
+    border-radius:50%;
+    flex-shrink:0;
+    transition:all .12s;
+  }
   .cal-day.sunday   .day-num{color:var(--holiday);}
   .cal-day.saturday .day-num{color:var(--ocean-mid);}
   .cal-day.holiday  .day-num{color:var(--holiday);}
 
-  .cal-day.today{background:var(--sun-light);border-color:var(--sun);}
-  .cal-day.today .day-num{color:#b07a00;}
+  /* 오늘: 원형 배경 */
+  .cal-day.today .day-num{
+    background:var(--ocean-deep);color:#fff;
+    font-weight:800;
+  }
 
-  /* 내가 가능 표시한 날 */
-  .cal-day.my-available{background:var(--mint-light);border-color:var(--mint);}
+  /* 내가 가능 표시한 날 - 좌측 색상 바 */
+  .cal-day.my-available{background:rgba(142,223,200,.1);}
+  .cal-day.my-available::before{
+    content:'';position:absolute;left:0;top:0;bottom:0;
+    width:3px;background:var(--mint-deep);border-radius:0;
+  }
   .cal-day.my-available .day-num{color:var(--mint-deep);}
 
   /* 확정된 날 */
-  .cal-day.confirmed-day{background:linear-gradient(135deg,var(--mint-light),#b8f0e0);border-color:var(--mint-deep)!important;box-shadow:0 2px 10px rgba(58,184,150,.25);}
-  .cal-day.confirmed-day .day-num{color:var(--mint-deep);}
+  .cal-day.confirmed-day{background:rgba(58,184,150,.08);}
+  .cal-day.confirmed-day::before{
+    content:'';position:absolute;left:0;top:0;bottom:0;
+    width:3px;background:var(--mint-deep);
+  }
+  .cal-day.confirmed-day .day-num{
+    background:var(--mint-deep);color:#fff;font-weight:800;
+  }
 
   /* 드래그 범위 선택 */
-  .cal-day.in-range{background:var(--ocean-pale)!important;border-color:var(--ocean-mid)!important;}
-  .cal-day.in-range .day-num{color:var(--ocean-deep)!important;}
+  .cal-day.in-range{background:var(--ocean-pale)!important;}
+  .cal-day.in-range .day-num{background:var(--ocean-mid);color:#fff;}
 
-  /* 선택된 날 링 */
-  .cal-day.selected::after{content:'';position:absolute;inset:-1px;border-radius:11px;border:2.5px solid var(--ocean-deep);pointer-events:none;z-index:2;}
+  /* 선택된 날 테두리 */
+  .cal-day.selected{outline:2px solid var(--ocean-deep);outline-offset:-2px;}
 
   /* 공휴일 */
-  .cal-day.holiday:not(.my-available):not(.confirmed-day){background:var(--holiday-bg);}
-  .holiday-name{position:absolute;bottom:calc(100% + 6px);left:50%;transform:translateX(-50%);background:var(--text);color:#fff;font-size:10px;font-weight:600;padding:3px 8px;border-radius:6px;white-space:nowrap;pointer-events:none;opacity:0;transition:opacity .15s;z-index:20;font-family:'Noto Sans KR',sans-serif;}
-  .cal-day.holiday:hover .holiday-name{opacity:1;}
+  .cal-day.holiday:not(.my-available):not(.confirmed-day){background:rgba(224,112,112,.04);}
+  .holiday-label{
+    font-size:10px;color:var(--holiday);font-weight:600;
+    font-family:'Noto Sans KR',sans-serif;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+    max-width:100%;line-height:1.2;
+  }
 
-  /* 이름 태그들 (달력 셀 안) */
-  .name-tags{display:flex;flex-wrap:wrap;gap:1px;justify-content:center;padding:0 2px;max-width:100%;}
-  .name-tag{font-size:8px;font-weight:700;font-family:'Nunito',sans-serif;padding:1px 3px;border-radius:3px;background:var(--mint-deep);color:#fff;white-space:nowrap;max-width:28px;overflow:hidden;text-overflow:ellipsis;}
-  .name-tag.leader-tag{background:var(--gold);color:#7a5800;}
+  /* 이름 태그 - 구글 캘린더 이벤트 바 스타일 */
+  .name-events{display:flex;flex-direction:column;gap:2px;width:100%;margin-top:1px;}
+  .name-event{
+    font-size:11px;font-weight:600;
+    font-family:'Nunito',sans-serif;
+    padding:1px 5px;border-radius:3px;
+    background:var(--mint-deep);color:#fff;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+    width:100%;line-height:1.5;
+  }
+  .name-event.leader-ev{background:var(--gold);color:#6a4400;}
+  .name-event.more-ev{background:var(--text3);color:#fff;}
 
-  .confirmed-star{position:absolute;top:2px;right:3px;font-size:8px;z-index:1;}
+  .confirmed-star{position:absolute;top:4px;right:5px;font-size:10px;z-index:1;}
 
   /* ── 사이드 패널 ── */
   .side-panel{display:flex;flex-direction:column;gap:14px;}
@@ -1095,21 +1140,24 @@ function renderCalendar() {
     else if(myVote)        cls+=' my-available';
     if(isSel||isMulti)     cls+=' selected';
 
-    // 이름 태그 (가능한 사람들)
+    // 이름 이벤트 바 (구글 캘린더 스타일)
     const availVoters = dv.filter(v=>v.available);
-    const nameTags = availVoters.slice(0,3).map(v=>{
+    const maxShow = 3;
+    const nameEvents = availVoters.slice(0, maxShow).map(v=>{
       const ldr = v.voter_name.includes(LEADER_KEYWORD);
-      return `<span class="name-tag ${ldr?'leader-tag':''}">${v.voter_name.slice(0,2)}</span>`;
+      return `<div class="name-event ${ldr?'leader-ev':''}">${ldr?'👑 ':''}${v.voter_name}</div>`;
     }).join('');
-    const moreTag = availVoters.length>3 ? `<span class="name-tag" style="background:var(--text3)">+${availVoters.length-3}</span>` : '';
+    const moreEvent = availVoters.length > maxShow
+      ? `<div class="name-event more-ev">+${availVoters.length - maxShow}명 더</div>` : '';
 
     const star   = prop?.is_confirmed ? '<span class="confirmed-star">★</span>' : '';
-    const htip   = isHol ? `<span class="holiday-name">${HOLIDAYS[ds]}</span>` : '';
+    const holLabel = isHol ? `<div class="holiday-label">${HOLIDAYS[ds]}</div>` : '';
 
     html+=`<div class="${cls}" data-ds="${ds}" onpointerdown="calPointerDown(event,'${ds}')" onpointerup="calPointerUp(event,'${ds}')">
-      ${star}${htip}
+      ${star}
       <span class="day-num">${d}</span>
-      <div class="name-tags">${nameTags}${moreTag}</div>
+      ${holLabel}
+      <div class="name-events">${nameEvents}${moreEvent}</div>
     </div>`;
   }
 
@@ -1249,6 +1297,9 @@ function renderSideMulti(dates) {
   const fmt=d=>`${d.getMonth()+1}/${d.getDate()}(${WD[d.getDay()]})`;
   const label = sorted.length===1 ? fmt(d1) : `${fmt(d1)} ~ ${fmt(d2)}`;
 
+  // 전역에 현재 선택 날짜 저장 (onclick 충돌 방지)
+  window._multiDates = sorted;
+
   card.innerHTML=`
     <div class="side-header">
       <div class="side-header-title">${label}</div>
@@ -1256,13 +1307,13 @@ function renderSideMulti(dates) {
     </div>
     <div class="side-body">
       <span class="field-label">선택 날짜에 일괄 적용</span>
-      <button class="avail-btn on" onclick="toggleAvailMulti(${JSON.stringify(sorted)},true,null)">
+      <button class="avail-btn on" id="multiYesBtn">
         ✓ 전체 가능으로 표시
       </button>
       <div style="margin-top:10px">
         <div style="font-size:12px;font-weight:700;color:var(--text2);margin-bottom:6px">✗ 불가로 표시</div>
         <input class="form-input" id="multiUnavailReason" placeholder="불가 사유 (선택, 예: 군대 등)" style="margin-bottom:6px">
-        <button class="avail-btn off" onclick="toggleAvailMulti(${JSON.stringify(sorted)},false,document.getElementById('multiUnavailReason')?.value.trim()||null)">
+        <button class="avail-btn off" id="multiNoBtn">
           ✗ 전체 불가로 표시
         </button>
       </div>
@@ -1273,6 +1324,15 @@ function renderSideMulti(dates) {
         }).join('')}
       </div>
     </div>`;
+
+  // 버튼 이벤트 직접 바인딩
+  document.getElementById('multiYesBtn').addEventListener('click', () => {
+    toggleAvailMulti(window._multiDates, true, null);
+  });
+  document.getElementById('multiNoBtn').addEventListener('click', () => {
+    const reason = document.getElementById('multiUnavailReason')?.value.trim() || null;
+    toggleAvailMulti(window._multiDates, false, reason);
+  });
 }
 
 async function toggleAvailMulti(dates, available, reason) {
@@ -1609,7 +1669,6 @@ function renderSongForm() {
       </div>
       <input class="form-input" placeholder="곡 제목 *" value="${r.title}" oninput="songFormRows[${i}].title=this.value">
       <input class="form-input" placeholder="아티스트" value="${r.artist}" oninput="songFormRows[${i}].artist=this.value" style="margin-top:4px">
-      <input class="form-input" placeholder="유튜브 링크" value="${r.yt}" oninput="songFormRows[${i}].yt=this.value" style="margin-top:4px">
     </div>
   `).join('');
 }
@@ -1660,7 +1719,7 @@ function renderSongsTab() {
               <div class="bundle-song-title">${s.title}</div>
               <div class="bundle-song-artist">${s.artist||'아티스트 미입력'}</div>
             </div>
-            ${s.youtube_url?`<a class="bundle-song-yt" href="${s.youtube_url}" target="_blank">▶ YT</a>`:''}
+            
             <button class="vote-btn ${myVote?'voted':''}" style="padding:5px 12px;font-size:12px;" onclick="toggleSongVote('${s.id}',${!!myVote})">
               ❤️ ${voteList.length}
             </button>
@@ -1701,7 +1760,7 @@ function songCardHTML(s, myVote, voteList) {
     <div class="song-card-body">
       <div class="song-title">${s.title}</div>
       <div class="song-artist">${s.artist||'아티스트 미입력'}</div>
-      ${s.youtube_url?`<a class="song-yt-link" href="${s.youtube_url}" target="_blank">▶ 유튜브로 듣기</a>`:''}
+      
     </div>
     <div class="song-card-footer">
       <button class="vote-btn ${myVote?'voted':''}" onclick="toggleSongVote('${s.id}',${!!myVote})">
