@@ -316,17 +316,17 @@
         <div class="info-card">
           <span class="ic-emoji">🎵</span>
           <div class="ic-label">장르</div>
-          <div class="ic-val">록 / 팝</div>
+          <div class="ic-val">미정 😊</div>
         </div>
         <div class="info-card">
           <span class="ic-emoji">📅</span>
           <div class="ic-label">합주</div>
-          <div class="ic-val">월 2회</div>
+          <div class="ic-val">조율</div>
         </div>
         <div class="info-card">
           <span class="ic-emoji">📍</span>
           <div class="ic-label">지역</div>
-          <div class="ic-val">홍대 근처</div>
+          <div class="ic-val">수원</div>
         </div>
       </div>
 
@@ -418,7 +418,7 @@
           <input class="form-input" id="f-contact" placeholder="전화번호 또는 이메일">
         </div>
         <div class="form-row">
-          <label class="form-label">경력/레벨</label>
+          <label class="form-label">경험 / 레벨</label>
           <input class="form-input" id="f-level" placeholder="ex) 독학 3년, 밴드 경험 있음">
         </div>
         <div class="btn-row">
@@ -438,6 +438,16 @@
         <div class="card-desc">음악 취향과 성향을 파악하는 질문이에요</div>
       </div>
       <div class="card-body">
+
+        <!-- 이전 연주/영상 링크 (필수) -->
+        <div class="form-row" style="background:var(--ocean-pale);border-radius:14px;padding:14px;border:1.5px solid var(--ocean-light)">
+          <label class="form-label" style="color:var(--ocean-deep)">🎬 이전 연주 영상 링크 <span style="color:var(--coral);font-size:10px">필수</span></label>
+          <input class="form-input" id="f-video" placeholder="유튜브, 인스타, 드라이브 링크 등" style="background:var(--white)">
+          <div style="margin-top:8px;display:flex;align-items:center;gap:8px">
+            <input type="checkbox" id="noVideoCheck" onchange="toggleNoVideo()" style="accent-color:var(--ocean-mid);width:16px;height:16px">
+            <label for="noVideoCheck" style="font-size:12px;color:var(--text2);cursor:pointer;font-weight:600">영상이 없어요</label>
+          </div>
+        </div>
 
         <!-- 좋아하는 장르 -->
         <div class="form-row">
@@ -606,6 +616,20 @@ function toggleRole(el, role) {
 }
 
 // ── 칩 토글 ──
+function toggleNoVideo() {
+  const check = document.getElementById('noVideoCheck');
+  const input = document.getElementById('f-video');
+  if (check.checked) {
+    input.value = '영상 없음';
+    input.disabled = true;
+    input.style.opacity = '0.5';
+  } else {
+    input.value = '';
+    input.disabled = false;
+    input.style.opacity = '1';
+  }
+}
+
 function toggleChip(el, type) {
   el.classList.toggle('selected');
   const val = el.textContent.trim();
@@ -638,8 +662,12 @@ function goStep3() {
 
 // ── 최종 제출 ──
 async function submitForm() {
-  formData.bands = document.getElementById('f-bands').value.trim();
-  formData.memo  = document.getElementById('f-memo').value.trim();
+  formData.bands    = document.getElementById('f-bands').value.trim();
+  formData.memo     = document.getElementById('f-memo').value.trim();
+  const videoUrl    = document.getElementById('f-video').value.trim();
+  const noVideo     = document.getElementById('noVideoCheck').checked;
+
+  if (!videoUrl && !noVideo) return showToast('연주 영상 링크를 입력하거나 "영상 없음"을 체크해주세요!', 'error');
 
   const btn = document.querySelector('#screen-3 .btn-next');
   btn.disabled = true; btn.textContent = '제출 중...';
@@ -654,7 +682,8 @@ async function submitForm() {
     food:          formData.food.join(', ') || null,
     practice_time: formData.practiceTime.join(', ') || null,
     memo:          formData.memo || null,
-    status:        'pending'
+    status:        'pending',
+    video_url:     noVideo ? '영상 없음' : videoUrl
   });
 
   btn.disabled = false; btn.textContent = '🎸 신청 완료!';
