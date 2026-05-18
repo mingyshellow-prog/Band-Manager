@@ -1092,12 +1092,9 @@ async function renderRecruitTab() {
   if (error) return showToast('로드 실패: ' + error.message, 'error');
 
   const apps = data || [];
-  const pending  = apps.filter(a => a.status === 'pending').length;
-  const approved = apps.filter(a => a.status === 'approved').length;
-
   document.getElementById('statTotal').textContent    = apps.length;
-  document.getElementById('statPending').textContent  = pending;
-  document.getElementById('statApproved').textContent = approved;
+  document.getElementById('statPending').textContent  = apps.filter(a=>a.status==='pending').length;
+  document.getElementById('statApproved').textContent = apps.filter(a=>a.status==='contacted').length;
 
   const list = document.getElementById('applicationList');
   if (!apps.length) {
@@ -1105,39 +1102,37 @@ async function renderRecruitTab() {
     return;
   }
 
-  const statusColor = { pending:'var(--sun)', approved:'var(--mint-deep)', rejected:'var(--coral)' };
-  const statusLabel = { pending:'검토 중', approved:'✓ 승인', rejected:'✗ 거절' };
-
   list.innerHTML = apps.map(a => {
     const dt = new Date(a.created_at);
     const dateStr = `${dt.getMonth()+1}/${dt.getDate()} ${String(dt.getHours()).padStart(2,'0')}:${String(dt.getMinutes()).padStart(2,'0')}`;
+    const isContacted = a.status === 'contacted';
+    const msgId = 'msg_' + a.id.replace(/-/g,'');
+
     return `
-    <div class="settle-card" style="margin-bottom:12px">
+    <div class="settle-card" style="margin-bottom:12px;${isContacted?'opacity:0.65':''}">
       <div class="settle-body" style="padding:18px 20px">
         <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap">
           <div style="flex:1;min-width:0">
             <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;flex-wrap:wrap">
               <span style="font-family:'Nunito',sans-serif;font-weight:800;font-size:16px;color:var(--ocean-deep)">${a.name}</span>
-              ${a.age ? `<span style="font-size:12px;color:var(--text3)">${a.age}</span>` : ''}
+              ${a.age?`<span style="font-size:12px;color:var(--text3)">${a.age}세</span>`:''}
               <span style="background:var(--ocean-pale);color:var(--ocean-deep);border-radius:8px;padding:2px 9px;font-size:11px;font-weight:700;font-family:'Nunito',sans-serif">${a.role}</span>
+              ${isContacted?`<span style="background:var(--mint-light);color:var(--mint-deep);border-radius:8px;padding:2px 9px;font-size:11px;font-weight:700;font-family:'Nunito',sans-serif">✓ 연락함</span>`:''}
             </div>
-            <div style="font-size:13px;color:var(--text2);margin-bottom:4px">📞 ${a.contact}</div>
-            ${a.genres ? `<div style="font-size:12px;color:var(--text3)">🎵 ${a.genres}</div>` : ''}
-            ${a.bands ? `<div style="font-size:12px;color:var(--text3)">🎸 ${a.bands}</div>` : ''}
-            ${a.practice_time ? `<div style="font-size:12px;color:var(--text3)">📅 ${a.practice_time}</div>` : ''}
-            ${a.food ? `<div style="font-size:12px;color:var(--text3)">🍕 ${a.food}</div>` : ''}
-            ${a.memo ? `<div style="font-size:12px;color:var(--text2);margin-top:6px;background:var(--foam);border-radius:8px;padding:8px 10px;border:1px solid var(--border2)">"${a.memo}"</div>` : ''}
+            <div style="font-size:13px;color:var(--text2);margin-bottom:4px;font-weight:600">📞 ${a.contact}</div>
+            ${a.genres?`<div style="font-size:12px;color:var(--text3)">🎵 ${a.genres}</div>`:''}
+            ${a.bands?`<div style="font-size:12px;color:var(--text3)">🎸 ${a.bands}</div>`:''}
+            ${a.practice_time?`<div style="font-size:12px;color:var(--text3)">📅 ${a.practice_time}</div>`:''}
+            ${a.video_url?`<div style="font-size:12px;color:var(--text3)">🎬 ${a.video_url==='영상 없음'?'영상 없음':`<a href="${a.video_url}" target="_blank" style="color:var(--ocean-mid);text-decoration:none">영상 보기 ↗</a>`}</div>`:''}
+            ${a.memo?`<div style="font-size:12px;color:var(--text2);margin-top:6px;background:var(--foam);border-radius:8px;padding:8px 10px;border:1px solid var(--border2)">"${a.memo}"</div>`:''}
             <div style="font-size:11px;color:var(--text3);margin-top:6px">${dateStr} 신청</div>
           </div>
           <div style="display:flex;flex-direction:column;gap:6px;align-items:flex-end;flex-shrink:0">
-            <span style="background:${statusColor[a.status]||'var(--border)'};color:#fff;border-radius:8px;padding:4px 11px;font-size:11px;font-weight:700;font-family:'Nunito',sans-serif">${statusLabel[a.status]||a.status}</span>
-            ${a.status==='pending' ? `
-              <button onclick="updateAppStatus('${a.id}','approved')" style="background:var(--mint-light);color:var(--mint-deep);border:1.5px solid var(--mint);border-radius:8px;padding:5px 12px;font-size:11px;font-weight:700;font-family:'Nunito',sans-serif;cursor:pointer">✓ 승인</button>
-              <button onclick="updateAppStatus('${a.id}','rejected')" style="background:var(--coral-light);color:#c05840;border:1.5px solid var(--coral);border-radius:8px;padding:5px 12px;font-size:11px;font-weight:700;font-family:'Nunito',sans-serif;cursor:pointer">✗ 거절</button>
-            ` : `
-              <button onclick="updateAppStatus('${a.id}','pending')" style="background:var(--foam);color:var(--text3);border:1.5px solid var(--border);border-radius:8px;padding:5px 12px;font-size:11px;font-weight:700;font-family:'Nunito',sans-serif;cursor:pointer">↺ 되돌리기</button>
-            `}
-            ${isAdmin ? `<button onclick="deleteApp('${a.id}')" style="background:transparent;color:var(--text3);border:none;font-size:11px;cursor:pointer;font-family:'Nunito',sans-serif">삭제</button>` : ''}
+            <button id="${msgId}" onclick="copyMsg('${a.id}','${a.name}','${a.role}')"
+              style="background:linear-gradient(135deg,var(--ocean-mid),var(--ocean-deep));color:#fff;border:none;border-radius:8px;padding:8px 14px;font-size:11px;font-weight:700;font-family:'Nunito',sans-serif;cursor:pointer;white-space:nowrap;box-shadow:0 3px 10px rgba(61,132,170,.3)">
+              📋 연락 메시지 복사
+            </button>
+            ${isAdmin?`<button onclick="deleteApp('${a.id}')" style="background:transparent;color:var(--text3);border:none;font-size:11px;cursor:pointer;font-family:'Nunito',sans-serif">삭제</button>`:''}
           </div>
         </div>
       </div>
@@ -1145,11 +1140,16 @@ async function renderRecruitTab() {
   }).join('');
 }
 
-async function updateAppStatus(id, status) {
-  const { error } = await db.from('band_applications').update({ status }).eq('id', id);
-  if (error) return showToast('업데이트 실패', 'error');
-  showToast(status === 'approved' ? '✓ 승인했어요!' : status === 'rejected' ? '✗ 거절했어요' : '되돌렸어요', 'success');
-  renderRecruitTab();
+async function copyMsg(id, name, role) {
+  const msg = `안녕하세요 ${name}님! 밴드 지원해주셔서 감사해요 🎸\n파트: ${role}\n\n합류 관련해서 연락드려요!\n아래 내용 확인 부탁드릴게요 😊\n\n📅 미팅 또는 합주 가능한 날짜와 시간대가 어떻게 되세요?\n\n감사합니다!`;
+  try {
+    await navigator.clipboard.writeText(msg);
+    await db.from('band_applications').update({ status: 'contacted' }).eq('id', id);
+    showToast('📋 메시지 복사 완료! 카톡/문자로 보내주세요', 'success');
+    renderRecruitTab();
+  } catch(e) {
+    showToast('복사 실패 — 직접 복사해주세요', 'error');
+  }
 }
 
 async function deleteApp(id) {
@@ -1157,6 +1157,7 @@ async function deleteApp(id) {
   await db.from('band_applications').delete().eq('id', id);
   renderRecruitTab();
 }
+
 
 function renderMembersTab() {
   document.getElementById('memberNameDisplay').textContent = myName || '-';
