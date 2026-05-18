@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>밴드 멤버 모집 | Band Manager</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ocean-deep:  #3d84aa;
+    --ocean-mid:   #5ba3c9;
+    --ocean-light: #8dc8e2;
+    --ocean-pale:  #c8e8f5;
+    --foam:        #eaf6fb;
+    --white:       #ffffff;
+    --border:      #c2e0f0;
+    --border2:     #ddeef8;
+    --mint:        #8edfc8;
+    --mint-light:  #d0f5ea;
+    --mint-deep:   #3ab896;
+    --coral:       #f4a088;
+    --coral-light: #fcd8d0;
+    --sun:         #ffd97d;
+    --sun-light:   #fff4c8;
+    --purple:      #b8a0e0;
+    --purple-light:#f0eafc;
+    --gold:        #f5c842;
+    --gold-light:  #fff8dc;
+    --text:        #2a5870;
+    --text2:       #4d8aaa;
+    --text3:       #8dbdd4;
+    --shadow:      rgba(61,132,170,0.10);
+    --shadow2:     rgba(61,132,170,0.20);
+  }
+
+  * { margin:0; padding:0; box-sizing:border-box; }
+
+  body {
+    background: linear-gradient(155deg,#e4f4fc 0%,#d0ecf7 50%,#e8f8fb 100%);
+    min-height:100vh;
+    font-family:'Noto Sans KR',sans-serif;
+    color:var(--text);
+    overflow-x:hidden;
+  }
+
+  body::before {
+    content:''; position:fixed; bottom:-80px; left:-60px;
+    width:480px; height:360px;
+    background:radial-gradient(ellipse,rgba(93,183,212,.14) 0%,transparent 70%);
+    pointer-events:none; z-index:0;
+  }
+  body::after {
+    content:''; position:fixed; top:-60px; right:-40px;
+    width:400px; height:320px;
+    background:radial-gradient(ellipse,rgba(142,223,200,.16) 0%,transparent 70%);
+    pointer-events:none; z-index:0;
+  }
+
+  /* ── 상단 헤더 ── */
+  .top-bar {
+    position:relative; z-index:10;
+    background:rgba(255,255,255,.78);
+    backdrop-filter:blur(18px);
+    border-bottom:1.5px solid rgba(194,224,240,.7);
+    padding:14px 24px;
+    display:flex; align-items:center; justify-content:space-between;
+  }
+  .logo { display:flex; align-items:center; gap:10px; }
+  .logo-icon {
+    width:36px; height:36px;
+    background:linear-gradient(135deg,var(--ocean-mid),var(--ocean-deep));
+    border-radius:11px; display:flex; align-items:center; justify-content:center;
+    font-size:17px; box-shadow:0 4px 12px rgba(61,132,170,.28);
+  }
+  .logo-text { font-family:'Nunito',sans-serif; font-weight:800; font-size:18px; color:var(--ocean-deep); }
+  .logo-sub  { display:block; font-size:10px; color:var(--text3); letter-spacing:1.5px; text-transform:uppercase; margin-top:-3px; }
+  .back-link {
+    font-size:13px; font-weight:700; color:var(--text2);
+    font-family:'Nunito',sans-serif; text-decoration:none;
+    display:flex; align-items:center; gap:5px;
+    padding:7px 14px; border-radius:20px;
+    border:1.5px solid var(--border); background:var(--foam);
+    transition:all .2s;
+  }
+  .back-link:hover { border-color:var(--ocean-mid); color:var(--ocean-deep); }
+
+  /* ── 메인 래퍼 ── */
+  .wrap {
+    position:relative; z-index:1;
+    max-width:560px; margin:0 auto;
+    padding:32px 20px 60px;
+  }
+
+  /* ── 스텝 인디케이터 ── */
+  .step-indicator {
+    display:flex; align-items:center; justify-content:center;
+    gap:0; margin-bottom:32px;
+  }
+  .step-dot {
+    width:32px; height:32px; border-radius:50%;
+    display:flex; align-items:center; justify-content:center;
+    font-size:13px; font-weight:800; font-family:'Nunito',sans-serif;
+    border:2px solid var(--border); background:var(--white); color:var(--text3);
+    transition:all .3s; position:relative; z-index:1;
+  }
+  .step-dot.active { background:var(--ocean-deep); border-color:var(--ocean-deep); color:#fff; box-shadow:0 4px 14px rgba(61,132,170,.35); }
+  .step-dot.done   { background:var(--mint-deep); border-color:var(--mint-deep); color:#fff; }
+  .step-line {
+    width:40px; height:2px;
+    background:var(--border); transition:background .3s;
+  }
+  .step-line.done { background:var(--mint-deep); }
+
+  /* ── 카드 ── */
+  .card {
+    background:var(--white); border:1.5px solid var(--border);
+    border-radius:24px; box-shadow:0 8px 32px var(--shadow2);
+    overflow:hidden; animation:fadeUp .4s ease;
+  }
+  @keyframes fadeUp { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:translateY(0)} }
+
+  .card-header {
+    background:linear-gradient(135deg,var(--ocean-pale),var(--foam));
+    padding:24px 28px 20px;
+    border-bottom:1.5px solid var(--border2);
+  }
+  .card-step  { font-size:11px; font-weight:700; color:var(--ocean-mid); letter-spacing:1.5px; text-transform:uppercase; font-family:'Nunito',sans-serif; margin-bottom:4px; }
+  .card-title { font-family:'Nunito',sans-serif; font-weight:900; font-size:22px; color:var(--ocean-deep); line-height:1.2; }
+  .card-desc  { font-size:13px; color:var(--text3); margin-top:5px; line-height:1.6; }
+  .card-body  { padding:24px 28px; }
+
+  /* ── 역할 그리드 ── */
+  .role-grid {
+    display:grid; grid-template-columns:repeat(3,1fr);
+    gap:10px; margin-bottom:8px;
+  }
+  .role-btn {
+    aspect-ratio:1; border-radius:16px;
+    display:flex; flex-direction:column;
+    align-items:center; justify-content:center; gap:7px;
+    cursor:pointer; border:2px solid var(--border);
+    background:var(--foam); transition:all .2s;
+    padding:12px 6px;
+  }
+  .role-btn:hover { border-color:var(--ocean-mid); background:var(--ocean-pale); transform:translateY(-2px); }
+  .role-btn.selected {
+    border-color:var(--ocean-deep); background:var(--ocean-pale);
+    box-shadow:0 4px 16px rgba(61,132,170,.25); transform:translateY(-2px);
+  }
+  .role-emoji { font-size:28px; }
+  .role-label { font-size:12px; font-weight:700; color:var(--text); font-family:'Nunito',sans-serif; text-align:center; line-height:1.3; }
+  .role-btn.selected .role-label { color:var(--ocean-deep); }
+
+  /* ── 폼 인풋 ── */
+  .form-row { display:flex; flex-direction:column; gap:6px; margin-bottom:14px; }
+  .form-label { font-size:11px; font-weight:700; color:var(--text3); letter-spacing:1px; text-transform:uppercase; font-family:'Nunito',sans-serif; }
+  .form-input {
+    background:var(--foam); border:1.5px solid var(--border);
+    border-radius:12px; padding:12px 14px;
+    color:var(--text); font-size:14px; font-family:'Noto Sans KR',sans-serif;
+    outline:none; transition:all .2s; width:100%;
+  }
+  .form-input:focus { border-color:var(--ocean-mid); background:var(--white); box-shadow:0 0 0 4px rgba(91,163,201,.1); }
+  .form-input::placeholder { color:var(--text3); }
+  textarea.form-input { resize:none; min-height:80px; }
+
+  /* ── 취향 칩 선택 ── */
+  .chip-group { display:flex; flex-wrap:wrap; gap:8px; }
+  .chip {
+    padding:7px 14px; border-radius:20px;
+    font-size:13px; font-weight:600; font-family:'Nunito',sans-serif;
+    cursor:pointer; border:1.5px solid var(--border);
+    background:var(--foam); color:var(--text2);
+    transition:all .18s; user-select:none;
+  }
+  .chip:hover { border-color:var(--ocean-mid); color:var(--ocean-deep); }
+  .chip.selected { background:var(--ocean-pale); border-color:var(--ocean-deep); color:var(--ocean-deep); font-weight:700; }
+  .chip.coral.selected { background:var(--coral-light); border-color:var(--coral); color:#c05840; }
+  .chip.mint.selected  { background:var(--mint-light);  border-color:var(--mint-deep); color:var(--mint-deep); }
+  .chip.gold.selected  { background:var(--gold-light);  border-color:var(--gold); color:#8a6200; }
+
+  /* ── 버튼 ── */
+  .btn-row { display:flex; gap:10px; margin-top:20px; }
+  .btn-next {
+    flex:1; padding:14px;
+    background:linear-gradient(135deg,var(--ocean-mid),var(--ocean-deep));
+    color:#fff; border:none; border-radius:14px;
+    font-size:15px; font-weight:800; font-family:'Nunito',sans-serif;
+    cursor:pointer; transition:all .2s;
+    box-shadow:0 6px 20px rgba(61,132,170,.28);
+  }
+  .btn-next:hover { transform:translateY(-2px); box-shadow:0 10px 28px rgba(61,132,170,.36); }
+  .btn-next:disabled { opacity:.5; cursor:default; transform:none; }
+  .btn-back {
+    padding:14px 20px;
+    background:var(--white); border:1.5px solid var(--border);
+    color:var(--text2); border-radius:14px;
+    font-size:14px; font-weight:700; font-family:'Nunito',sans-serif;
+    cursor:pointer; transition:all .2s;
+  }
+  .btn-back:hover { border-color:var(--ocean-mid); color:var(--ocean-deep); }
+
+  /* ── 완료 화면 ── */
+  .done-screen {
+    text-align:center; padding:40px 28px;
+  }
+  .done-emoji {
+    font-size:64px; display:block; margin-bottom:20px;
+    animation:bounce 1s ease infinite;
+  }
+  @keyframes bounce { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-12px)} }
+  .done-title { font-family:'Nunito',sans-serif; font-weight:900; font-size:26px; color:var(--ocean-deep); margin-bottom:10px; }
+  .done-desc  { font-size:14px; color:var(--text2); line-height:1.8; }
+
+  /* 토스트 */
+  .toast {
+    position:fixed; bottom:24px; right:24px;
+    background:var(--white); border:2px solid var(--border);
+    border-radius:14px; padding:12px 18px;
+    font-size:13px; font-weight:600; font-family:'Nunito',sans-serif;
+    color:var(--text); z-index:200;
+    transform:translateY(80px); opacity:0;
+    transition:all .3s cubic-bezier(.34,1.56,.64,1);
+    box-shadow:0 8px 30px var(--shadow2); max-width:260px;
+  }
+  .toast.show { transform:translateY(0); opacity:1; }
+  .toast.error { border-color:var(--coral); }
+
+  /* 랜딩 섹션 */
+  .landing {
+    text-align:center; margin-bottom:32px;
+  }
+  .landing-badge {
+    display:inline-flex; align-items:center; gap:6px;
+    background:var(--mint-light); color:var(--mint-deep);
+    border:1.5px solid var(--mint); border-radius:20px;
+    padding:5px 14px; font-size:12px; font-weight:700;
+    font-family:'Nunito',sans-serif; margin-bottom:16px;
+  }
+  .landing-title {
+    font-family:'Nunito',sans-serif; font-weight:900;
+    font-size:32px; color:var(--ocean-deep); line-height:1.2;
+    margin-bottom:12px;
+  }
+  .landing-desc { font-size:14px; color:var(--text2); line-height:1.8; margin-bottom:24px; }
+
+  .info-cards {
+    display:grid; grid-template-columns:repeat(3,1fr);
+    gap:10px; margin-bottom:28px;
+  }
+  .info-card {
+    background:var(--white); border:1.5px solid var(--border);
+    border-radius:16px; padding:16px 10px; text-align:center;
+    box-shadow:0 3px 14px var(--shadow);
+  }
+  .info-card .ic-emoji { font-size:24px; margin-bottom:6px; display:block; }
+  .info-card .ic-label { font-size:11px; font-weight:700; color:var(--text3); font-family:'Nunito',sans-serif; }
+  .info-card .ic-val   { font-size:13px; font-weight:700; color:var(--text); margin-top:2px; }
+
+  .btn-start {
+    width:100%; padding:16px;
+    background:linear-gradient(135deg,var(--ocean-mid),var(--ocean-deep));
+    color:#fff; border:none; border-radius:16px;
+    font-size:17px; font-weight:900; font-family:'Nunito',sans-serif;
+    cursor:pointer; transition:all .2s;
+    box-shadow:0 8px 24px rgba(61,132,170,.32);
+    display:flex; align-items:center; justify-content:center; gap:8px;
+  }
+  .btn-start:hover { transform:translateY(-3px); box-shadow:0 14px 32px rgba(61,132,170,.4); }
+
+  @media(max-width:520px) {
+    .role-grid { grid-template-columns:repeat(3,1fr); gap:8px; }
+    .card-body { padding:20px 18px; }
+    .card-header { padding:20px 18px 16px; }
+    .info-cards { grid-template-columns:repeat(3,1fr); }
+    .landing-title { font-size:26px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="top-bar">
+  <div class="logo">
+    <div class="logo-icon">🎸</div>
+    <div>
+      <div class="logo-text">Band Manager</div>
+      <span class="logo-sub">Recruit</span>
+    </div>
+  </div>
+  <a class="back-link" href="index.html">← 메인으로</a>
+</div>
+
+<div class="wrap">
+
+  <!-- 스텝 인디케이터 (플로우 중에만 표시) -->
+  <div class="step-indicator" id="stepIndicator" style="display:none">
+    <div class="step-dot active" id="sd1">1</div>
+    <div class="step-line" id="sl1"></div>
+    <div class="step-dot" id="sd2">2</div>
+    <div class="step-line" id="sl2"></div>
+    <div class="step-dot" id="sd3">3</div>
+    <div class="step-line" id="sl3"></div>
+    <div class="step-dot" id="sd4">4</div>
+  </div>
+
+  <!-- ── 0: 랜딩 ── -->
+  <div id="screen-0">
+    <div class="landing">
+      <div class="landing-badge">🎸 멤버 모집 중</div>
+      <div class="landing-title">우리 밴드에<br>합류하세요!</div>
+      <div class="landing-desc">
+        함께 음악을 만들어갈 밴드 멤버를 모집하고 있어요.<br>
+        아래 신청서를 작성하면 리더가 검토 후 연락드려요!
+      </div>
+      <div class="info-cards">
+        <div class="info-card">
+          <span class="ic-emoji">🎵</span>
+          <div class="ic-label">장르</div>
+          <div class="ic-val">록 / 팝</div>
+        </div>
+        <div class="info-card">
+          <span class="ic-emoji">📅</span>
+          <div class="ic-label">합주</div>
+          <div class="ic-val">월 2회</div>
+        </div>
+        <div class="info-card">
+          <span class="ic-emoji">📍</span>
+          <div class="ic-label">지역</div>
+          <div class="ic-val">홍대 근처</div>
+        </div>
+      </div>
+    </div>
+    <button class="btn-start" onclick="startFlow()">🎸 지금 신청하기</button>
+  </div>
+
+  <!-- ── Step 1: 역할군 선택 ── -->
+  <div id="screen-1" style="display:none">
+    <div class="card">
+      <div class="card-header">
+        <div class="card-step">Step 1 of 3</div>
+        <div class="card-title">어떤 파트를 맡고 계세요?</div>
+        <div class="card-desc">주로 담당하는 역할을 선택해주세요 (복수 선택 가능)</div>
+      </div>
+      <div class="card-body">
+        <div class="role-grid">
+          <div class="role-btn" onclick="toggleRole(this,'일렉기타')">
+            <span class="role-emoji">🎸</span>
+            <span class="role-label">일렉기타</span>
+          </div>
+          <div class="role-btn" onclick="toggleRole(this,'어쿠스틱')">
+            <span class="role-emoji">🎼</span>
+            <span class="role-label">어쿠스틱</span>
+          </div>
+          <div class="role-btn" onclick="toggleRole(this,'베이스')">
+            <span class="role-emoji">🎵</span>
+            <span class="role-label">베이스</span>
+          </div>
+          <div class="role-btn" onclick="toggleRole(this,'드럼')">
+            <span class="role-emoji">🥁</span>
+            <span class="role-label">드럼</span>
+          </div>
+          <div class="role-btn" onclick="toggleRole(this,'키보드')">
+            <span class="role-emoji">🎹</span>
+            <span class="role-label">키보드</span>
+          </div>
+          <div class="role-btn" onclick="toggleRole(this,'보컬')">
+            <span class="role-emoji">🎤</span>
+            <span class="role-label">보컬/싱어</span>
+          </div>
+        </div>
+        <div class="btn-row">
+          <button class="btn-back" onclick="goScreen(0)">← 뒤로</button>
+          <button class="btn-next" onclick="goStep2()">다음 →</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Step 2: 기본 정보 ── -->
+  <div id="screen-2" style="display:none">
+    <div class="card">
+      <div class="card-header">
+        <div class="card-step">Step 2 of 3</div>
+        <div class="card-title">기본 정보를 알려주세요!</div>
+        <div class="card-desc">연락처는 승인 후 안내에 사용돼요</div>
+      </div>
+      <div class="card-body">
+        <div class="form-row">
+          <label class="form-label">이름 *</label>
+          <input class="form-input" id="f-name" placeholder="실명 또는 닉네임">
+        </div>
+        <div class="form-row">
+          <label class="form-label">나이</label>
+          <input class="form-input" id="f-age" placeholder="ex) 25살" type="text">
+        </div>
+        <div class="form-row">
+          <label class="form-label">연락처 *</label>
+          <input class="form-input" id="f-contact" placeholder="카카오 오픈채팅 or 전화번호">
+        </div>
+        <div class="form-row">
+          <label class="form-label">경력/레벨</label>
+          <input class="form-input" id="f-level" placeholder="ex) 독학 3년, 밴드 경험 있음">
+        </div>
+        <div class="btn-row">
+          <button class="btn-back" onclick="goScreen(1)">← 뒤로</button>
+          <button class="btn-next" onclick="goStep3()">다음 →</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Step 3: 취향 설문 ── -->
+  <div id="screen-3" style="display:none">
+    <div class="card">
+      <div class="card-header">
+        <div class="card-step">Step 3 of 3</div>
+        <div class="card-title">취향을 알려주세요 🎵</div>
+        <div class="card-desc">음악 취향과 성향을 파악하는 질문이에요</div>
+      </div>
+      <div class="card-body">
+
+        <!-- 좋아하는 장르 -->
+        <div class="form-row">
+          <label class="form-label">좋아하는 장르</label>
+          <div class="chip-group" id="genre-chips">
+            <div class="chip" onclick="toggleChip(this,'genre')">록</div>
+            <div class="chip" onclick="toggleChip(this,'genre')">팝</div>
+            <div class="chip" onclick="toggleChip(this,'genre')">인디</div>
+            <div class="chip" onclick="toggleChip(this,'genre')">재즈</div>
+            <div class="chip" onclick="toggleChip(this,'genre')">블루스</div>
+            <div class="chip" onclick="toggleChip(this,'genre')">메탈</div>
+            <div class="chip" onclick="toggleChip(this,'genre')">펑크</div>
+            <div class="chip" onclick="toggleChip(this,'genre')">알앤비</div>
+            <div class="chip" onclick="toggleChip(this,'genre')">포크</div>
+            <div class="chip" onclick="toggleChip(this,'genre')">발라드</div>
+          </div>
+        </div>
+
+        <!-- 좋아하는 밴드/아티스트 -->
+        <div class="form-row">
+          <label class="form-label">좋아하는 밴드 / 아티스트</label>
+          <input class="form-input" id="f-bands" placeholder="ex) 너바나, 콜드플레이, 아이유">
+        </div>
+
+        <!-- 연습 가능 시간대 -->
+        <div class="form-row">
+          <label class="form-label">연습 가능 시간대</label>
+          <div class="chip-group" id="time-chips">
+            <div class="chip mint" onclick="toggleChip(this,'time')">평일 오전</div>
+            <div class="chip mint" onclick="toggleChip(this,'time')">평일 오후</div>
+            <div class="chip mint" onclick="toggleChip(this,'time')">평일 저녁</div>
+            <div class="chip mint" onclick="toggleChip(this,'time')">주말 오전</div>
+            <div class="chip mint" onclick="toggleChip(this,'time')">주말 오후</div>
+            <div class="chip mint" onclick="toggleChip(this,'time')">주말 저녁</div>
+          </div>
+        </div>
+
+        <!-- 좋아하는 음식 -->
+        <div class="form-row">
+          <label class="form-label">좋아하는 음식 🍕</label>
+          <div class="chip-group" id="food-chips">
+            <div class="chip coral" onclick="toggleChip(this,'food')">🍕 피자</div>
+            <div class="chip coral" onclick="toggleChip(this,'food')">🍺 맥주/치킨</div>
+            <div class="chip coral" onclick="toggleChip(this,'food')">🍜 라멘</div>
+            <div class="chip coral" onclick="toggleChip(this,'food')">🍖 고기</div>
+            <div class="chip coral" onclick="toggleChip(this,'food')">🌮 양식</div>
+            <div class="chip coral" onclick="toggleChip(this,'food')">🍣 일식</div>
+            <div class="chip coral" onclick="toggleChip(this,'food')">🥢 한식</div>
+            <div class="chip coral" onclick="toggleChip(this,'food')">☕ 카페</div>
+          </div>
+        </div>
+
+        <!-- 한마디 -->
+        <div class="form-row">
+          <label class="form-label">합류 동기 / 한마디</label>
+          <textarea class="form-input" id="f-memo" placeholder="밴드에 지원하는 이유나 하고 싶은 말을 자유롭게 써주세요!"></textarea>
+        </div>
+
+        <div class="btn-row">
+          <button class="btn-back" onclick="goScreen(2)">← 뒤로</button>
+          <button class="btn-next" onclick="submitForm()">🎸 신청 완료!</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── 완료 화면 ── -->
+  <div id="screen-done" style="display:none">
+    <div class="card">
+      <div class="done-screen">
+        <span class="done-emoji">🎉</span>
+        <div class="done-title">신청 완료!</div>
+        <div class="done-desc">
+          신청서가 잘 접수됐어요 🎸<br>
+          리더가 검토 후 연락처로 연락드릴게요!<br><br>
+          <strong style="color:var(--ocean-deep)">평균 1~3일 내 연락드려요</strong>
+        </div>
+        <div style="margin-top:28px;padding:18px;background:var(--foam);border-radius:16px;border:1.5px solid var(--border2)">
+          <div style="font-size:12px;color:var(--text3);font-weight:600;font-family:'Nunito',sans-serif;letter-spacing:.5px;margin-bottom:8px">신청 정보 요약</div>
+          <div id="summaryText" style="font-size:13px;color:var(--text2);line-height:1.8;text-align:left"></div>
+        </div>
+        <button class="btn-start" style="margin-top:24px" onclick="location.href='index.html'">← 밴드 매니저로 돌아가기</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const SUPABASE_URL = 'https://tdovjsqkquybktmedewu.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_O03HB6BfZzOe1tFYGDDVuw_KtJKNoSu';
+const { createClient } = supabase;
+const db = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+// 폼 데이터
+let formData = {
+  roles: [],
+  name: '', age: '', contact: '', level: '',
+  genres: [], bands: '', practiceTime: [], food: [], memo: ''
+};
+
+// ── 화면 전환 ──
+function goScreen(n) {
+  document.querySelectorAll('[id^="screen-"]').forEach(el => el.style.display = 'none');
+  const target = document.getElementById('screen-' + n);
+  if (target) target.style.display = 'block';
+
+  const ind = document.getElementById('stepIndicator');
+  if (n === 0 || n === 'done') {
+    ind.style.display = 'none';
+  } else {
+    ind.style.display = 'flex';
+    updateStepIndicator(n);
+  }
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function updateStepIndicator(step) {
+  for (let i = 1; i <= 4; i++) {
+    const dot = document.getElementById('sd' + i);
+    dot.className = 'step-dot';
+    if (i < step) dot.classList.add('done');
+    else if (i === step) dot.classList.add('active');
+  }
+  for (let i = 1; i <= 3; i++) {
+    const line = document.getElementById('sl' + i);
+    line.className = 'step-line';
+    if (i < step) line.classList.add('done');
+  }
+}
+
+function startFlow() {
+  goScreen(1);
+}
+
+// ── 역할 토글 ──
+function toggleRole(el, role) {
+  el.classList.toggle('selected');
+  if (el.classList.contains('selected')) {
+    formData.roles.push(role);
+  } else {
+    formData.roles = formData.roles.filter(r => r !== role);
+  }
+}
+
+// ── 칩 토글 ──
+function toggleChip(el, type) {
+  el.classList.toggle('selected');
+  const val = el.textContent.trim();
+  const map = { genre:'genres', time:'practiceTime', food:'food' };
+  const key = map[type];
+  if (el.classList.contains('selected')) {
+    formData[key].push(val);
+  } else {
+    formData[key] = formData[key].filter(v => v !== val);
+  }
+}
+
+// ── Step 이동 ──
+function goStep2() {
+  if (formData.roles.length === 0) return showToast('파트를 하나 이상 선택해주세요!', 'error');
+  goScreen(2);
+}
+
+function goStep3() {
+  const name    = document.getElementById('f-name').value.trim();
+  const contact = document.getElementById('f-contact').value.trim();
+  if (!name)    return showToast('이름을 입력해주세요!', 'error');
+  if (!contact) return showToast('연락처를 입력해주세요!', 'error');
+  formData.name    = name;
+  formData.age     = document.getElementById('f-age').value.trim();
+  formData.contact = contact;
+  formData.level   = document.getElementById('f-level').value.trim();
+  goScreen(3);
+}
+
+// ── 최종 제출 ──
+async function submitForm() {
+  formData.bands = document.getElementById('f-bands').value.trim();
+  formData.memo  = document.getElementById('f-memo').value.trim();
+
+  const btn = document.querySelector('#screen-3 .btn-next');
+  btn.disabled = true; btn.textContent = '제출 중...';
+
+  const { error } = await db.from('band_applications').insert({
+    name:          formData.name,
+    age:           formData.age || null,
+    contact:       formData.contact,
+    role:          formData.roles.join(', '),
+    genres:        formData.genres.join(', ') || null,
+    bands:         formData.bands || null,
+    food:          formData.food.join(', ') || null,
+    practice_time: formData.practiceTime.join(', ') || null,
+    memo:          formData.memo || null,
+    status:        'pending'
+  });
+
+  btn.disabled = false; btn.textContent = '🎸 신청 완료!';
+
+  if (error) return showToast('제출 실패: ' + error.message, 'error');
+
+  // 요약 표시
+  document.getElementById('summaryText').innerHTML = `
+    <b>이름:</b> ${formData.name}<br>
+    <b>파트:</b> ${formData.roles.join(', ')}<br>
+    <b>장르:</b> ${formData.genres.join(', ') || '미선택'}<br>
+    <b>연습 시간:</b> ${formData.practiceTime.join(', ') || '미선택'}<br>
+    <b>연락처:</b> ${formData.contact}
+  `;
+
+  goScreen('done');
+  document.getElementById('stepIndicator').style.display = 'none';
+}
+
+// ── 토스트 ──
+function showToast(msg, type = 'success') {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.className = `toast ${type} show`;
+  setTimeout(() => t.classList.remove('show'), 2800);
+}
+</script>
+</body>
+</html>
