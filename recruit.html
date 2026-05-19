@@ -74,7 +74,9 @@
 
   /* 영상 배경 */
   .hero-video-bg {
-    position: absolute; inset:0; z-index:0;
+    position: absolute;
+    top:0; left:0; right:0; bottom:0;
+    z-index:0;
     background: var(--bg);
   }
   .hero-video-bg video {
@@ -85,7 +87,8 @@
   }
   .hero-video-bg::after {
     content:'';
-    position:absolute; inset:0;
+    position:absolute;
+    top:0; left:0; right:0; bottom:0;
     background: linear-gradient(
       to bottom,
       rgba(17,18,20,0.3) 0%,
@@ -99,7 +102,9 @@
   /* 미세한 노이즈 배경 */
   .hero::before {
     content:'';
-    position:absolute; inset:0; z-index:2;
+    position:absolute;
+    top:0; left:0; right:0; bottom:0;
+    z-index:2;
     background:
       radial-gradient(ellipse 80% 50% at 50% 60%, rgba(79,195,247,0.04) 0%, transparent 70%);
     pointer-events:none;
@@ -904,8 +909,12 @@ let uploadedVideoUrl = '';
 
   // 공통 스타일
   const baseStyle = {
-    position:'absolute', inset:'0', width:'100%', height:'100%',
-    objectFit:'cover', transition:'opacity 1.5s ease'
+    position:'absolute',
+    top:'0', left:'0', right:'0', bottom:'0',
+    width:'100%', height:'100%',
+    objectFit:'cover',
+    transition:'opacity 1.5s ease',
+    display:'block'
   };
 
   sources.forEach((src, i) => {
