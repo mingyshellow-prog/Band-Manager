@@ -392,6 +392,9 @@
   .add-song-row:last-child{border-bottom:none;}
   .song-count-badge{background:var(--ocean-pale);color:var(--ocean-deep);border-radius:10px;padding:2px 9px;font-size:11px;font-weight:700;font-family:'Nunito',sans-serif;}
 
+  .color-swatch{width:32px;height:32px;border-radius:50%;cursor:pointer;border:3px solid transparent;transition:all .2s;flex-shrink:0;}
+  .color-swatch:hover{transform:scale(1.15);}
+  .color-swatch.active{border-color:var(--text);box-shadow:0 0 0 2px #fff,0 0 0 4px var(--text);}
   .coming-soon{text-align:center;padding:90px 0;}
   .coming-soon .big{font-family:'Nunito',sans-serif;font-weight:900;font-size:48px;color:var(--border);letter-spacing:2px;margin-bottom:14px;}
   .coming-soon p{font-size:15px;color:var(--text3);}
@@ -533,8 +536,9 @@
             <button class="cal-nav-btn" onclick="changeMonth(1)">›</button>
           </div>
         </div>
-        <div class="cal-tip">
-          <b>내가 가능한 날짜를 클릭</b>해서 표시하세요 · 리더가 최종 날짜를 확정해요
+        <div class="cal-tip" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px">
+          <span><b>내가 가능한 날짜를 클릭</b>해서 표시하세요</span>
+          <button onclick="findOverlapDates()" style="background:linear-gradient(135deg,var(--ocean-mid),var(--ocean-deep));color:#fff;border:none;border-radius:8px;padding:5px 12px;font-size:11px;font-weight:700;font-family:'Nunito',sans-serif;cursor:pointer;white-space:nowrap">🔍 모두 가능한 날 찾기</button>
         </div>
         <div class="cal-weekdays">
           <div class="cal-weekday sun">일</div>
@@ -841,11 +845,11 @@
         </div>
         <div class="settle-card" style="text-align:center;padding:16px">
           <div style="font-family:'Nunito',sans-serif;font-weight:900;font-size:26px;color:var(--sun)" id="statPending">0</div>
-          <div style="font-size:11px;color:var(--text3)">검토 중</div>
+          <div style="font-size:11px;color:var(--text3)">연락 전</div>
         </div>
         <div class="settle-card" style="text-align:center;padding:16px">
           <div style="font-family:'Nunito',sans-serif;font-weight:900;font-size:26px;color:var(--mint-deep)" id="statApproved">0</div>
-          <div style="font-size:11px;color:var(--text3)">승인됨</div>
+          <div style="font-size:11px;color:var(--text3)">연락함</div>
         </div>
       </div>
       <!-- 신청자 카드 목록 -->
@@ -894,6 +898,26 @@
               <input class="form-input" id="newNameInput" placeholder="새 이름 입력..." style="flex:1;margin-bottom:0">
               <button class="action-btn leader-action" style="width:auto;padding:10px 16px;margin-bottom:0;white-space:nowrap" onclick="updateDisplayName()">변경</button>
             </div>
+          </div>
+          <!-- 달력 색상 선택 -->
+          <div class="form-row" style="margin-bottom:0">
+            <label class="form-label">달력 표시 색상</label>
+            <div style="font-size:12px;color:var(--text3);margin-bottom:10px">달력에서 내 이름 바 색상이에요</div>
+            <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">
+              <div class="color-swatch" data-color="#3ab896" style="background:#3ab896" onclick="selectColor(this,'#3ab896')"></div>
+              <div class="color-swatch" data-color="#5ba3c9" style="background:#5ba3c9" onclick="selectColor(this,'#5ba3c9')"></div>
+              <div class="color-swatch" data-color="#f4a088" style="background:#f4a088" onclick="selectColor(this,'#f4a088')"></div>
+              <div class="color-swatch" data-color="#ffd97d" style="background:#ffd97d" onclick="selectColor(this,'#ffd97d')"></div>
+              <div class="color-swatch" data-color="#b8a0e0" style="background:#b8a0e0" onclick="selectColor(this,'#b8a0e0')"></div>
+              <div class="color-swatch" data-color="#f06292" style="background:#f06292" onclick="selectColor(this,'#f06292')"></div>
+              <div class="color-swatch" data-color="#4dd0e1" style="background:#4dd0e1" onclick="selectColor(this,'#4dd0e1')"></div>
+              <div class="color-swatch" data-color="#81c784" style="background:#81c784" onclick="selectColor(this,'#81c784')"></div>
+              <div class="color-swatch" data-color="#ffb74d" style="background:#ffb74d" onclick="selectColor(this,'#ffb74d')"></div>
+              <div class="color-swatch" data-color="#e57373" style="background:#e57373" onclick="selectColor(this,'#e57373')"></div>
+            </div>
+            <button class="action-btn leader-action" style="margin-top:12px" onclick="saveColor()">🎨 색상 저장</button>
+          </div>
+          <div class="form-row" style="display:none">
           </div>
         </div>
       </div>
@@ -964,6 +988,7 @@ let myName = '';
 let myEmail = '';
 let isLeader = false, isAdmin = false;
 let proposals = [], votes = [], settles = [];
+let memberColors = {}; // {name: color}
 let curYear, curMonth;
 let selectedDate = null;      // 마지막 클릭/포커스 날짜
 let dragStartDate = null;     // 드래그 시작 날짜
@@ -1163,6 +1188,7 @@ function renderMembersTab() {
   document.getElementById('memberNameDisplay').textContent = myName || '-';
   document.getElementById('memberEmailDisplay').textContent = myEmail || '-';
   document.getElementById('newNameInput').value = myName || '';
+  setTimeout(initColorSwatches, 50);
 
   // 아바타 이니셜
   const avatar = document.getElementById('memberAvatar');
@@ -1220,6 +1246,34 @@ function renderMembersTab() {
 }
 
 // ── 이름 변경 ──
+// ── 색상 선택 ──
+let _selectedColor = null;
+
+function selectColor(el, color) {
+  document.querySelectorAll('.color-swatch').forEach(s => s.classList.remove('active'));
+  el.classList.add('active');
+  _selectedColor = color;
+}
+
+async function saveColor() {
+  const color = _selectedColor;
+  if (!color) return showToast('색상을 선택해주세요', 'error');
+  const { error } = await db.from('band_members').update({ color }).eq('email', myEmail);
+  if (error) return showToast('저장 실패: ' + error.message, 'error');
+  memberColors[myName] = color;
+  showToast('🎨 색상이 저장됐어요!', 'success');
+  renderCalendar();
+}
+
+// 프로필 탭 열릴 때 현재 색상 하이라이트
+function initColorSwatches() {
+  const myColor = memberColors[myName];
+  if (!myColor) return;
+  document.querySelectorAll('.color-swatch').forEach(s => {
+    if (s.dataset.color === myColor) { s.classList.add('active'); _selectedColor = myColor; }
+  });
+}
+
 async function updateDisplayName() {
   const newName = document.getElementById('newNameInput').value.trim();
   if (!newName) return showToast('이름을 입력해주세요', 'error');
@@ -1294,6 +1348,13 @@ function showTab(tab, el) {
 let songs=[], songVotes=[], rounds=[], scores=[], videos=[], bundles=[], comments=[];
 
 async function loadAll() {
+  // 멤버 색상 로드
+  const { data: membersData } = await db.from('band_members').select('display_name, color');
+  if (membersData) {
+    memberColors = {};
+    membersData.forEach(m => { if(m.display_name && m.color) memberColors[m.display_name] = m.color; });
+  }
+
   const [pR, vR, sR, soR, svR, scR, viR, buR, coR] = await Promise.all([
     db.from('band_date_proposals').select('*'),
     db.from('band_date_votes').select('*'),
@@ -1379,7 +1440,9 @@ function renderCalendar() {
     const maxShow = 3;
     const nameEvents = availVoters.slice(0, maxShow).map(v=>{
       const ldr = v.voter_name.includes(LEADER_KEYWORD);
-      return `<div class="name-event ${ldr?'leader-ev':''}">${ldr?'👑 ':''}${v.voter_name}</div>`;
+      const col = memberColors[v.voter_name] || (ldr ? '#f5c842' : '#3ab896');
+      const textCol = ldr ? '#6a4400' : '#fff';
+      return `<div class="name-event" style="background:${col};color:${textCol}">${ldr?'👑 ':''}${v.voter_name}</div>`;
     }).join('');
     const moreEvent = availVoters.length > maxShow
       ? `<div class="name-event more-ev">+${availVoters.length - maxShow}명 더</div>` : '';
@@ -1597,7 +1660,18 @@ function dayClick(ds) {
   renderSide(ds);
 }
 
+// 전역 현재 선택 날짜 (버튼 onclick에서 접근)
+let _currentSideDs = null;
+
+function voteYes()  { if(_currentSideDs) toggleAvail(_currentSideDs, true,  null); }
+function voteNo()   {
+  if(!_currentSideDs) return;
+  const reason = document.getElementById('unavailReason')?.value.trim() || null;
+  toggleAvail(_currentSideDs, false, reason);
+}
+
 function renderSide(ds) {
+  _currentSideDs = ds;
   const card=document.getElementById('sideCard');
   const d=new Date(ds+'T00:00:00');
   const WD=['일','월','화','수','목','금','토'];
@@ -1609,31 +1683,31 @@ function renderSide(ds) {
   const availVoters=dv.filter(v=>v.available);
   const unavailVoters=dv.filter(v=>!v.available);
 
-  const holBadge=isHol?`<span style="background:var(--holiday-bg);color:var(--holiday);border:1px solid rgba(224,112,112,.35);border-radius:8px;padding:2px 8px;font-size:11px;font-weight:700;font-family:'Nunito',sans-serif">${HOLIDAYS[ds]}</span>`:'';
+  const holBadge=isHol
+    ?`<span style="background:var(--holiday-bg);color:var(--holiday);border:1px solid rgba(224,112,112,.35);border-radius:8px;padding:2px 8px;font-size:11px;font-weight:700;font-family:'Nunito',sans-serif">${HOLIDAYS[ds]}</span>`
+    :'';
 
   const availChips=availVoters.length
     ?availVoters.map(v=>{
         const ldr=v.voter_name.includes(LEADER_KEYWORD);
-        return `<div class="voter-chip ${ldr?'leader-chip':'yes'}">${ldr?'👑':''} ${v.voter_name}</div>`;
+        const col=memberColors[v.voter_name]||'var(--mint-deep)';
+        return `<div class="voter-chip yes" style="background:${col}22;color:${col};border-color:${col}66">${ldr?'👑':''} ${v.voter_name}</div>`;
       }).join('')
     :`<span style="font-size:12px;color:var(--text3)">아직 아무도 표시 안 했어요</span>`;
 
   const unavailChips=unavailVoters.length
-    ?unavailVoters.map(v=>`<div class="voter-chip no">✗ ${v.voter_name}${v.note?` (${v.note})`:''}</div>`).join('')
+    ?unavailVoters.map(v=>`<div class="voter-chip no">✗ ${v.voter_name}</div>`).join('')
     :'';
 
-  const isMeAvail = myVote?.available === true;
+  const isMeAvail   = myVote?.available === true;
   const isMeUnavail = myVote?.available === false;
-  const myReason = myVote?.note || '';
 
   const leaderActions = (isLeader||isAdmin) && prop ? `
     ${!prop.is_confirmed && availVoters.length>0
       ?`<button class="action-btn leader-action" style="margin-top:4px" onclick="confirmDate('${prop.id}','${ds}')">📌 이 날짜로 확정</button>`:''}
     ${prop.is_confirmed
       ?`<div style="text-align:center;padding:8px;font-size:13px;color:var(--mint-deep);font-weight:700;font-family:'Nunito',sans-serif">🎉 확정된 날짜!</div>`:''}
-    ${isAdmin
-      ?`<button class="action-btn danger" onclick="deleteProposal('${prop.id}','${ds}')">제안 삭제 (어드민)</button>`:''}
-  `:'';
+    ${isAdmin?`<button class="action-btn danger" onclick="deleteProposal('${prop.id}','${ds}')">제안 삭제 (어드민)</button>`:''}`:'';
 
   card.innerHTML=`
     <div class="side-header">
@@ -1645,10 +1719,10 @@ function renderSide(ds) {
     </div>
     <div class="side-body">
       <span class="field-label">내 가능 여부</span>
-      <button class="avail-btn on ${isMeAvail?'active':''}" id="btnYes">✓ 가능해요</button>
+      <button class="avail-btn on ${isMeAvail?'active':''}" onclick="voteYes()">✓ 가능해요</button>
       <div style="margin-top:8px">
-        <input class="form-input" id="unavailReason" placeholder="불가 사유 (선택, 예: 약속 있음)" style="margin-bottom:6px" value="${myReason}">
-        <button class="avail-btn off ${isMeUnavail?'active':''}" id="btnNo">✗ 불가예요</button>
+        <input class="form-input" id="unavailReason" placeholder="불가 사유 (선택)" style="margin-bottom:6px">
+        <button class="avail-btn off ${isMeUnavail?'active':''}" onclick="voteNo()">✗ 불가예요</button>
       </div>
       <div class="voters-section" style="margin-top:12px">
         <span class="field-label">가능한 멤버 (${availVoters.length}명)</span>
@@ -1657,13 +1731,6 @@ function renderSide(ds) {
       </div>
       ${leaderActions}
     </div>`;
-
-  // 이벤트 직접 바인딩 (onclick 문자열 충돌 방지)
-  document.getElementById('btnYes').addEventListener('click', () => toggleAvail(ds, true, null));
-  document.getElementById('btnNo').addEventListener('click', () => {
-    const reason = document.getElementById('unavailReason')?.value.trim() || null;
-    toggleAvail(ds, false, reason);
-  });
 }
 
 // ── 가능 여부 토글 ──
@@ -1686,6 +1753,58 @@ async function toggleAvail(ds, available, reason) {
   showToast(available?'✓ 가능으로 표시했어요!':'✗ 불가로 표시했어요!','success');
   await loadAll();
   renderSide(ds);
+}
+
+// ── 모두 가능한 날 찾기 ──
+function findOverlapDates() {
+  // 이번 달 전체 멤버 목록
+  const allVoters = [...new Set(votes.map(v=>v.voter_name))];
+  if (allVoters.length < 2) return showToast('투표한 멤버가 2명 이상이어야 해요', 'error');
+
+  // 이번 달 날짜들 중 모든 멤버가 가능한 날
+  const monthPfx = `${curYear}-${String(curMonth+1).padStart(2,'0')}`;
+  const thisProps = proposals.filter(p=>p.proposed_date.startsWith(monthPfx));
+
+  const overlapDates = thisProps.filter(p => {
+    const dayVotes = votes.filter(v=>v.proposal_id===p.id && v.available);
+    const voters = dayVotes.map(v=>v.voter_name);
+    return allVoters.every(name => voters.includes(name));
+  });
+
+  const card = document.getElementById('sideCard');
+  if (!overlapDates.length) {
+    card.innerHTML = `
+      <div class="side-header"><div class="side-header-title">🔍 겹치는 날 찾기</div></div>
+      <div class="side-body">
+        <div style="text-align:center;padding:20px;color:var(--text3);font-size:13px">
+          <div style="font-size:32px;margin-bottom:10px">😅</div>
+          모든 멤버가 가능한 날이 없어요<br>
+          <span style="font-size:11px">더 많은 날짜에 투표해보세요!</span>
+        </div>
+      </div>`;
+    return;
+  }
+
+  const WD=['일','월','화','수','목','금','토'];
+  const dateChips = overlapDates.map(p=>{
+    const d=new Date(p.proposed_date+'T00:00:00');
+    const dow=d.getDay();
+    const isFri=dow===5;
+    return `<div style="background:${isFri?'var(--sun-light)':'var(--mint-light)'};border:1.5px solid ${isFri?'var(--sun)':'var(--mint)'};border-radius:10px;padding:8px 14px;text-align:center;cursor:pointer" onclick="dayClick('${p.proposed_date}')">
+      <div style="font-family:'Nunito',sans-serif;font-weight:800;font-size:14px;color:${isFri?'#b07a00':'var(--mint-deep)'}">${d.getMonth()+1}/${d.getDate()}(${WD[dow]})</div>
+      ${isFri?'<div style="font-size:10px;color:#b07a00">🍺 금요일!</div>':''}
+    </div>`;
+  }).join('');
+
+  card.innerHTML = `
+    <div class="side-header">
+      <div class="side-header-title">🔍 모두 가능한 날</div>
+      <div class="side-header-sub">${allVoters.length}명 전원 가능 · ${overlapDates.length}일</div>
+    </div>
+    <div class="side-body">
+      <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px">${dateChips}</div>
+      <div style="font-size:11px;color:var(--text3);margin-bottom:10px">날짜 클릭하면 해당 날짜로 이동해요</div>
+    </div>`;
 }
 
 // ── 날짜 확정 (리더) ──
