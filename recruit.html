@@ -69,16 +69,44 @@
     text-align: center;
     padding: 0 24px;
     position: relative;
+    overflow: hidden;
+  }
+
+  /* 영상 배경 */
+  .hero-video-bg {
+    position: absolute; inset:0; z-index:0;
+    background: var(--bg);
+  }
+  .hero-video-bg video {
+    position: absolute; inset:0;
+    width:100%; height:100%;
+    object-fit: cover;
+    transition: opacity 1.5s ease;
+  }
+  .hero-video-bg::after {
+    content:'';
+    position:absolute; inset:0;
+    background: linear-gradient(
+      to bottom,
+      rgba(17,18,20,0.3) 0%,
+      rgba(17,18,20,0.1) 40%,
+      rgba(17,18,20,0.6) 80%,
+      rgba(17,18,20,1) 100%
+    );
+    z-index:1;
   }
 
   /* 미세한 노이즈 배경 */
   .hero::before {
     content:'';
-    position:absolute; inset:0;
+    position:absolute; inset:0; z-index:2;
     background:
       radial-gradient(ellipse 80% 50% at 50% 60%, rgba(79,195,247,0.04) 0%, transparent 70%);
     pointer-events:none;
   }
+
+  .hero > * { position:relative; z-index:3; }
+  .hero-video-bg { z-index:0; }
 
   .hero-eyebrow {
     font-size: 11px; font-weight: 700;
@@ -503,13 +531,45 @@
   .toast.error   { border-color:rgba(255,107,107,0.5); }
   .toast.success { border-color:rgba(79,195,247,0.4); }
 
+  /* 성별 버튼 */
+  .gbtn {
+    flex:1; padding:9px 6px; border-radius:3px;
+    font-size:12px; font-weight:700; font-family:'Nunito',sans-serif;
+    text-align:center; cursor:pointer;
+    border:1px solid var(--border); background:var(--bg3); color:var(--text2);
+    transition:all 0.15s;
+  }
+  .gbtn:hover { border-color:rgba(255,255,255,0.2); color:var(--text); }
+  .gbtn.sel   { border-color:var(--accent); background:rgba(79,195,247,0.12); color:var(--accent); }
+
   @media(max-width:640px) {
-    nav { padding:0 20px; }
-    .section { padding:80px 20px; }
-    .cta-section { padding:100px 20px; }
-    footer { padding:24px 20px; }
-    .hero-title { font-size: clamp(60px, 16vw, 100px); }
-    .ocard-body { padding:20px; }
+    nav { padding:0 16px; height:54px; }
+    .nav-logo { font-size:15px; letter-spacing:3px; }
+    .section { padding:64px 18px; }
+    .cta-section { padding:80px 18px; }
+    footer { padding:20px 18px; flex-direction:column; gap:8px; text-align:center; }
+    .hero { padding:0 18px; }
+    .hero-eyebrow { font-size:10px; letter-spacing:4px; }
+    .hero-title { font-size:clamp(56px,18vw,88px); margin-bottom:24px; }
+    .hero-desc { font-size:13px; margin-bottom:36px; }
+    .hero-btn { padding:12px 28px; font-size:12px; }
+    .scroll-down { bottom:24px; }
+    .stat-line { flex-wrap:wrap; gap:8px; }
+    .stat-key { width:100%; font-size:10px; }
+    .stat-val { font-size:22px; }
+    .section-title { font-size:clamp(32px,9vw,48px); margin-bottom:36px; }
+    .wanted-wrap { margin:80px 0 0; }
+    .cta-title { font-size:clamp(40px,13vw,72px); }
+    .ocard-body { padding:18px 16px; }
+    .ocard-head { padding:18px 16px 14px; }
+    .ocard-title { font-size:22px; }
+    .overlay-inner { padding:60px 16px; }
+    .rgrid { grid-template-columns:repeat(2,1fr); gap:8px; }
+    .rbtn { padding:16px 6px; }
+    .rbtn-emoji { font-size:22px; }
+    .cgrp { gap:6px; }
+    .chip { padding:5px 10px; font-size:11px; }
+    .orow { gap:8px; }
   }
 </style>
 </head>
@@ -523,6 +583,16 @@
 
 <!-- 히어로 -->
 <section class="hero">
+  <!-- 영상 배경 (공연 영상 2개 크로스페이드) -->
+  <div class="hero-video-bg">
+    <video id="hv1" muted autoplay playsinline loop preload="auto" style="opacity:0.35;position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:opacity 1.5s ease">
+      <source src="videos/perf1.mp4" type="video/mp4">
+    </video>
+    <video id="hv2" muted playsinline loop preload="auto" style="opacity:0;position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:opacity 1.5s ease">
+      <source src="videos/perf2.mp4" type="video/mp4">
+    </video>
+  </div>
+
   <div class="hero-eyebrow">Suwon Band · Recruiting</div>
   <h1 class="hero-title">
     JOIN<br>
@@ -670,10 +740,21 @@
         </div>
         <div class="ocard-body">
           <div class="fg"><label class="flabel">이름 <span class="req">*</span></label><input class="finput" id="f-name" placeholder="실명 또는 닉네임"></div>
-          <div class="fg"><label class="flabel">나이</label><input class="finput" id="f-age" placeholder="25" type="number" min="10" max="99"></div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+            <div class="fg"><label class="flabel">나이</label><input class="finput" id="f-age" placeholder="25" type="number" min="10" max="99"></div>
+            <div class="fg">
+              <label class="flabel">성별</label>
+              <div style="display:flex;gap:7px;margin-top:4px">
+                <div class="gbtn" onclick="selectGender(this,'남성')">남성</div>
+                <div class="gbtn" onclick="selectGender(this,'여성')">여성</div>
+                
+              </div>
+            </div>
+          </div>
+          <div class="fg"><label class="flabel">거주지</label><input class="finput" id="f-region" placeholder="ex) 수원시, 용인시, 화성시"></div>
           <div class="fg">
             <label class="flabel">연락처 <span class="req">*</span></label>
-            <div style="font-size:10px;color:var(--text3);margin-bottom:6px;letter-spacing:0.5px">" - " 없이 숫자만 입력해주세요 · ex) 01012345678</div>
+            <div style="font-size:10px;color:var(--text3);margin-bottom:6px">"-" 없이 숫자만 입력 · ex) 01012345678</div>
             <input class="finput" id="f-contact" placeholder="01012345678" type="tel" maxlength="11">
           </div>
           <div class="fg"><label class="flabel">경험 / 레벨</label><input class="finput" id="f-level" placeholder="ex) 독학 3년, 밴드 경험 있음"></div>
@@ -696,9 +777,35 @@
         <div class="ocard-body">
           <div class="vbox">
             <label class="flabel" style="color:var(--accent)">🎬 연주 영상 <span class="req">*</span></label>
-            <div class="vbox-hint">유튜브, 인스타, 드라이브 등 어떤 링크든 가능해요</div>
-            <input class="finput" id="f-video" placeholder="https://...">
-            <div class="novideo">
+            <div class="vbox-hint">파일 업로드 또는 유튜브/드라이브 링크 중 하나를 선택해요</div>
+            <!-- 탭 선택 -->
+            <div style="display:flex;gap:0;margin-bottom:12px;border:1px solid var(--border);border-radius:4px;overflow:hidden">
+              <button id="vtab-file" onclick="setVTab('file')" style="flex:1;padding:8px;font-size:11px;font-weight:700;font-family:'Nunito',sans-serif;border:none;cursor:pointer;background:var(--accent);color:var(--bg);letter-spacing:1px">파일 업로드</button>
+              <button id="vtab-link" onclick="setVTab('link')" style="flex:1;padding:8px;font-size:11px;font-weight:700;font-family:'Nunito',sans-serif;border:none;cursor:pointer;background:var(--bg3);color:var(--text2);letter-spacing:1px">링크 입력</button>
+            </div>
+            <!-- 파일 업로드 -->
+            <div id="varea-file">
+              <div id="vdropzone" onclick="document.getElementById('f-video-file').click()"
+                style="border:1.5px dashed var(--border);border-radius:4px;padding:24px;text-align:center;cursor:pointer;transition:all 0.2s"
+                onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='var(--border)'">
+                <div style="font-size:24px;margin-bottom:8px">📁</div>
+                <div style="font-size:12px;color:var(--text2);font-weight:600">클릭해서 파일 선택</div>
+                <div style="font-size:10px;color:var(--text3);margin-top:4px">MP4, MOV, AVI · 최대 100MB</div>
+              </div>
+              <input type="file" id="f-video-file" accept="video/*" style="display:none" onchange="onVideoFileSelect(this)">
+              <div id="vfile-preview" style="display:none;margin-top:10px;background:var(--bg3);border-radius:4px;padding:12px;font-size:12px;color:var(--text2)"></div>
+              <div id="vupload-bar" style="display:none;margin-top:8px">
+                <div style="font-size:11px;color:var(--accent);margin-bottom:4px" id="vupload-label">업로드 중...</div>
+                <div style="height:3px;background:var(--border);border-radius:2px;overflow:hidden">
+                  <div id="vupload-prog" style="height:100%;background:var(--accent);width:0%;transition:width 0.3s"></div>
+                </div>
+              </div>
+            </div>
+            <!-- 링크 입력 -->
+            <div id="varea-link" style="display:none">
+              <input class="finput" id="f-video-link" placeholder="https://youtube.com/... 또는 drive.google.com/...">
+            </div>
+            <div class="novideo" style="margin-top:10px">
               <input type="checkbox" id="noVid" onchange="toggleNoVid()">
               <label for="noVid">영상이 없어요</label>
             </div>
@@ -714,11 +821,15 @@
           </div>
           <div class="fg"><label class="flabel">좋아하는 밴드 / 아티스트</label><input class="finput" id="f-bands" placeholder="ex) 너바나, 콜드플레이, 아이유"></div>
           <div class="fg"><label class="flabel">연습 가능 시간대</label>
-            <div class="cgrp" id="tc2">
-              <div class="chip" onclick="tc(this,'t')">평일 오전</div><div class="chip" onclick="tc(this,'t')">평일 오후</div>
-              <div class="chip" onclick="tc(this,'t')">평일 저녁</div><div class="chip" onclick="tc(this,'t')">주말 오전</div>
-              <div class="chip" onclick="tc(this,'t')">주말 오후</div><div class="chip" onclick="tc(this,'t')">주말 저녁</div>
-            </div>
+            <select class="finput" id="f-time" multiple size="4" style="padding:8px;font-family:'Noto Sans KR',sans-serif">
+              <option value="평일 오전">평일 오전</option>
+              <option value="평일 오후">평일 오후</option>
+              <option value="평일 저녁">평일 저녁</option>
+              <option value="주말 오전">주말 오전</option>
+              <option value="주말 오후">주말 오후</option>
+              <option value="주말 저녁">주말 저녁</option>
+            </select>
+            <div style="font-size:10px;color:var(--text3);margin-top:4px">Ctrl/Cmd 누르고 클릭하면 여러 개 선택 가능해요</div>
           </div>
           <div class="fg"><label class="flabel">좋아하는 음식 🍕</label>
             <div class="cgrp" id="fc">
@@ -728,7 +839,22 @@
               <div class="chip" onclick="tc(this,'f')">🥢 한식</div><div class="chip" onclick="tc(this,'f')">☕ 카페</div>
             </div>
           </div>
-          <div class="fg"><label class="flabel">한마디</label><textarea class="finput" id="f-memo" placeholder="하고 싶은 말을 자유롭게!"></textarea></div>
+          <div class="fg">
+            <label class="flabel">취미</label>
+            <div class="cgrp" id="hobby-chips">
+              <div class="chip" onclick="tc(this,'h')">🎮 게임</div>
+              <div class="chip" onclick="tc(this,'h')">🎬 영화/드라마</div>
+              <div class="chip" onclick="tc(this,'h')">📚 독서</div>
+              <div class="chip" onclick="tc(this,'h')">🏃 운동</div>
+              <div class="chip" onclick="tc(this,'h')">🍳 요리</div>
+              <div class="chip" onclick="tc(this,'h')">✈️ 여행</div>
+              <div class="chip" onclick="tc(this,'h')">🎨 그림/디자인</div>
+              <div class="chip" onclick="tc(this,'h')">📷 사진/영상</div>
+              <div class="chip" onclick="tc(this,'h')">🎵 음악감상</div>
+              <div class="chip" onclick="tc(this,'h')">🍺 맥주/모임</div>
+            </div>
+          </div>
+          <div class="fg"><label class="flabel">지원 동기</label><textarea class="finput" id="f-memo" placeholder="왜 이 밴드에 들어오고 싶은지, 어떤 음악을 하고 싶은지 자유롭게 써주세요!"></textarea></div>
           <div class="orow">
             <button class="oback" onclick="goS(2)">← 뒤로</button>
             <button class="onext" id="subBtn" onclick="submit()">🎸 지원 완료!</button>
@@ -768,55 +894,125 @@ const SUPABASE_KEY = 'sb_publishable_O03HB6BfZzOe1tFYGDDVuw_KtJKNoSu';
 const { createClient } = supabase;
 const db = createClient(SUPABASE_URL, SUPABASE_KEY);
 
-let fd = { roles:[], name:'', age:'', contact:'', level:'', genres:[], bands:'', time:[], food:[], memo:'', video:'' };
+let fd = {
+  roles:[], name:'', age:'', gender:'', region:'', contact:'', level:'',
+  genres:[], bands:'', time:[], hobby:[], food:[], memo:'', video:'', videoFileUrl:''
+};
+let videoTab = 'file';
+let uploadedVideoUrl = '';
 
+// ── 영상 배경 크로스페이드 ──
+window.addEventListener('load', () => {
+  const v1 = document.getElementById('hv1');
+  const v2 = document.getElementById('hv2');
+  if (!v1 || !v2) return;
+
+  // v2 미리 로드 시작
+  v2.load();
+  v2.play().catch(()=>{});
+
+  let cur = 1;
+
+  function crossFade() {
+    if (cur === 1) {
+      // v1→v2 전환
+      v1.style.opacity = '0';
+      v2.style.opacity = '0.35';
+      cur = 2;
+    } else {
+      // v2→v1 전환
+      v2.style.opacity = '0';
+      v1.style.opacity = '0.35';
+      cur = 1;
+    }
+  }
+
+  // 8초마다 전환
+  setInterval(crossFade, 8000);
+});
+
+// ── 오버레이 ──
 function openOverlay()  { document.getElementById('overlay').classList.add('open'); document.body.style.overflow='hidden'; goS(1); }
 function closeOverlay() { document.getElementById('overlay').classList.remove('open'); document.body.style.overflow=''; }
 
 function goS(n) {
   ['s1','s2','s3','s-done'].forEach(id=>document.getElementById(id).style.display='none');
-  const id = n==='done'?'s-done':`s${n}`;
-  document.getElementById(id).style.display='block';
+  document.getElementById(n==='done'?'s-done':'s'+n).style.display='block';
   const bar=document.getElementById('sbar');
   if(n==='done'){bar.style.display='none';return;}
   bar.style.display='flex';
   [1,2,3].forEach(i=>{
-    const p=document.getElementById(`sp${i}`);
+    const p=document.getElementById('sp'+i);
     p.className='spip';
-    if(i<n)p.classList.add('done');
-    else if(i===n)p.classList.add('active');
+    if(i<n)p.classList.add('done'); else if(i===n)p.classList.add('active');
   });
   [1,2].forEach(i=>{
-    const c=document.getElementById(`sc${i}`);
+    const c=document.getElementById('sc'+i);
     c.className='sconn';
     if(i<n)c.classList.add('done');
   });
   document.getElementById('overlay').scrollTo({top:0,behavior:'smooth'});
 }
 
+// ── 역할/성별 ──
 function toggleRole(el,r) {
   el.classList.toggle('sel');
   if(el.classList.contains('sel')) fd.roles.push(r);
   else fd.roles=fd.roles.filter(x=>x!==r);
 }
+function selectGender(el,g) {
+  document.querySelectorAll('.gbtn').forEach(b=>b.classList.remove('sel'));
+  el.classList.add('sel'); fd.gender=g;
+}
 
+// ── 칩 ──
 function tc(el,type) {
   const val=el.textContent.trim();
-  const cls={g:'sel',t:'msel',f:'csel'}[type];
-  const key={g:'genres',t:'time',f:'food'}[type];
+  const cls={g:'sel',t:'msel',f:'csel',h:'sel'}[type];
+  const key={g:'genres',t:'time',f:'food',h:'hobby'}[type];
   el.classList.toggle(cls);
   if(el.classList.contains(cls)) fd[key].push(val);
   else fd[key]=fd[key].filter(v=>v!==val);
 }
 
-function toggleNoVid() {
-  const c=document.getElementById('noVid');
-  const i=document.getElementById('f-video');
-  i.value=c.checked?'영상 없음':'';
-  i.disabled=c.checked;
-  i.style.opacity=c.checked?'0.35':'1';
+// ── 영상 탭 전환 ──
+function setVTab(tab) {
+  videoTab = tab;
+  document.getElementById('varea-file').style.display = tab==='file'?'block':'none';
+  document.getElementById('varea-link').style.display = tab==='link'?'block':'none';
+  document.getElementById('vtab-file').style.background = tab==='file'?'var(--accent)':'var(--bg3)';
+  document.getElementById('vtab-file').style.color      = tab==='file'?'var(--bg)':'var(--text2)';
+  document.getElementById('vtab-link').style.background = tab==='link'?'var(--accent)':'var(--bg3)';
+  document.getElementById('vtab-link').style.color      = tab==='link'?'var(--bg)':'var(--text2)';
 }
 
+// ── 영상 파일 선택 ──
+function onVideoFileSelect(input) {
+  const file = input.files[0];
+  if (!file) return;
+  if (file.size > 100 * 1024 * 1024) {
+    toast('100MB 이하 파일만 업로드 가능해요','error');
+    input.value=''; return;
+  }
+  const sizeMB = (file.size/1024/1024).toFixed(1);
+  document.getElementById('vfile-preview').style.display='block';
+  document.getElementById('vfile-preview').innerHTML=
+    `📁 <b>${file.name}</b> (${sizeMB}MB) — 제출 시 업로드돼요`;
+}
+
+// ── 영상 없음 ──
+function toggleNoVid() {
+  const c=document.getElementById('noVid');
+  const fa=document.getElementById('varea-file');
+  const la=document.getElementById('varea-link');
+  const tb=document.getElementById('varea-file').parentElement.querySelector('[id^="vtab"]');
+  fa.style.opacity = c.checked?'0.35':'1';
+  fa.style.pointerEvents = c.checked?'none':'';
+  la.style.opacity = c.checked?'0.35':'1';
+  la.style.pointerEvents = c.checked?'none':'';
+}
+
+// ── Step 이동 ──
 function goS2() {
   if(!fd.roles.length) return toast('파트를 선택해주세요!','error');
   goS(2);
@@ -826,69 +1022,103 @@ function goS3() {
   const c=document.getElementById('f-contact').value.trim();
   if(!n) return toast('이름을 입력해주세요!','error');
   if(!c) return toast('연락처를 입력해주세요!','error');
-  fd.name=n; fd.age=document.getElementById('f-age').value.trim();
+  fd.name=n; fd.age=document.getElementById('f-age').value;
+  // 시간대 드롭다운 다중 선택 수집
+  const timeSelect = document.getElementById('f-time');
+  fd.time = timeSelect ? Array.from(timeSelect.selectedOptions).map(o=>o.value) : [];
+  fd.region=document.getElementById('f-region').value.trim();
   fd.contact=c; fd.level=document.getElementById('f-level').value.trim();
   goS(3);
 }
 
+// ── 제출 ──
 async function submit() {
   fd.bands=document.getElementById('f-bands').value.trim();
-  fd.memo=document.getElementById('f-memo').value.trim();
-  const v=document.getElementById('f-video').value.trim();
-  const nv=document.getElementById('noVid').checked;
-  if(!v&&!nv) return toast('연주 영상 링크를 입력하거나 "영상 없음"을 체크해주세요!','error');
-  fd.video=nv?'영상 없음':v;
+  fd.memo =document.getElementById('f-memo').value.trim();
+  const noVid=document.getElementById('noVid').checked;
 
   const btn=document.getElementById('subBtn');
   btn.disabled=true; btn.textContent='제출 중...';
 
+  let finalVideoUrl = '';
+
+  if (noVid) {
+    finalVideoUrl = '영상 없음';
+  } else if (videoTab === 'file') {
+    const fileInput = document.getElementById('f-video-file');
+    const file = fileInput.files[0];
+    if (!file) { btn.disabled=false; btn.textContent='🎸 지원 완료!'; return toast('연주 영상을 업로드하거나 "영상 없음"을 체크해주세요!','error'); }
+    // 업로드 진행
+    document.getElementById('vupload-bar').style.display='block';
+    document.getElementById('vupload-label').textContent='업로드 중... 잠시 기다려주세요';
+    const ext = file.name.split('.').pop();
+    const path = `${Date.now()}_${Math.random().toString(36).slice(2)}.${ext}`;
+    const { data:upData, error:upErr } = await db.storage.from('recruit-videos').upload(path, file, { cacheControl:'3600', upsert:false });
+    if (upErr) {
+      document.getElementById('vupload-bar').style.display='none';
+      btn.disabled=false; btn.textContent='🎸 지원 완료!';
+      return toast('영상 업로드 실패: '+upErr.message,'error');
+    }
+    document.getElementById('vupload-prog').style.width='100%';
+    document.getElementById('vupload-label').textContent='업로드 완료!';
+    const { data:urlData } = db.storage.from('recruit-videos').getPublicUrl(path);
+    finalVideoUrl = urlData.publicUrl;
+  } else {
+    const link = document.getElementById('f-video-link').value.trim();
+    if (!link) { btn.disabled=false; btn.textContent='🎸 지원 완료!'; return toast('영상 링크를 입력하거나 "영상 없음"을 체크해주세요!','error'); }
+    finalVideoUrl = link;
+  }
+
+  fd.video = finalVideoUrl;
+
   const {error}=await db.from('band_applications').insert({
-    name:fd.name, age:fd.age||null, contact:fd.contact,
+    name:fd.name, age:fd.age?parseInt(fd.age):null,
+    contact:fd.contact, gender:fd.gender||null, region:fd.region||null,
     role:fd.roles.join(', '),
     genres:fd.genres.join(', ')||null,
     bands:fd.bands||null,
+    hobby:fd.hobby.join(', ')||null,
     food:fd.food.join(', ')||null,
     practice_time:fd.time.join(', ')||null,
     memo:fd.memo||null,
     status:'pending',
-    video_url:fd.video
+    video_url:finalVideoUrl,
+    video_file_url:videoTab==='file'?finalVideoUrl:null
   });
 
   btn.disabled=false; btn.textContent='🎸 지원 완료!';
   if(error) return toast('제출 실패: '+error.message,'error');
 
+  // 결과 카드
   const em={'일렉기타':'🎸','어쿠스틱':'🎼','베이스':'🎵','드럼':'🥁','키보드':'🎹','보컬':'🎤'};
   document.getElementById('ra').textContent=fd.name.charAt(0);
   document.getElementById('rn').textContent=fd.name;
   document.getElementById('rr').textContent=fd.roles.join(' · ');
-
   const rows=[
     {i:'🎸',k:'파트',v:fd.roles.map(r=>(em[r]||'')+' '+r).join('  ')},
+    fd.gender?{i:'👤',k:'성별',v:fd.gender}:null,
+    fd.region?{i:'📍',k:'거주지',v:fd.region}:null,
     {i:'🎵',k:'장르',v:fd.genres.join(', ')||'-'},
     {i:'🎙',k:'밴드',v:fd.bands||'-'},
     {i:'📅',k:'연습',v:fd.time.join(', ')||'-'},
+    fd.hobby.length?{i:'🎮',k:'취미',v:fd.hobby.join(', ')}:null,
     {i:'🍕',k:'음식',v:fd.food.join(', ')||'-'},
     {i:'📞',k:'연락처',v:fd.contact},
-    {i:'🎬',k:'영상',v:fd.video},
+    {i:'🎬',k:'영상',v:finalVideoUrl==='영상 없음'?'영상 없음':'제출됨 ✓'},
     fd.level?{i:'⭐',k:'경험',v:fd.level}:null,
     fd.memo?{i:'💬',k:'한마디',v:`"${fd.memo}"`}:null,
   ].filter(Boolean);
-
   document.getElementById('rrows').innerHTML=rows.map(r=>`
-    <div class="rrow">
-      <span class="ricon">${r.i}</span>
-      <div><div class="rkey">${r.k}</div><div class="rval">${r.v}</div></div>
-    </div>`).join('');
-
+    <div class="rrow"><span class="ricon">${r.i}</span>
+    <div><div class="rkey">${r.k}</div><div class="rval">${r.v}</div></div></div>`).join('');
   goS('done');
 }
 
-function toast(msg, type='success') {
+function toast(msg,type='success'){
   const t=document.getElementById('toast');
   t.textContent=msg; t.className=`toast ${type} show`;
   setTimeout(()=>t.classList.remove('show'),2800);
 }
-
 document.addEventListener('keydown',e=>{if(e.key==='Escape')closeOverlay();});
 </script>
 </body>
