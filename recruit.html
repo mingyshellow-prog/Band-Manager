@@ -584,14 +584,7 @@
 <!-- 히어로 -->
 <section class="hero">
   <!-- 영상 배경 (공연 영상 2개 크로스페이드) -->
-  <div class="hero-video-bg">
-    <video id="hv1" muted autoplay playsinline loop preload="auto" style="opacity:0.35;position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:opacity 1.5s ease">
-      <source src="videos/perf1.mp4" type="video/mp4">
-    </video>
-    <video id="hv2" muted playsinline loop preload="auto" style="opacity:0;position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:opacity 1.5s ease">
-      <source src="videos/perf2.mp4" type="video/mp4">
-    </video>
-  </div>
+  <div class="hero-video-bg" id="videoBg"></div>
 
   <div class="hero-eyebrow">Suwon Band · Recruiting</div>
   <h1 class="hero-title">
@@ -902,34 +895,50 @@ let videoTab = 'file';
 let uploadedVideoUrl = '';
 
 // ── 영상 배경 크로스페이드 ──
-window.addEventListener('load', () => {
-  const v1 = document.getElementById('hv1');
-  const v2 = document.getElementById('hv2');
-  if (!v1 || !v2) return;
+(function() {
+  const bg = document.getElementById('videoBg');
+  if (!bg) return;
 
-  // v2 미리 로드 시작
-  v2.load();
-  v2.play().catch(()=>{});
+  const sources = ['videos/perf1.mp4', 'videos/perf2.mp4'];
+  const videos = [];
 
-  let cur = 1;
+  // 공통 스타일
+  const baseStyle = {
+    position:'absolute', inset:'0', width:'100%', height:'100%',
+    objectFit:'cover', transition:'opacity 1.5s ease'
+  };
 
-  function crossFade() {
-    if (cur === 1) {
-      // v1→v2 전환
-      v1.style.opacity = '0';
-      v2.style.opacity = '0.35';
-      cur = 2;
-    } else {
-      // v2→v1 전환
-      v2.style.opacity = '0';
-      v1.style.opacity = '0.35';
-      cur = 1;
-    }
-  }
+  sources.forEach((src, i) => {
+    const v = document.createElement('video');
+    v.src = src;
+    v.muted = true;
+    v.loop = true;
+    v.playsInline = true;
+    v.setAttribute('muted','');
+    v.setAttribute('playsinline','');
+    v.preload = 'auto';
+    Object.assign(v.style, baseStyle);
+    v.style.opacity = i === 0 ? '0.38' : '0';
+    bg.appendChild(v);
+    videos.push(v);
+  });
 
-  // 8초마다 전환
-  setInterval(crossFade, 8000);
-});
+  // 첫 번째 영상 재생
+  videos[0].play().catch(() => {});
+
+  // 두 번째 영상 미리 로드
+  videos[1].load();
+  videos[1].play().then(() => { videos[1].pause(); }).catch(() => {});
+
+  let cur = 0;
+  setInterval(() => {
+    const next = (cur + 1) % 2;
+    videos[next].play().catch(() => {});
+    videos[cur].style.opacity = '0';
+    videos[next].style.opacity = '0.38';
+    cur = next;
+  }, 8000);
+})();
 
 // ── 오버레이 ──
 function openOverlay()  { document.getElementById('overlay').classList.add('open'); document.body.style.overflow='hidden'; goS(1); }
