@@ -1679,7 +1679,7 @@ async function toggleAvail(ds, available, reason) {
     await db.from('band_date_proposals').update({note:null}).eq('id',prop.id);
   }
   const {error}=await db.from('band_date_votes').upsert(
-    {proposal_id:prop.id,voter_name:myName,available},
+    {proposal_id:prop.id,voter_name:myName,available,note:available?null:(reason||null)},
     {onConflict:'proposal_id,voter_name'}
   );
   if(error) return showToast('저장 실패: '+error.message,'error');
