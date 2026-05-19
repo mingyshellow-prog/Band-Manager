@@ -158,6 +158,11 @@
 
   /* 내가 가능 표시한 날 - 좌측 색상 바 */
   .cal-day.my-available{background:rgba(142,223,200,.1);}
+  .cal-day.my-available::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--mint-deep);border-radius:0;}
+  .cal-day.my-available .day-num{color:var(--mint-deep);}
+  .cal-day.my-unavail{background:rgba(244,160,136,.1);}
+  .cal-day.my-unavail::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--coral);border-radius:0;}
+  .cal-day.my-unavail .day-num{color:#c05840;}
   .cal-day.my-available::before{
     content:'';position:absolute;left:0;top:0;bottom:0;
     width:3px;background:var(--mint-deep);border-radius:0;
@@ -1436,7 +1441,8 @@ function renderCalendar() {
     if(isHol)   cls+=' holiday';
     if(isToday) cls+=' today';
     if(prop?.is_confirmed) cls+=' confirmed-day';
-    else if(myVote)        cls+=' my-available';
+    else if(myVote?.available===true)  cls+=' my-available';
+    else if(myVote?.available===false) cls+=' my-unavail';
     if(isSel||isMulti)     cls+=' selected';
 
     // 이름 이벤트 바 (구글 캘린더 스타일)
@@ -1750,7 +1756,7 @@ async function toggleAvail(ds, available, reason) {
     await db.from('band_date_proposals').update({note:null}).eq('id',prop.id);
   }
   const {error}=await db.from('band_date_votes').upsert(
-    {proposal_id:prop.id,voter_name:myName,available,note:available?null:(reason||null)},
+    {proposal_id:prop.id,voter_name:myName,available},
     {onConflict:'proposal_id,voter_name'}
   );
   if(error) return showToast('저장 실패: '+error.message,'error');
