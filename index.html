@@ -1145,9 +1145,13 @@ async function renderRecruitTab() {
               ${isContacted?`<span style="background:var(--mint-light);color:var(--mint-deep);border-radius:8px;padding:2px 9px;font-size:11px;font-weight:700;font-family:'Nunito',sans-serif">✓ 연락함</span>`:''}
             </div>
             <div style="font-size:13px;color:var(--text2);margin-bottom:4px;font-weight:600">📞 ${a.contact}</div>
+            ${a.gender?`<div style="font-size:12px;color:var(--text3)">👤 ${a.gender}</div>`:''}
+            ${a.region?`<div style="font-size:12px;color:var(--text3)">📍 ${a.region}</div>`:''}
             ${a.genres?`<div style="font-size:12px;color:var(--text3)">🎵 ${a.genres}</div>`:''}
             ${a.bands?`<div style="font-size:12px;color:var(--text3)">🎸 ${a.bands}</div>`:''}
             ${a.practice_time?`<div style="font-size:12px;color:var(--text3)">📅 ${a.practice_time}</div>`:''}
+            ${a.food?`<div style="font-size:12px;color:var(--text3)">🍕 ${a.food}</div>`:''}
+            ${a.hobby?`<div style="font-size:12px;color:var(--text3)">🎮 ${a.hobby}</div>`:''}
             ${a.video_url?`<div style="font-size:12px;color:var(--text3)">🎬 ${a.video_url==='영상 없음'?'영상 없음':`<a href="${a.video_url}" target="_blank" style="color:var(--ocean-mid);text-decoration:none">영상 보기 ↗</a>`}</div>`:''}
             ${a.memo?`<div style="font-size:12px;color:var(--text2);margin-top:6px;background:var(--foam);border-radius:8px;padding:8px 10px;border:1px solid var(--border2)">"${a.memo}"</div>`:''}
             <div style="font-size:11px;color:var(--text3);margin-top:6px">${dateStr} 신청</div>
