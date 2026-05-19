@@ -29,6 +29,11 @@
     font-family: 'Noto Sans KR', sans-serif;
     overflow-x: hidden;
   }
+  /* 스크롤 시 영상 위에 콘텐츠 섹션 배경 */
+  .section, .cta-section, footer {
+    background: var(--bg);
+    position: relative; z-index: 1;
+  }
 
   /* ── 네비 ── */
   nav {
@@ -85,7 +90,7 @@
 
   .hero-eyebrow {
     font-size: 11px; font-weight: 700;
-    color: var(--text2); letter-spacing: 5px;
+    color: rgba(255,255,255,0.7); letter-spacing: 5px;
     text-transform: uppercase;
     font-family: 'Nunito', sans-serif;
     margin-bottom: 28px;
@@ -107,7 +112,7 @@
   }
 
   .hero-desc {
-    font-size: 15px; color: var(--text2);
+    font-size: 15px; color: rgba(255,255,255,0.75);
     line-height: 1.9; max-width: 400px;
     margin-bottom: 52px;
     position: relative; z-index:1;
@@ -117,7 +122,7 @@
 
   .hero-btn {
     font-size: 13px; font-weight: 700;
-    color: var(--white); letter-spacing: 2px;
+    color: #ffffff; letter-spacing: 2px;
     text-transform: uppercase;
     font-family: 'Nunito', sans-serif;
     cursor: pointer; border: 1px solid rgba(255,255,255,0.2);
@@ -150,6 +155,7 @@
   .section {
     padding: 120px 60px;
     max-width: 1080px; margin: 0 auto;
+    position: relative; z-index: 1;
   }
 
   .section-eyebrow {
@@ -170,6 +176,7 @@
 
   /* 스탯 라인 (넥슨처럼 수평 라인) */
   .stat-line {
+    background: rgba(17,18,20,0.6);
     border-top: 1px solid var(--border);
     padding: 28px 0;
     display: flex; align-items:center; justify-content:space-between;
@@ -886,7 +893,7 @@ let uploadedVideoUrl = '';
     objectFit:'cover',
     transition:'opacity 1.5s ease',
     display:'block',
-    filter:'grayscale(80%) brightness(0.5) contrast(1.1)'
+    filter:'grayscale(60%) brightness(0.65) contrast(1.15)'
   };
 
   sources.forEach((src, i) => {
