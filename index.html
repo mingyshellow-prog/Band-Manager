@@ -1446,16 +1446,24 @@ function renderCalendar() {
     if(isSel||isMulti)     cls+=' selected';
 
     // 이름 이벤트 바 (구글 캘린더 스타일)
-    const availVoters = dv.filter(v=>v.available);
-    const maxShow = 3;
+    const availVoters   = dv.filter(v=>v.available);
+    const unavailVoters = dv.filter(v=>!v.available);
+    const maxShow = 2;
+
     const nameEvents = availVoters.slice(0, maxShow).map(v=>{
       const ldr = v.voter_name.includes(LEADER_KEYWORD);
       const col = memberColors[v.voter_name] || (ldr ? '#f5c842' : '#3ab896');
       const textCol = ldr ? '#6a4400' : '#fff';
       return `<div class="name-event" style="background:${col};color:${textCol}">${ldr?'👑 ':''}${v.voter_name}</div>`;
     }).join('');
-    const moreEvent = availVoters.length > maxShow
-      ? `<div class="name-event more-ev">+${availVoters.length - maxShow}명 더</div>` : '';
+
+    const unavailEvents = unavailVoters.slice(0, 1).map(v=>
+      `<div class="name-event" style="background:#f4a088;color:#7a2010">✗ ${v.voter_name}</div>`
+    ).join('');
+
+    const remaining = (availVoters.length - maxShow) + (unavailVoters.length > 1 ? unavailVoters.length - 1 : 0);
+    const moreEvent = remaining > 0
+      ? `<div class="name-event more-ev">+${remaining}명</div>` : '';
 
     const star   = prop?.is_confirmed ? '<span class="confirmed-star">★</span>' : '';
     const holLabel = isHol ? `<div class="holiday-label">${HOLIDAYS[ds]}</div>` : '';
@@ -1464,7 +1472,7 @@ function renderCalendar() {
       ${star}
       <span class="day-num">${d}</span>
       ${holLabel}
-      <div class="name-events">${nameEvents}${moreEvent}</div>
+      <div class="name-events">${nameEvents}${unavailEvents}${moreEvent}</div>
     </div>`;
   }
 
