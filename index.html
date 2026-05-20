@@ -1355,6 +1355,7 @@ function showTab(tab, el) {
 
 // ── 데이터 로드 ──
 let songs=[], songVotes=[], rounds=[], scores=[], videos=[], bundles=[], comments=[];
+let studios=[], studioVotes=[];
 
 async function loadAll() {
   // 멤버 색상 로드
@@ -1364,7 +1365,7 @@ async function loadAll() {
     membersData.forEach(m => { if(m.display_name && m.color) memberColors[m.display_name] = m.color; });
   }
 
-  const [pR, vR, sR, soR, svR, scR, viR, buR, coR] = await Promise.all([
+  const [pR, vR, sR, soR, svR, scR, viR, buR, coR, stR, svtR] = await Promise.all([
     db.from('band_date_proposals').select('*'),
     db.from('band_date_votes').select('*'),
     db.from('band_settlements').select('*').order('created_at', {ascending:false}),
@@ -1374,6 +1375,8 @@ async function loadAll() {
     db.from('band_videos').select('*').order('created_at', {ascending:false}),
     db.from('band_song_bundles').select('*').order('created_at', {ascending:false}),
     db.from('band_song_comments').select('*').order('created_at', {ascending:true}),
+    db.from('band_studios').select('*').order('is_default', {ascending:false}),
+    db.from('band_studio_votes').select('*'),
   ]);
   proposals  = pR.data||[];
   votes      = vR.data||[];
@@ -1384,6 +1387,8 @@ async function loadAll() {
   videos     = viR.data||[];
   bundles    = buR.data||[];
   comments   = coR.data||[];
+  studios    = stR.data||[];
+  studioVotes= svtR.data||[];
   renderCalendar();
 }
 
@@ -1720,6 +1725,41 @@ function renderSide(ds) {
   const isMeAvail   = myVote?.available === true;
   const isMeUnavail = myVote?.available === false;
 
+  // 합주실 투표 섹션 (확정된 날짜)
+  let studioSection = '';
+  if (prop?.is_confirmed && studios.length > 0) {
+    const propStudioVotes = studioVotes.filter(sv=>sv.proposal_id===prop.id);
+    const myStudioVote = propStudioVotes.find(sv=>sv.voter_name===myName);
+    const studioCards = studios.map(st=>{
+      const cnt = propStudioVotes.filter(sv=>sv.studio_id===st.id).length;
+      const isMyVote = myStudioVote?.studio_id===st.id;
+      const maxCnt = Math.max(...studios.map(s=>propStudioVotes.filter(sv=>sv.studio_id===s.id).length),1);
+      const isTop = cnt === maxCnt && cnt > 0;
+      return `<div onclick="voteStudio('${prop.id}','${st.id}')"
+        style="display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;cursor:pointer;
+        background:${isMyVote?'var(--ocean-pale)':'var(--foam)'};
+        border:1.5px solid ${isMyVote?'var(--ocean-mid)':isTop?'var(--mint)':'var(--border2)'};
+        margin-bottom:6px;transition:all .15s">
+        <div style="font-size:18px">${st.is_default?'🎸':'🎵'}</div>
+        <div style="flex:1">
+          <div style="font-weight:700;font-size:13px;color:var(--ocean-deep)">${st.name}</div>
+          <div style="font-size:11px;color:var(--text3)">${st.location}</div>
+        </div>
+        <div style="text-align:right">
+          <div style="font-family:'Nunito',sans-serif;font-weight:800;font-size:16px;color:${isTop?'var(--mint-deep)':'var(--text2)'}">${cnt}표</div>
+          ${isMyVote?`<div style="font-size:10px;color:var(--ocean-mid);font-weight:700">✓ 내 선택</div>`:''}
+          ${isTop&&cnt>0?`<div style="font-size:10px;color:var(--mint-deep);font-weight:700">🏆 1위</div>`:''}
+        </div>
+      </div>`;
+    }).join('');
+    studioSection = `
+      <div style="margin-top:14px;padding-top:12px;border-top:1.5px solid var(--border2)">
+        <span class="field-label">🎸 합주실 투표</span>
+        <div style="font-size:11px;color:var(--text3);margin-bottom:8px">어디서 합주할까요? 클릭해서 선택!</div>
+        ${studioCards}
+      </div>`;
+  }
+
   const leaderActions = (isLeader||isAdmin) && prop ? `
     ${!prop.is_confirmed && availVoters.length>0
       ?`<button class="action-btn leader-action" style="margin-top:4px" onclick="confirmDate('${prop.id}','${ds}')">📌 이 날짜로 확정</button>`:''}
@@ -1747,6 +1787,7 @@ function renderSide(ds) {
         <div class="voter-list">${availChips}</div>
         ${unavailVoters.length?`<div style="margin-top:8px"><span class="field-label">불가 멤버</span><div class="voter-list">${unavailChips}</div></div>`:''}
       </div>
+      ${prop?.is_confirmed ? studioSection : ''}
       ${leaderActions}
     </div>`;
 }
@@ -1826,12 +1867,33 @@ function findOverlapDates() {
 }
 
 // ── 날짜 확정 (리더) ──
+// ── 합주실 투표 ──
+async function voteStudio(proposalId, studioId) {
+  const existing = studioVotes.find(sv=>sv.proposal_id===proposalId && sv.voter_name===myName);
+  if (existing?.studio_id === studioId) {
+    // 같은 곳 다시 클릭 → 취소
+    await db.from('band_studio_votes').delete().eq('id', existing.id);
+    showToast('투표 취소됐어요', 'success');
+  } else {
+    // 다른 곳 또는 새로 투표 → upsert
+    await db.from('band_studio_votes').upsert(
+      { proposal_id:proposalId, studio_id:studioId, voter_name:myName },
+      { onConflict:'proposal_id,voter_name' }
+    );
+    const st = studios.find(s=>s.id===studioId);
+    showToast(`🎸 ${st?.name||'합주실'} 투표!`, 'success');
+  }
+  await loadAll();
+  const prop = proposals.find(p=>p.id===proposalId);
+  if (prop) renderSide(prop.proposed_date);
+}
+
 async function confirmDate(id,ds){
-  if(!confirm('이 날짜로 확정할까요?')) return;
+  if(!confirm('이 날짜로 확정할까요?\n확정 후 합주실 투표가 자동으로 시작돼요!')) return;
   await db.from('band_date_proposals').update({is_confirmed:false}).neq('id',id);
   const {error}=await db.from('band_date_proposals').update({is_confirmed:true}).eq('id',id);
   if(error) return showToast('확정 실패: '+error.message,'error');
-  showToast('🎉 날짜 확정!','success');
+  showToast('🎉 날짜 확정! 합주실 투표를 시작해요 🎸','success');
   await loadAll(); renderSide(ds);
 }
 
