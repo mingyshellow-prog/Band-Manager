@@ -564,12 +564,12 @@
 <!-- 네비 -->
 <nav>
   <div class="nav-logo">Band Manager</div>
-  <div style="display:flex;align-items:center;gap:16px">
+  <div style="display:flex;align-items:center;gap:12px;flex-shrink:0">
     <button id="soundToggle" onclick="toggleSound()" title="음향 켜기/끄기"
-      style="background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);border-radius:20px;padding:6px 14px;color:rgba(255,255,255,0.7);font-size:12px;font-weight:700;font-family:'Nunito',sans-serif;cursor:pointer;display:flex;align-items:center;gap:6px;letter-spacing:0.5px;transition:all 0.2s">
+      style="background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);border-radius:20px;padding:6px 12px;color:rgba(255,255,255,0.7);font-size:11px;font-weight:700;font-family:'Nunito',sans-serif;cursor:pointer;display:inline-flex;align-items:center;gap:5px;letter-spacing:0.5px;transition:all 0.2s;white-space:nowrap;min-width:110px;justify-content:center">
       <span id="soundIcon">🔇</span><span id="soundLabel">SOUND OFF</span>
     </button>
-    <button class="nav-apply" onclick="openOverlay()">지원하기</button>
+    <button class="nav-apply" onclick="openOverlay()" style="white-space:nowrap;flex-shrink:0">지원하기</button>
   </div>
 </nav>
 
@@ -913,7 +913,11 @@ let _soundFadeTimer = null;
     v.playsInline = true;
     v.setAttribute('muted','');
     v.setAttribute('playsinline','');
+    v.setAttribute('disablepictureinpicture','');
+    v.setAttribute('controlsList','nodownload nofullscreen noremoteplayback');
+    v.controls = false;
     v.preload = 'auto';
+    v.style.pointerEvents = 'none';
     Object.assign(v.style, baseStyle);
     v.style.opacity = i === 0 ? '0.75' : '0';
     bg.appendChild(v);
@@ -933,6 +937,13 @@ let _soundFadeTimer = null;
     videos[next].play().catch(() => {});
     videos[cur].style.opacity = '0';
     videos[next].style.opacity = '0.75';
+    // 소리도 전환 - 현재 재생 중인 것만 소리
+    if (soundOn) {
+      videos[cur].volume  = 0;
+      videos[cur].muted   = true;
+      videos[next].muted  = false;
+      videos[next].volume = 0.15;
+    }
     cur = next;
   }, 8000);
 })();
@@ -955,9 +966,20 @@ function toggleSound() {
     btn.style.borderColor = 'rgba(79,195,247,0.5)';
     btn.style.color       = 'rgba(79,195,247,0.9)';
     btn.style.background  = 'rgba(79,195,247,0.1)';
-    vids.forEach(v => { v.muted = false; v.volume = 0; });
-    fadeVolume(0, 0.35, 2000);
-    smoothScrollTo(document.getElementById('info'), 1200);
+    // 현재 보이는 영상(opacity > 0)만 소리 켜기
+    vids.forEach(v => {
+      if (parseFloat(v.style.opacity) > 0.01) {
+        v.muted = false; v.volume = 0;
+      } else {
+        v.muted = true; v.volume = 0;
+      }
+    });
+    fadeVolume(0, 0.15, 2000);
+    // 영상 밝아지는 효과
+    fadeVideoOpacity(0.75, 0.92, 1500);
+    // 오버레이 살짝 밝아지게
+    const ov = document.getElementById('videoOverlay');
+    if(ov) { ov.style.transition='background 1.5s ease'; ov.style.background='linear-gradient(to bottom,rgba(17,18,20,0.2) 0%,rgba(17,18,20,0.1) 35%,rgba(17,18,20,0.55) 75%,rgba(17,18,20,1) 100%)'; }
   } else {
     icon.textContent  = '🔇';
     label.textContent = 'SOUND OFF';
@@ -968,6 +990,10 @@ function toggleSound() {
     fadeVolume(curVol, 0, 600, () => {
       vids.forEach(v => { v.muted = true; });
     });
+    // 영상 다시 어두워지기
+    fadeVideoOpacity(0.92, 0.75, 1000);
+    const ov = document.getElementById('videoOverlay');
+    if(ov) { ov.style.background='linear-gradient(to bottom,rgba(17,18,20,0.35) 0%,rgba(17,18,20,0.25) 35%,rgba(17,18,20,0.65) 75%,rgba(17,18,20,1) 100%)'; }
   }
 }
 
@@ -1006,13 +1032,28 @@ function smoothScrollTo(target, duration) {
   requestAnimationFrame(step);
 }
 
+function fadeVideoOpacity(from, to, duration) {
+  const vids = document.querySelectorAll('#videoBg video');
+  const steps = 30; const interval = duration / steps; let step = 0;
+  const timer = setInterval(() => {
+    step++;
+    const t = step/steps;
+    const ease = t<0.5?2*t*t:-1+(4-2*t)*t;
+    const op = from + (to-from)*ease;
+    vids.forEach((v,i) => {
+      if(parseFloat(v.style.opacity)>0.01) v.style.opacity = String(Math.max(0,Math.min(1,op)));
+    });
+    if(step>=steps) clearInterval(timer);
+  }, interval);
+}
+
 // 스크롤 시 볼륨 크레센도
 let _scrollPlayed = false;
 window.addEventListener('scroll', () => {
   if (_scrollPlayed || !soundOn) return;
   if (window.scrollY > window.innerHeight * 0.3) {
     _scrollPlayed = true;
-    fadeVolume(document.querySelector('#videoBg video')?.volume||0, 0.35, 1500);
+    fadeVolume(document.querySelector('#videoBg video')?.volume||0, 0.15, 1500);
   }
 });
 
