@@ -649,7 +649,6 @@
     <div class="tab" onclick="showTab('scores',this)">📄 악보 창고</div>
     <div class="tab" onclick="showTab('videos',this)">🎬 연습 영상</div>
     <div class="tab" onclick="showTab('settle',this)">💰 정산</div>
-    <div class="tab" onclick="showTab('tournament',this)">🏆 토너먼트</div>
     <div class="tab" onclick="showTab('recruit',this)">🎸 Recruit</div>
     <div class="tab" onclick="showTab('members',this)">👤 프로필</div>
   </nav>
@@ -830,56 +829,47 @@
 
   <!-- 나머지 탭 -->
   <div id="tab-songs" style="display:none">
-    <!-- 모드 전환 -->
-    <div style="display:flex;gap:0;border-bottom:1px solid var(--border);margin-bottom:20px">
-      <button id="songModeVote" onclick="setSongMode('vote')" style="padding:10px 22px;font-size:13px;font-weight:700;font-family:'Nunito',sans-serif;border:none;border-bottom:2px solid var(--ocean-mid);cursor:pointer;background:transparent;color:var(--ocean-mid)">🎵 곡 투표</button>
-      <button id="songModeTour" onclick="setSongMode('tournament')" style="padding:10px 22px;font-size:13px;font-weight:700;font-family:'Nunito',sans-serif;border:none;border-bottom:2px solid transparent;cursor:pointer;background:transparent;color:var(--text3)">🏆 토너먼트</button>
+    <!-- 곡 추가 (전체 멤버) + 토너먼트 만들기 (리더/어드민) -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px">
+      <!-- 곡 추가: 전체 멤버 가능 -->
+      <div class="settle-card">
+        <div class="settle-card-header"><div class="settle-card-title">🎵 곡 추가</div></div>
+        <div class="settle-body">
+          <div class="form-row">
+            <label class="form-label">곡 제목 *</label>
+            <input class="form-input" id="quickSongTitle" placeholder="ex) Superstition">
+          </div>
+          <div class="form-row">
+            <label class="form-label">아티스트</label>
+            <input class="form-input" id="quickSongArtist" placeholder="ex) Stevie Wonder">
+          </div>
+          <button class="action-btn leader-action" onclick="quickAddSong()">+ 곡 추가</button>
+        </div>
+      </div>
+      <!-- 토너먼트 생성: 리더/어드민만 -->
+      <div class="settle-card" id="tournamentLeaderPanel">
+        <div class="settle-card-header"><div class="settle-card-title">🏆 토너먼트 시작</div></div>
+        <div class="settle-body">
+          <div class="form-row">
+            <label class="form-label">이름</label>
+            <input class="form-input" id="tournamentTitle" placeholder="ex) 5월 합주 곡 선정">
+          </div>
+          <div class="form-row">
+            <label class="form-label">참가 곡 <span style="font-size:11px;color:var(--text3)">(짝수 개 선택)</span></label>
+            <div id="tournamentSongPicker" style="display:flex;flex-direction:column;gap:5px;max-height:180px;overflow-y:auto"></div>
+          </div>
+          <button class="action-btn leader-action" onclick="createTournament()">🏆 토너먼트 시작!</button>
+        </div>
+      </div>
     </div>
 
-    <!-- 곡 투표 영역 -->
-    <div id="songVoteView">
-    <div class="section-header">
-      <div class="section-title">🎵 곡 정하기 <span class="section-sub">세트로 제안하고 곡별로 투표해요</span></div>
+    <!-- 토너먼트 없을 때 -->
+    <div id="tournamentEmpty" style="display:none">
+      <div class="empty-hint"><span class="e">🏆</span><p>아직 토너먼트가 없어요<br>리더가 토너먼트를 만들 수 있어요!</p></div>
     </div>
-    <div class="songs-layout">
-      <!-- 좌: 세트 카드 목록 -->
-      <div>
-        <div id="songCardsArea">
-          <div class="empty-hint"><span class="e">🎵</span><p>아직 제안된 곡이 없어요<br>오른쪽에서 세트를 추가해보세요!</p></div>
-        </div>
-      </div>
-      <!-- 우: 곡 세트 추가 폼 -->
-      <div class="side-panel">
-        <div class="round-info-card">
-          <div class="side-header">
-            <div class="side-header-title">🎵 곡 세트 제안</div>
-            <div class="side-header-sub">3~5곡을 한 세트로 올려요 <span class="song-count-badge" id="songFormCount">0/5</span></div>
-          </div>
-          <div class="side-body">
-            <div class="form-row" style="margin-bottom:10px">
-              <label class="form-label">세트 이름</label>
-              <input class="form-input" id="bundleTitleInput" placeholder="ex) 5월 합주 세트, 여름 분위기 모음">
-            </div>
-            <div id="songFormRows">
-              <!-- JS로 렌더 -->
-            </div>
-            <div style="display:flex;gap:8px;margin-top:8px;">
-              <button class="action-btn" style="background:var(--foam);color:var(--text2);border:1.5px solid var(--border);" onclick="addSongFormRow()">+ 곡 추가</button>
-              <button class="action-btn leader-action" onclick="proposeBundle()">🎵 세트 올리기</button>
-            </div>
-          </div>
-        </div>
-        <!-- 확정된 곡 -->
-        <div class="round-info-card" style="margin-top:14px;">
-          <div class="side-header">
-            <div class="side-header-title">✅ 확정된 곡</div>
-          </div>
-          <div class="side-body" id="confirmedSongsArea">
-            <div style="font-size:13px;color:var(--text3);text-align:center;padding:8px 0">아직 없어요</div>
-          </div>
-        </div>
-      </div>
-    </div>
+
+    <!-- 브라켓 뷰어 -->
+    <div id="tournamentViewer"></div>
   </div>
   <div id="tab-scores" style="display:none">
     <div class="section-header">
@@ -1306,6 +1296,31 @@ function renderTournamentTab() {
   viewer.innerHTML = tournaments.map(tn => buildBracketHtml(tn)).join('');
 }
 
+// 빠른 곡 추가
+async function quickAddSong() {
+  const title  = document.getElementById('quickSongTitle')?.value.trim();
+  const artist = document.getElementById('quickSongArtist')?.value.trim();
+  if (!title) return showToast('곡 제목을 입력해주세요','error');
+  // 임시 번들 생성 또는 기존 번들에 추가
+  let bundleId = null;
+  if (bundles.length) {
+    bundleId = bundles[0].id; // 가장 최근 번들에 추가
+  } else {
+    const {data:b} = await db.from('band_song_bundles')
+      .insert({proposed_by:myName, title:'곡 목록'}).select().single();
+    bundleId = b?.id;
+  }
+  if (!bundleId) return showToast('오류 발생','error');
+  const {error} = await db.from('band_songs').insert({
+    title, artist:artist||null, proposed_by:myName, bundle_id:bundleId
+  });
+  if (error) return showToast('추가 실패: '+error.message,'error');
+  showToast(`🎵 ${title} 추가됨!`,'success');
+  document.getElementById('quickSongTitle').value='';
+  document.getElementById('quickSongArtist').value='';
+  await loadAll(); renderTournamentTab();
+}
+
 function buildBracketHtml(tn) {
   const matches = tournamentMatches.filter(m=>m.tournament_id===tn.id);
   const rounds  = [...new Set(matches.map(m=>m.round))].sort((a,b)=>a-b);
@@ -1711,7 +1726,7 @@ function showTab(tab, el) {
   el.classList.add('active');
   localStorage.setItem('bm_last_tab', tab); // 탭 위치 저장
   if (tab==='settle')  renderSettleList();
-  if (tab==='songs')   { setSongMode('vote'); renderSongsTab(); initSongForm(); }
+  if (tab==='songs')   { renderTournamentTab(); }
   if (tab==='scores')  renderScoresTab();
   if (tab==='videos')  renderVideosTab();
   if (tab==='members') renderMembersTab();
@@ -2536,6 +2551,19 @@ function setSongMode(mode) {
 }
 
 function renderTournamentTab() {
+  // 곡 피커 업데이트
+  const picker = document.getElementById('tournamentSongPicker');
+  if (picker) {
+    picker.innerHTML = songs.length
+      ? songs.map(s=>`
+        <label style="display:flex;align-items:center;gap:8px;padding:7px 10px;background:var(--bg3);border-radius:6px;cursor:pointer;border:1px solid var(--border)">
+          <input type="checkbox" value="${s.id}" style="accent-color:#4fc3f7;width:14px;height:14px;flex-shrink:0">
+          <span style="font-size:12px;font-weight:700;color:var(--text)">${s.title}</span>
+          <span style="font-size:11px;color:var(--text3);margin-left:2px">${s.artist?'· '+s.artist:''}</span>
+        </label>`).join('')
+      : '<div style="color:var(--text3);font-size:12px;padding:6px">먼저 곡을 추가해주세요</div>';
+  }
+
   const viewer = document.getElementById('tournamentViewer');
   const empty  = document.getElementById('tournamentEmpty');
   if (!viewer) return;
