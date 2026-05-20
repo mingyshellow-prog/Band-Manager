@@ -8,41 +8,44 @@
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
 <style>
   :root {
-    /* ── 다크 모드 컬러 시스템 ── */
-    --bg:          #0f1115;
-    --bg2:         #161920;
-    --bg3:         #1c2029;
-    --surface:     #222633;
+    /* ── 다크 베이스 ── */
+    --bg:           #0f1117;
+    --bg2:          #161b24;
+    --bg3:          #1c2230;
+    --surface:      #222a38;
+    --border:       #2c3545;
+    --border2:      #363f52;
 
-    --ocean-deep:  #4fc3f7;
-    --ocean-mid:   #81d4fa;
-    --ocean-light: #b3e5fc;
-    --ocean-pale:  rgba(79,195,247,0.12);
-    --foam:        #1c2029;
-    --foam2:       #222633;
-    --white:       #e8edf2;
-    --border:      #2a3040;
-    --border2:     #323848;
+    /* ── 포인트 컬러 ── */
+    --ocean-deep:   #4fc3f7;
+    --ocean-mid:    #29b6f6;
+    --ocean-light:  #81d4fa;
+    --ocean-pale:   rgba(41,182,246,0.12);
+    --foam:         #1c2230;
+    --foam2:        #222a38;
+    --white:        #f0f4f8;
 
-    --mint:        #4dd0c4;
-    --mint-light:  rgba(77,208,196,0.15);
-    --mint-deep:   #26a69a;
-    --coral:       #ff7043;
-    --coral-light: rgba(255,112,67,0.15);
-    --sun:         #ffd54f;
-    --sun-light:   rgba(255,213,79,0.15);
-    --holiday-bg:  rgba(255,80,80,0.1);
-    --holiday:     #ff6b6b;
-    --purple:      #ce93d8;
-    --purple-light:rgba(206,147,216,0.15);
-    --gold:        #ffd54f;
-    --gold-light:  rgba(255,213,79,0.15);
+    /* ── 상태 컬러 ── */
+    --mint:         #4dd0c4;
+    --mint-light:   rgba(77,208,196,0.15);
+    --mint-deep:    #26c6be;
+    --coral:        #ff7043;
+    --coral-light:  rgba(255,112,67,0.15);
+    --sun:          #ffca28;
+    --sun-light:    rgba(255,202,40,0.15);
+    --gold:         #ffd54f;
+    --gold-light:   rgba(255,213,79,0.15);
+    --holiday-bg:   rgba(255,82,82,0.1);
+    --holiday:      #ff5252;
+    --purple:       #ce93d8;
+    --purple-light: rgba(206,147,216,0.15);
 
-    --text:        #e0e6ed;
-    --text2:       #8fa8c0;
-    --text3:       #4a6070;
-    --shadow:      rgba(0,0,0,0.3);
-    --shadow2:     rgba(0,0,0,0.4);
+    /* ── 텍스트 ── */
+    --text:         #e2e8f0;
+    --text2:        #94a3b8;
+    --text3:        #475569;
+    --shadow:       rgba(0,0,0,0.35);
+    --shadow2:      rgba(0,0,0,0.5);
   }
   *{margin:0;padding:0;box-sizing:border-box;}
   body{
@@ -50,34 +53,35 @@
     min-height:100vh; font-family:'Noto Sans KR',sans-serif;
     color:var(--text); overflow-x:hidden;
   }
-
+  /* 다크 배경 글로우 */
+  body::before{content:'';position:fixed;bottom:0;left:0;width:100%;height:100%;background:radial-gradient(ellipse 60% 40% at 20% 80%,rgba(41,182,246,0.04) 0%,transparent 60%),radial-gradient(ellipse 50% 30% at 80% 20%,rgba(77,208,196,0.04) 0%,transparent 60%);pointer-events:none;z-index:0;}
 
   /* ── 헤더 ── */
-  header{position:relative;z-index:10;background:rgba(15,17,21,.92);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);padding:0 28px;}
+  header{position:relative;z-index:10;background:rgba(15,17,23,.95);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);padding:0 28px;}
   .header-top{display:flex;align-items:center;justify-content:space-between;padding:16px 0 12px;}
   .logo{display:flex;align-items:center;gap:10px;}
   .logo-icon{width:38px;height:38px;background:linear-gradient(135deg,var(--ocean-mid),var(--ocean-deep));border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:18px;box-shadow:0 4px 14px rgba(61,132,170,.3);}
-  .logo-text{font-family:'Nunito',sans-serif;font-weight:800;font-size:20px;color:var(--ocean-deep);}
+  .logo-text{font-family:'Nunito',sans-serif;font-weight:800;font-size:20px;color:var(--ocean-mid);}
   .logo-sub{display:block;font-size:10px;color:var(--text3);letter-spacing:1.5px;text-transform:uppercase;margin-top:-3px;}
   .header-right{display:flex;align-items:center;gap:8px;}
   .role-badge{padding:4px 10px;border-radius:20px;font-size:11px;font-weight:700;font-family:'Nunito',sans-serif;}
-  .role-badge.leader{background:var(--gold-light);color:#a07800;border:1.5px solid var(--gold);}
+  .role-badge.leader{background:rgba(255,213,79,0.1);color:#a07800;border:1.5px solid var(--gold);}
   .role-badge.admin{background:#f0e8fc;color:#7040b0;border:1.5px solid var(--purple);}
-  .user-badge{display:flex;align-items:center;gap:8px;background:var(--foam);border:1.5px solid var(--border);border-radius:24px;padding:7px 16px;font-size:13px;color:var(--text2);font-weight:600;cursor:pointer;transition:all .2s;font-family:'Nunito',sans-serif;}
-  .user-badge:hover{border-color:var(--ocean-mid);color:var(--ocean-deep);background:var(--white);box-shadow:0 3px 12px var(--shadow);}
+  .user-badge{display:flex;align-items:center;gap:8px;background:var(--bg3);border:1px solid var(--border);border-radius:24px;padding:7px 16px;font-size:13px;color:var(--text2);font-weight:600;cursor:pointer;transition:all .2s;font-family:'Nunito',sans-serif;}
+  .user-badge:hover{border-color:var(--ocean-mid);color:var(--ocean-mid);background:var(--bg2);box-shadow:0 3px 12px var(--shadow);}
   .user-dot{width:8px;height:8px;border-radius:50%;background:var(--mint);border:2px solid var(--mint-light);flex-shrink:0;}
   .tabs{display:flex;gap:2px;overflow-x:auto;scrollbar-width:none;}
   .tabs::-webkit-scrollbar{display:none;}
   .tab{padding:10px 18px 12px;font-size:13px;font-weight:700;color:var(--text3);cursor:pointer;border-bottom:2.5px solid transparent;transition:all .2s;white-space:nowrap;font-family:'Nunito',sans-serif;}
   .tab:hover{color:var(--text2);}
-  .tab.active{color:var(--ocean-deep);border-bottom-color:var(--ocean-mid);}
+  .tab.active{color:var(--ocean-mid);border-bottom-color:var(--ocean-mid);}
 
   /* ── 컨테이너 ── */
   .container{position:relative;z-index:1;max-width:960px;margin:0 auto;padding:24px 20px 60px;}
 
   /* ── 모달 ── */
   .modal-overlay{position:fixed;inset:0;background:rgba(190,228,244,.5);backdrop-filter:blur(14px);z-index:100;display:flex;align-items:center;justify-content:center;}
-  .modal-card{background:var(--white);border-radius:28px;padding:44px 40px;width:340px;text-align:center;box-shadow:0 24px 64px rgba(61,132,170,.18);border:1.5px solid rgba(194,224,240,.6);animation:pop .4s cubic-bezier(.34,1.56,.64,1);}
+  .modal-card{background:var(--bg2);border-radius:28px;padding:44px 40px;width:340px;text-align:center;box-shadow:0 24px 64px rgba(61,132,170,.18);border:1.5px solid rgba(194,224,240,.6);animation:pop .4s cubic-bezier(.34,1.56,.64,1);}
   @keyframes pop{from{transform:scale(.88);opacity:0}to{transform:scale(1);opacity:1}}
   .modal-emoji{font-size:52px;display:block;margin-bottom:16px;animation:float 3s ease-in-out infinite;}
   @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
@@ -88,27 +92,27 @@
   .modal-desc{font-size:13px;color:var(--text2);line-height:1.7;margin-bottom:28px;}
 
   /* ── 인풋 ── */
-  .input{width:100%;background:var(--foam);border:2px solid var(--border);border-radius:14px;padding:12px 16px;color:var(--text);font-size:15px;font-family:'Noto Sans KR',sans-serif;outline:none;transition:all .2s;margin-bottom:12px;}
-  .input:focus{border-color:var(--ocean-mid);background:var(--white);box-shadow:0 0 0 4px rgba(91,163,201,.13);}
+  .input{width:100%;background:var(--bg3);border:2px solid var(--border);border-radius:14px;padding:12px 16px;color:var(--text);font-size:15px;font-family:'Noto Sans KR',sans-serif;outline:none;transition:all .2s;margin-bottom:12px;}
+  .input:focus{border-color:var(--ocean-mid);background:var(--bg2);box-shadow:0 0 0 4px rgba(91,163,201,.13);}
   .input::placeholder{color:var(--text3);}
 
   /* ── 버튼 ── */
   .btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;padding:11px 22px;border-radius:12px;font-size:13px;font-weight:700;font-family:'Nunito',sans-serif;cursor:pointer;border:none;transition:all .2s;}
-  .btn-primary{background:linear-gradient(135deg,var(--ocean-mid),var(--ocean-deep));color:var(--bg);width:100%;padding:14px;font-size:15px;box-shadow:0 6px 20px rgba(61,132,170,.28);}
+  .btn-primary{background:linear-gradient(135deg,var(--ocean-mid),var(--ocean-deep));color:#fff;width:100%;padding:14px;font-size:15px;box-shadow:0 6px 20px rgba(61,132,170,.28);}
   .btn-primary:hover{transform:translateY(-2px);box-shadow:0 10px 28px rgba(61,132,170,.36);}
 
   /* ── 달력 레이아웃 ── */
   .calendar-layout{display:grid;grid-template-columns:1fr 290px;gap:18px;align-items:start;}
   @media(max-width:740px){.calendar-layout{grid-template-columns:1fr;}}
 
-  .calendar-card{background:var(--white);border:1.5px solid var(--border);border-radius:24px;box-shadow:0 6px 28px var(--shadow);overflow:hidden;}
-  .cal-nav{display:flex;align-items:center;justify-content:space-between;padding:18px 22px 14px;border-bottom:1.5px solid var(--border2);}
-  .cal-month-title{font-family:'Nunito',sans-serif;font-weight:800;font-size:20px;color:var(--ocean-deep);}
-  .cal-nav-btn{width:34px;height:34px;background:var(--foam);border:1.5px solid var(--border);border-radius:10px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:18px;color:var(--text2);transition:all .18s;}
-  .cal-nav-btn:hover{background:var(--ocean-pale);border-color:var(--ocean-mid);color:var(--ocean-deep);}
+  .calendar-card{background:var(--bg2);border:1px solid var(--border);border-radius:24px;box-shadow:0 6px 28px var(--shadow);overflow:hidden;}
+  .cal-nav{display:flex;align-items:center;justify-content:space-between;padding:18px 22px 14px;border-bottom:1px solid var(--border);}
+  .cal-month-title{font-family:'Nunito',sans-serif;font-weight:800;font-size:20px;color:var(--ocean-mid);}
+  .cal-nav-btn{width:34px;height:34px;background:var(--bg3);border:1px solid var(--border);border-radius:10px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:18px;color:var(--text2);transition:all .18s;}
+  .cal-nav-btn:hover{background:rgba(41,182,246,0.1);border-color:var(--ocean-mid);color:var(--ocean-mid);}
 
-  .cal-tip{padding:10px 22px;background:var(--foam2);border-bottom:1.5px solid var(--border2);font-size:12px;color:var(--text3);font-weight:500;}
-  .cal-tip b{color:var(--ocean-deep);}
+  .cal-tip{padding:10px 22px;background:var(--bg3);border-bottom:1px solid var(--border);font-size:12px;color:var(--text3);font-weight:500;}
+  .cal-tip b{color:var(--ocean-mid);}
 
   /* ── 구글 캘린더 스타일 달력 ── */
   .cal-weekdays{display:grid;grid-template-columns:repeat(7,1fr);padding:8px 8px 0;}
@@ -127,8 +131,8 @@
   }
 
   .cal-day{
-    border-right:1px solid var(--border2);
-    border-bottom:1px solid var(--border2);
+    border-right:1px solid var(--border);
+    border-bottom:1px solid var(--border);
     padding:4px 5px;
     cursor:pointer;
     position:relative;
@@ -139,8 +143,8 @@
     min-height:80px;
     display:flex; flex-direction:column; align-items:flex-start; gap:2px;
   }
-  .cal-day:hover:not(.empty):not(.other-month){background:var(--foam);}
-  .cal-day.empty{cursor:default; border-right:1px solid var(--border2); border-bottom:1px solid var(--border2);}
+  .cal-day:hover:not(.empty):not(.other-month){background:var(--bg3);}
+  .cal-day.empty{cursor:default; border-right:1px solid var(--border); border-bottom:1px solid var(--border);}
   .cal-day.other-month{opacity:.35;cursor:default;pointer-events:none;}
 
   /* 날짜 숫자 - 구글 캘린더처럼 원형 */
@@ -164,12 +168,12 @@
   }
 
   /* 내가 가능 표시한 날 - 좌측 색상 바 */
-  .cal-day.my-available{background:rgba(77,208,196,0.08);}
+  .cal-day.my-available{background:rgba(77,208,196,0.07);}
   .cal-day.my-available::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--mint-deep);border-radius:0;}
   .cal-day.my-available .day-num{color:var(--mint-deep);}
   .cal-day.my-unavail{background:rgba(244,160,136,.1);}
   .cal-day.my-unavail::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--coral);border-radius:0;}
-  .cal-day.my-unavail .day-num{color:#c05840;}
+  .cal-day.my-unavail .day-num{color:var(--coral);}
   .cal-day.my-available::before{
     content:'';position:absolute;left:0;top:0;bottom:0;
     width:3px;background:var(--mint-deep);border-radius:0;
@@ -187,7 +191,7 @@
   }
 
   /* 드래그 범위 선택 */
-  .cal-day.in-range{background:var(--ocean-pale)!important;}
+  .cal-day.in-range{background:rgba(41,182,246,0.1)!important;}
   .cal-day.in-range .day-num{background:var(--ocean-mid);color:#fff;}
 
   /* 선택된 날 테두리 */
@@ -219,9 +223,9 @@
 
   /* ── 사이드 패널 ── */
   .side-panel{display:flex;flex-direction:column;gap:14px;}
-  .side-card{background:var(--white);border:1.5px solid var(--border);border-radius:20px;box-shadow:0 4px 20px var(--shadow);overflow:hidden;}
-  .side-header{background:var(--bg3);padding:16px 20px 12px;border-bottom:1.5px solid var(--border2);}
-  .side-header-title{font-family:'Nunito',sans-serif;font-weight:800;font-size:18px;color:var(--ocean-deep);line-height:1.2;}
+  .side-card{background:var(--bg2);border:1px solid var(--border);border-radius:20px;box-shadow:0 4px 20px var(--shadow);overflow:hidden;}
+  .side-header{background:var(--bg3);padding:16px 20px 12px;border-bottom:1px solid var(--border);}
+  .side-header-title{font-family:'Nunito',sans-serif;font-weight:800;font-size:18px;color:var(--ocean-mid);line-height:1.2;}
   .side-header-sub{font-size:12px;color:var(--text3);margin-top:3px;font-weight:500;}
   .side-body{padding:16px 18px;}
 
@@ -229,30 +233,30 @@
 
   /* 투표 버튼 */
   .avail-btn{width:100%;padding:14px;border-radius:14px;font-size:16px;font-weight:800;font-family:'Nunito',sans-serif;cursor:pointer;border:2px solid transparent;transition:all .18s;text-align:center;margin-bottom:10px;}
-  .avail-btn.on{background:var(--mint-light);color:var(--mint-deep);border-color:rgba(142,223,200,.5);}
+  .avail-btn.on{background:rgba(77,208,196,0.12);color:var(--mint-deep);border-color:rgba(142,223,200,.5);}
   .avail-btn.on:hover,.avail-btn.on.active{background:var(--mint);border-color:var(--mint-deep);box-shadow:0 4px 16px rgba(142,223,200,.5);transform:translateY(-2px);}
-  .avail-btn.off{background:var(--coral-light);color:#c05840;border-color:rgba(244,160,136,.4);}
+  .avail-btn.off{background:rgba(255,112,67,0.12);color:var(--coral);border-color:rgba(244,160,136,.4);}
   .avail-btn.off:hover,.avail-btn.off.active{background:#f4bfb4;border-color:var(--coral);box-shadow:0 4px 16px rgba(244,160,136,.4);transform:translateY(-2px);}
 
   /* 액션 버튼 */
   .action-btn{width:100%;padding:11px;border-radius:12px;font-size:13px;font-weight:700;font-family:'Nunito',sans-serif;cursor:pointer;border:none;transition:all .2s;margin-bottom:7px;display:flex;align-items:center;justify-content:center;gap:6px;}
   .action-btn.leader-action{background:linear-gradient(135deg,var(--gold),#e8a800);color:#5a3c00;box-shadow:0 3px 14px rgba(245,200,66,.4);}
   .action-btn.leader-action:hover{transform:translateY(-1px);box-shadow:0 6px 18px rgba(245,200,66,.5);}
-  .action-btn.danger{background:var(--coral-light);color:#c05840;}
+  .action-btn.danger{background:rgba(255,112,67,0.12);color:var(--coral);}
   .action-btn.danger:hover{background:#f4bfb4;}
 
   /* 투표자 칩 */
   .voter-list{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px;}
   .voter-chip{display:flex;align-items:center;gap:4px;padding:4px 11px;border-radius:20px;font-size:12px;font-weight:700;font-family:'Nunito',sans-serif;}
-  .voter-chip.yes{background:var(--mint-light);color:var(--mint-deep);}
-  .voter-chip.leader-chip{background:var(--gold-light);color:#8a6000;border:1px solid var(--gold);}
+  .voter-chip.yes{background:rgba(77,208,196,0.12);color:var(--mint-deep);}
+  .voter-chip.leader-chip{background:rgba(255,213,79,0.1);color:#8a6000;border:1px solid var(--gold);}
 
   .empty-hint{padding:24px 18px;text-align:center;color:var(--text3);}
   .empty-hint .e{font-size:36px;display:block;margin-bottom:10px;opacity:.5;animation:float 3s ease-in-out infinite;}
   .empty-hint p{font-size:13px;line-height:1.7;}
 
   /* 범례 */
-  .legend-card{background:rgba(255,255,255,.72);border:1.5px solid var(--border2);border-radius:16px;padding:14px 16px;}
+  .legend-card{background:rgba(255,255,255,.72);border:1px solid var(--border);border-radius:16px;padding:14px 16px;}
   .legend-title{font-size:11px;font-weight:700;color:var(--text3);letter-spacing:1px;text-transform:uppercase;font-family:'Nunito',sans-serif;margin-bottom:9px;}
   .legend-items{display:flex;flex-direction:column;gap:6px;}
   .legend-item{display:flex;align-items:center;gap:9px;font-size:12px;color:var(--text2);font-weight:500;}
@@ -263,18 +267,18 @@
   @media(max-width:680px){.settle-layout{grid-template-columns:1fr;}}
 
   .settle-card{background:var(--bg2);border:1px solid var(--border);border-radius:20px;box-shadow:0 4px 20px var(--shadow);overflow:hidden;}
-  .settle-card-header{padding:16px 20px 12px;border-bottom:1.5px solid var(--border2);background:linear-gradient(135deg,var(--ocean-pale),var(--foam));}
-  .settle-card-title{font-family:'Nunito',sans-serif;font-weight:800;font-size:16px;color:var(--ocean-deep);}
+  .settle-card-header{padding:16px 20px 12px;border-bottom:1px solid var(--border);background:var(--bg3);}
+  .settle-card-title{font-family:'Nunito',sans-serif;font-weight:800;font-size:16px;color:var(--ocean-mid);}
   .settle-body{padding:18px 20px;}
 
   .form-row{display:flex;flex-direction:column;gap:5px;margin-bottom:13px;}
   .form-label{font-size:11px;font-weight:700;color:var(--text3);letter-spacing:1px;text-transform:uppercase;font-family:'Nunito',sans-serif;}
   .form-input{background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:10px 13px;color:var(--text);font-size:14px;font-family:'Noto Sans KR',sans-serif;outline:none;transition:all .2s;width:100%;}
-  .form-input:focus{border-color:var(--ocean-mid);background:var(--white);}
+  .form-input:focus{border-color:var(--ocean-mid);background:var(--bg2);}
   .form-input::placeholder{color:var(--text3);}
 
   /* 정산 결과 카드 */
-  .settle-result-card{background:var(--white);border:1.5px solid var(--border);border-radius:20px;box-shadow:0 4px 20px var(--shadow);overflow:hidden;}
+  .settle-result-card{background:var(--bg2);border:1px solid var(--border);border-radius:20px;box-shadow:0 4px 20px var(--shadow);overflow:hidden;}
 
   /* 공유용 카드 (캡처 영역) */
   .share-card{
@@ -291,7 +295,7 @@
   }
   .share-card-title{
     font-weight:900; font-size:18px;
-    color:var(--ocean-deep); margin-bottom:4px;
+    color:var(--ocean-mid); margin-bottom:4px;
   }
   .share-card-date{font-size:12px;color:var(--text3);margin-bottom:18px;font-weight:500;}
 
@@ -305,7 +309,7 @@
   .share-total-detail{font-size:11px;opacity:.7;margin-top:2px;}
 
   .share-per-person{
-    background:var(--white); border:1.5px solid var(--border);
+    background:var(--bg2); border:1px solid var(--border);
     border-radius:12px; padding:14px 18px; margin-bottom:14px;
   }
   .share-per-label{font-size:11px;color:var(--text3);letter-spacing:1px;margin-bottom:4px;}
@@ -319,7 +323,7 @@
   }
   .share-account-label{font-size:11px;color:var(--mint-deep);letter-spacing:1px;margin-bottom:6px;font-weight:700;}
   .share-account-bank{font-size:13px;font-weight:700;color:var(--text);}
-  .share-account-num{font-size:18px;font-weight:900;color:var(--ocean-deep);letter-spacing:1px;margin:3px 0;}
+  .share-account-num{font-size:18px;font-weight:900;color:var(--ocean-mid);letter-spacing:1px;margin:3px 0;}
   .share-account-name{font-size:12px;color:var(--text2);}
 
   .share-members{margin-top:14px;}
@@ -337,14 +341,14 @@
   .pay-status-row{display:flex;align-items:center;justify-content:space-between;padding:8px 12px;border-radius:10px;background:rgba(255,255,255,.6);margin-bottom:5px;border:1px solid rgba(194,224,240,.5);}
   .pay-status-name{font-size:13px;font-weight:700;color:var(--text);}
   .pay-status-chip{padding:3px 11px;border-radius:20px;font-size:11px;font-weight:700;font-family:'Nunito',sans-serif;cursor:pointer;border:none;transition:all .18s;}
-  .pay-status-chip.unpaid{background:var(--coral-light);color:#c05840;}
-  .pay-status-chip.paid{background:var(--mint-light);color:var(--mint-deep);}
+  .pay-status-chip.unpaid{background:rgba(255,112,67,0.12);color:var(--coral);}
+  .pay-status-chip.paid{background:rgba(77,208,196,0.12);color:var(--mint-deep);}
   .pay-status-chip:hover{transform:scale(1.08);}
 
   /* 정산 히스토리 목록 */
   .settle-list{display:flex;flex-direction:column;gap:10px;}
   .settle-item{
-    background:var(--white);border:1.5px solid var(--border);
+    background:var(--bg2);border:1px solid var(--border);
     border-radius:14px;padding:14px 18px;
     cursor:pointer;transition:all .18s;
     box-shadow:0 2px 10px var(--shadow);
@@ -352,11 +356,11 @@
   .settle-item:hover{border-color:var(--ocean-mid);transform:translateY(-1px);box-shadow:0 6px 18px var(--shadow2);}
   .settle-item-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;}
   .settle-item-name{font-weight:700;font-size:15px;color:var(--text);font-family:'Nunito',sans-serif;}
-  .settle-item-amount{font-weight:900;font-size:16px;color:var(--ocean-deep);font-family:'Nunito',sans-serif;}
+  .settle-item-amount{font-weight:900;font-size:16px;color:var(--ocean-mid);font-family:'Nunito',sans-serif;}
   .settle-item-sub{font-size:12px;color:var(--text3);}
 
   /* 토스트 */
-  .toast{position:fixed;bottom:24px;right:24px;background:var(--white);border:2px solid var(--border);border-radius:14px;padding:12px 18px;font-size:13px;font-weight:600;font-family:'Nunito',sans-serif;color:var(--text);z-index:200;transform:translateY(80px);opacity:0;transition:all .3s cubic-bezier(.34,1.56,.64,1);box-shadow:0 8px 30px var(--shadow2);max-width:260px;}
+  .toast{position:fixed;bottom:24px;right:24px;background:var(--bg2);border:2px solid var(--border);border-radius:14px;padding:12px 18px;font-size:13px;font-weight:600;font-family:'Nunito',sans-serif;color:var(--text);z-index:200;transform:translateY(80px);opacity:0;transition:all .3s cubic-bezier(.34,1.56,.64,1);box-shadow:0 8px 30px var(--shadow2);max-width:260px;}
   .toast.show{transform:translateY(0);opacity:1;}
   .toast.success{border-color:var(--mint);}
   .toast.error{border-color:var(--coral);}
@@ -365,48 +369,48 @@
   .songs-layout{display:grid;grid-template-columns:1fr 280px;gap:18px;align-items:start;}
   @media(max-width:740px){.songs-layout{grid-template-columns:1fr;}}
 
-  .round-badge{display:inline-flex;align-items:center;gap:6px;background:var(--ocean-pale);color:var(--ocean-deep);border:1.5px solid var(--border);border-radius:20px;padding:5px 14px;font-size:12px;font-weight:700;font-family:'Nunito',sans-serif;}
+  .round-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(41,182,246,0.1);color:var(--ocean-mid);border:1px solid var(--border);border-radius:20px;padding:5px 14px;font-size:12px;font-weight:700;font-family:'Nunito',sans-serif;}
 
   .song-cards{display:flex;flex-direction:column;gap:14px;}
-  .song-card{background:var(--white);border:1.5px solid var(--border);border-radius:20px;box-shadow:0 4px 20px var(--shadow);overflow:hidden;transition:all .2s;}
+  .song-card{background:var(--bg2);border:1px solid var(--border);border-radius:20px;box-shadow:0 4px 20px var(--shadow);overflow:hidden;transition:all .2s;}
   .song-card:hover{transform:translateY(-2px);box-shadow:0 8px 28px var(--shadow2);}
   .song-card.confirmed-song{border-color:var(--mint-deep);background:linear-gradient(145deg,#f0fdf8,var(--white));}
-  .song-card-header{padding:16px 20px 12px;border-bottom:1.5px solid var(--border2);display:flex;align-items:center;justify-content:space-between;}
+  .song-card-header{padding:16px 20px 12px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
   .song-proposer{font-size:12px;font-weight:700;color:var(--text3);font-family:'Nunito',sans-serif;display:flex;align-items:center;gap:5px;}
-  .song-confirmed-badge{background:var(--mint-light);color:var(--mint-deep);border:1px solid var(--mint);border-radius:10px;padding:2px 9px;font-size:11px;font-weight:700;font-family:'Nunito',sans-serif;}
+  .song-confirmed-badge{background:rgba(77,208,196,0.12);color:var(--mint-deep);border:1px solid var(--mint);border-radius:10px;padding:2px 9px;font-size:11px;font-weight:700;font-family:'Nunito',sans-serif;}
   .song-card-body{padding:14px 20px;}
   .song-title{font-family:'Nunito',sans-serif;font-weight:900;font-size:20px;color:var(--text);margin-bottom:2px;}
   .song-artist{font-size:13px;color:var(--text2);margin-bottom:10px;}
   .song-yt-link{display:inline-flex;align-items:center;gap:5px;font-size:12px;color:var(--ocean-mid);font-weight:600;text-decoration:none;border:1px solid var(--border);border-radius:8px;padding:4px 10px;transition:all .15s;}
-  .song-yt-link:hover{background:var(--ocean-pale);border-color:var(--ocean-mid);}
+  .song-yt-link:hover{background:rgba(41,182,246,0.1);border-color:var(--ocean-mid);}
   .song-card-footer{padding:10px 20px 14px;display:flex;align-items:center;justify-content:space-between;gap:10px;}
-  .vote-btn{display:flex;align-items:center;gap:6px;padding:8px 18px;border-radius:12px;font-size:13px;font-weight:700;font-family:'Nunito',sans-serif;cursor:pointer;border:1.5px solid var(--border);background:var(--foam);color:var(--text2);transition:all .18s;}
-  .vote-btn:hover{border-color:var(--coral);color:var(--coral);background:var(--coral-light);}
-  .vote-btn.voted{background:var(--coral-light);color:#c05840;border-color:var(--coral);}
+  .vote-btn{display:flex;align-items:center;gap:6px;padding:8px 18px;border-radius:12px;font-size:13px;font-weight:700;font-family:'Nunito',sans-serif;cursor:pointer;border:1px solid var(--border);background:var(--bg3);color:var(--text2);transition:all .18s;}
+  .vote-btn:hover{border-color:var(--coral);color:var(--coral);background:rgba(255,112,67,0.12);}
+  .vote-btn.voted{background:rgba(255,112,67,0.12);color:var(--coral);border-color:var(--coral);}
   .vote-count{font-size:13px;color:var(--text3);font-weight:600;font-family:'Nunito',sans-serif;}
   .voter-names{font-size:11px;color:var(--text3);font-style:italic;}
 
   .round-info-card{background:var(--bg2);border:1px solid var(--border);border-radius:20px;box-shadow:0 4px 20px var(--shadow);overflow:hidden;}
   .song-bundle{background:var(--bg2);border:1px solid var(--border);border-radius:20px;box-shadow:0 4px 20px var(--shadow);overflow:hidden;margin-bottom:14px;}
-  .song-bundle-header{padding:14px 18px 10px;border-bottom:1.5px solid var(--border2);display:flex;align-items:center;justify-content:space-between;}
+  .song-bundle-header{padding:14px 18px 10px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
   .bundle-proposer{font-size:12px;font-weight:700;color:var(--text3);font-family:'Nunito',sans-serif;}
   .bundle-songs{padding:10px 18px;}
-  .bundle-song-row{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border2);}
+  .bundle-song-row{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border);}
   .bundle-song-row:last-child{border-bottom:none;}
-  .bundle-song-num{width:22px;height:22px;border-radius:50%;background:var(--ocean-pale);color:var(--ocean-deep);font-size:11px;font-weight:800;font-family:'Nunito',sans-serif;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+  .bundle-song-num{width:22px;height:22px;border-radius:50%;background:rgba(41,182,246,0.1);color:var(--ocean-mid);font-size:11px;font-weight:800;font-family:'Nunito',sans-serif;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
   .bundle-song-info{flex:1;min-width:0;}
   .bundle-song-title{font-weight:700;font-size:14px;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
   .bundle-song-artist{font-size:11px;color:var(--text2);}
   .bundle-song-yt{font-size:11px;color:var(--ocean-mid);font-weight:600;text-decoration:none;border:1px solid var(--border);border-radius:6px;padding:2px 7px;flex-shrink:0;}
-  .bundle-song-yt:hover{background:var(--ocean-pale);}
+  .bundle-song-yt:hover{background:rgba(41,182,246,0.1);}
   .bundle-footer{padding:10px 18px 14px;display:flex;align-items:center;justify-content:space-between;gap:10px;}
-  .add-song-row{display:flex;flex-direction:column;gap:8px;padding:10px 0;border-bottom:1px solid var(--border2);}
+  .add-song-row{display:flex;flex-direction:column;gap:8px;padding:10px 0;border-bottom:1px solid var(--border);}
   .add-song-row:last-child{border-bottom:none;}
-  .song-count-badge{background:var(--ocean-pale);color:var(--ocean-deep);border-radius:10px;padding:2px 9px;font-size:11px;font-weight:700;font-family:'Nunito',sans-serif;}
+  .song-count-badge{background:rgba(41,182,246,0.1);color:var(--ocean-mid);border-radius:10px;padding:2px 9px;font-size:11px;font-weight:700;font-family:'Nunito',sans-serif;}
 
   .color-swatch{width:32px;height:32px;border-radius:50%;cursor:pointer;border:3px solid transparent;transition:all .2s;flex-shrink:0;}
   .color-swatch:hover{transform:scale(1.15);}
-  .color-swatch.active{border-color:var(--text);box-shadow:0 0 0 2px #fff,0 0 0 4px var(--text);}
+  .color-swatch.active{border-color:var(--ocean-mid);box-shadow:0 0 0 2px var(--bg2),0 0 0 4px var(--ocean-mid);}
   .coming-soon{text-align:center;padding:90px 0;}
   .coming-soon .big{font-family:'Nunito',sans-serif;font-weight:900;font-size:48px;color:var(--border);letter-spacing:2px;margin-bottom:14px;}
   .coming-soon p{font-size:15px;color:var(--text3);}
@@ -415,15 +419,15 @@
   .scores-layout{display:grid;grid-template-columns:1fr 270px;gap:18px;align-items:start;}
   @media(max-width:740px){.scores-layout{grid-template-columns:1fr;}}
   .filter-bar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;}
-  .filter-chip{padding:6px 14px;border-radius:20px;font-size:12px;font-weight:700;font-family:'Nunito',sans-serif;cursor:pointer;border:1.5px solid var(--border);background:var(--foam);color:var(--text3);transition:all .18s;}
-  .filter-chip:hover{border-color:var(--ocean-mid);color:var(--ocean-deep);}
-  .filter-chip.active{background:var(--ocean-pale);border-color:var(--ocean-mid);color:var(--ocean-deep);}
+  .filter-chip{padding:6px 14px;border-radius:20px;font-size:12px;font-weight:700;font-family:'Nunito',sans-serif;cursor:pointer;border:1px solid var(--border);background:var(--bg3);color:var(--text3);transition:all .18s;}
+  .filter-chip:hover{border-color:var(--ocean-mid);color:var(--ocean-mid);}
+  .filter-chip.active{background:rgba(41,182,246,0.1);border-color:var(--ocean-mid);color:var(--ocean-mid);}
   .search-bar{position:relative;margin-bottom:16px;}
-  .search-bar input{width:100%;background:var(--white);border:1.5px solid var(--border);border-radius:14px;padding:10px 16px 10px 38px;font-size:13px;color:var(--text);outline:none;transition:all .2s;font-family:'Noto Sans KR',sans-serif;}
+  .search-bar input{width:100%;background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:10px 16px 10px 38px;font-size:13px;color:var(--text);outline:none;transition:all .2s;font-family:'Noto Sans KR',sans-serif;}
   .search-bar input:focus{border-color:var(--ocean-mid);box-shadow:0 0 0 3px rgba(91,163,201,.13);}
   .search-bar::before{content:'🔍';position:absolute;left:12px;top:50%;transform:translateY(-50%);font-size:14px;}
   .score-cards{display:flex;flex-direction:column;gap:12px;}
-  .score-card{background:var(--white);border:1.5px solid var(--border);border-radius:18px;padding:16px 18px;box-shadow:0 4px 18px var(--shadow);display:flex;align-items:center;gap:14px;transition:all .2s;cursor:pointer;text-decoration:none;}
+  .score-card{background:var(--bg2);border:1px solid var(--border);border-radius:18px;padding:16px 18px;box-shadow:0 4px 18px var(--shadow);display:flex;align-items:center;gap:14px;transition:all .2s;cursor:pointer;text-decoration:none;}
   .score-card:hover{transform:translateY(-2px);box-shadow:0 8px 26px var(--shadow2);border-color:var(--ocean-mid);}
   .score-icon{width:44px;height:44px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;}
   .score-icon.guitar{background:linear-gradient(135deg,#ffecd2,#fcb69f);}
@@ -442,7 +446,7 @@
   .score-tag.drum{background:#fff8e0;color:#cc8800;}
   .score-tag.keys{background:#eafff0;color:#2a8a3a;}
   .score-tag.vocal{background:#ffeef8;color:#c0306a;}
-  .score-tag.all{background:var(--ocean-pale);color:var(--ocean-deep);}
+  .score-tag.all{background:rgba(41,182,246,0.1);color:var(--ocean-mid);}
   .score-uploader{font-size:11px;color:var(--text3);}
   .score-arrow{font-size:18px;color:var(--text3);flex-shrink:0;}
 
@@ -453,7 +457,7 @@
   @media(max-width:600px){.video-cards{grid-template-columns:1fr;}}
   .video-card{background:var(--bg2);border:1px solid var(--border);border-radius:18px;overflow:hidden;box-shadow:0 4px 18px var(--shadow);transition:all .2s;}
   .video-card:hover{transform:translateY(-2px);box-shadow:0 8px 26px var(--shadow2);}
-  .video-thumb{width:100%;aspect-ratio:16/9;background:var(--foam);display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;}
+  .video-thumb{width:100%;aspect-ratio:16/9;background:var(--bg3);display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;}
   .video-thumb iframe{width:100%;height:100%;border:none;}
   .video-thumb-placeholder{display:flex;flex-direction:column;align-items:center;gap:6px;color:var(--text3);}
   .video-thumb-placeholder span{font-size:32px;}
@@ -464,11 +468,11 @@
   .video-meta{display:flex;align-items:center;justify-content:space-between;}
   .video-uploader{font-size:11px;color:var(--text3);}
   .video-link{font-size:11px;color:var(--ocean-mid);font-weight:600;text-decoration:none;}
-  .video-link:hover{color:var(--ocean-deep);}
+  .video-link:hover{color:var(--ocean-mid);}
 
   /* 섹션 헤더 */
   .section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;}
-  .section-title{font-family:'Nunito',sans-serif;font-weight:800;font-size:18px;color:var(--ocean-deep);}
+  .section-title{font-family:'Nunito',sans-serif;font-weight:800;font-size:18px;color:var(--ocean-mid);}
   .section-sub{font-size:12px;color:var(--text3);font-weight:400;margin-left:8px;}
 
   @media(max-width:600px){
@@ -495,9 +499,9 @@
 </div>
 
 <!-- 로딩 화면 -->
-<div id="loadingScreen" style="position:fixed;inset:0;background:var(--bg);z-index:200;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px">
-  <div style="width:64px;height:64px;background:linear-gradient(135deg,var(--ocean-mid),var(--ocean-deep));border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:28px;box-shadow:0 8px 24px rgba(61,132,170,.3);animation:loadPulse 1.4s ease-in-out infinite">🎸</div>
-  <div style="font-family:'Nunito',sans-serif;font-weight:800;font-size:22px;color:var(--ocean-mid)">Band Manager</div>
+<div id="loadingScreen" style="position:fixed;inset:0;background:linear-gradient(155deg,#e4f4fc 0%,#d0ecf7 50%,#e8f8fb 100%);z-index:200;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px">
+  <div style="width:64px;height:64px;background:linear-gradient(135deg,var(--ocean-mid),var(--ocean-deep));border-radius:18px;display:flex;align-items:center;justify-content:center;font-size:28px;box-shadow:0 8px 24px rgba(61,132,170,.3);animation:loadPulse 1.4s ease-in-out infinite">🎸</div>
+  <div style="font-family:'Nunito',sans-serif;font-weight:800;font-size:22px;color:var(--ocean-deep)">Band Manager</div>
   <div style="display:flex;gap:7px;align-items:center">
     <div class="load-dot" style="animation-delay:0s"></div>
     <div class="load-dot" style="animation-delay:0.18s"></div>
@@ -832,30 +836,26 @@
   <!-- 토너먼트 탭 -->
   <div id="tab-tournament" style="display:none">
     <div class="section-header">
-      <div class="section-title">🏆 곡 토너먼트 <span class="section-sub">투표로 최고의 곡을 뽑아요</span></div>
+      <div class="section-title">🏆 토너먼트 <span class="section-sub">투표로 최고의 곡을 결정해요</span></div>
     </div>
-
-    <!-- 리더/어드민: 토너먼트 생성 -->
     <div id="tournamentLeaderPanel" style="display:none;margin-bottom:20px">
       <div class="settle-card">
         <div class="settle-card-header"><div class="settle-card-title">🏆 새 토너먼트 만들기</div></div>
         <div class="settle-body">
           <div class="form-row">
-            <label class="form-label">토너먼트 이름</label>
+            <label class="form-label">이름</label>
             <input class="form-input" id="tournamentTitle" placeholder="ex) 5월 합주 곡 선정">
           </div>
-          <div class="form-row" style="margin-bottom:8px">
-            <label class="form-label">참가 곡 선택 <span style="font-size:11px;color:var(--text3)">(짝수 개 선택, 최대 8곡)</span></label>
-            <div id="tournamentSongPicker" style="display:flex;flex-direction:column;gap:6px;max-height:240px;overflow-y:auto;padding:4px 0"></div>
+          <div class="form-row">
+            <label class="form-label">참가 곡 선택 <span style="font-size:11px;color:var(--text3)">(짝수 개, 최대 8곡)</span></label>
+            <div id="tournamentSongPicker" style="display:flex;flex-direction:column;gap:6px;max-height:200px;overflow-y:auto;padding:4px 0"></div>
           </div>
           <button class="action-btn leader-action" onclick="createTournament()">🏆 토너먼트 시작!</button>
         </div>
       </div>
     </div>
-
-    <!-- 토너먼트 목록 -->
     <div id="tournamentList">
-      <div class="empty-hint"><span class="e">🏆</span><p>아직 토너먼트가 없어요<br>리더가 만들 수 있어요!</p></div>
+      <div class="empty-hint"><span class="e">🏆</span><p>아직 토너먼트가 없어요</p></div>
     </div>
   </div>
 
@@ -1150,189 +1150,156 @@ async function doLogout() {
 
 // ── 프로필 탭 렌더링 ──
 // ── Recruit 탭 ──
-// ── 토너먼트 탭 ──
+// ── 토너먼트 ──
 function renderTournamentTab() {
-  // 리더/어드민 패널
   const panel = document.getElementById('tournamentLeaderPanel');
   if (panel) panel.style.display = (isLeader||isAdmin) ? 'block' : 'none';
 
-  // 곡 선택 피커 (세트에서 곡들 가져오기)
   const picker = document.getElementById('tournamentSongPicker');
   if (picker) {
-    picker.innerHTML = songs.map(s => `
-      <label style="display:flex;align-items:center;gap:10px;padding:8px 10px;background:var(--bg3);border-radius:8px;cursor:pointer;border:1px solid var(--border)">
-        <input type="checkbox" value="${s.id}" style="accent-color:var(--ocean-mid);width:16px;height:16px">
-        <div>
-          <div style="font-weight:700;font-size:13px;color:var(--text)">${s.title}</div>
-          <div style="font-size:11px;color:var(--text3)">${s.artist||'아티스트 미입력'}</div>
-        </div>
-      </label>`).join('');
+    picker.innerHTML = songs.length
+      ? songs.map(s=>`
+        <label style="display:flex;align-items:center;gap:10px;padding:8px 10px;background:var(--bg3);border-radius:8px;cursor:pointer;border:1px solid var(--border)">
+          <input type="checkbox" value="${s.id}" style="accent-color:var(--ocean-mid);width:15px;height:15px">
+          <div><div style="font-weight:700;font-size:13px;color:var(--text)">${s.title}</div><div style="font-size:11px;color:var(--text3)">${s.artist||'아티스트 미입력'}</div></div>
+        </label>`).join('')
+      : '<div style="color:var(--text3);font-size:13px;padding:10px">먼저 곡 정하기에서 곡을 추가해주세요</div>';
   }
 
-  // 토너먼트 목록
   const list = document.getElementById('tournamentList');
   if (!tournaments.length) {
-    list.innerHTML = '<div class="empty-hint"><span class="e">🏆</span><p>아직 토너먼트가 없어요<br>리더가 만들 수 있어요!</p></div>';
+    list.innerHTML='<div class="empty-hint"><span class="e">🏆</span><p>아직 토너먼트가 없어요<br>리더가 만들 수 있어요!</p></div>';
     return;
   }
-
   list.innerHTML = tournaments.map(tn => renderTournamentCard(tn)).join('');
 }
 
 function renderTournamentCard(tn) {
   const matches = tournamentMatches.filter(m=>m.tournament_id===tn.id);
   const rounds  = [...new Set(matches.map(m=>m.round))].sort((a,b)=>a-b);
-  const maxRound = Math.max(...rounds, 0);
-  const roundNames = {1:'1라운드', 2:'준결승', 3:'결승', 4:'결승'};
+  const maxRound = rounds.length ? Math.max(...rounds) : 0;
+  const roundNames = {1:'1라운드',2:'준결승',3:'결승'};
 
-  const bracketHtml = rounds.map(r => {
+  const bracketHtml = rounds.map(r=>{
     const rMatches = matches.filter(m=>m.round===r);
-    const matchCards = rMatches.map(m => {
-      const s1 = songs.find(s=>s.id===m.song1_id);
-      const s2 = songs.find(s=>s.id===m.song2_id);
-      const v1 = tournamentVotes.filter(v=>v.match_id===m.id && v.song_id===m.song1_id).length;
-      const v2 = tournamentVotes.filter(v=>v.match_id===m.id && v.song_id===m.song2_id).length;
-      const myVote = tournamentVotes.find(v=>v.match_id===m.id && v.voter_name===myName);
-      const isFinished = !!m.winner_id;
-
-      if (!s1 || !s2) return '';
-
-      return `<div style="background:var(--bg3);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:10px">
-        <div style="padding:8px 12px;border-bottom:1px solid var(--border);font-size:11px;font-weight:700;color:var(--text3);font-family:'Nunito',sans-serif;letter-spacing:1px">MATCH ${m.match_num}</div>
-        ${renderMatchSong(m.id, m.song1_id, s1, v1, v2, myVote, m.winner_id, isFinished)}
-        <div style="text-align:center;padding:4px;font-size:12px;color:var(--text3);font-weight:700;background:var(--bg)">VS</div>
-        ${renderMatchSong(m.id, m.song2_id, s2, v2, v1, myVote, m.winner_id, isFinished)}
-      </div>`;
-    }).join('');
     return `<div style="margin-bottom:20px">
-      <div style="font-family:'Nunito',sans-serif;font-weight:800;font-size:13px;color:var(--ocean-mid);letter-spacing:2px;text-transform:uppercase;margin-bottom:10px">${roundNames[r]||r+'라운드'}</div>
-      ${matchCards}
+      <div style="font-family:'Nunito',sans-serif;font-weight:800;font-size:12px;color:var(--ocean-mid);letter-spacing:2px;text-transform:uppercase;margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid var(--border)">${roundNames[r]||r+'라운드'}</div>
+      ${rMatches.map(m=>renderMatchCard(m)).join('')}
     </div>`;
   }).join('');
 
-  // 우승자 확인
   const finalMatch = matches.find(m=>m.round===maxRound);
   const champion = finalMatch?.winner_id ? songs.find(s=>s.id===finalMatch.winner_id) : null;
 
   return `<div class="settle-card" style="margin-bottom:16px">
-    <div class="settle-card-header" style="display:flex;align-items:center;justify-content:space-between">
+    <div class="settle-card-header" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px">
       <div>
         <div class="settle-card-title">🏆 ${tn.title||'곡 토너먼트'}</div>
-        <div style="font-size:12px;color:var(--text3);margin-top:2px">${tn.created_by} · ${new Date(tn.created_at).getMonth()+1}/${new Date(tn.created_at).getDate()}</div>
+        <div style="font-size:11px;color:var(--text3);margin-top:2px">${tn.created_by} · ${new Date(tn.created_at).getMonth()+1}/${new Date(tn.created_at).getDate()}</div>
       </div>
-      ${champion ? `<div style="background:rgba(255,213,79,0.15);border:1.5px solid var(--gold);border-radius:10px;padding:6px 14px;font-family:'Nunito',sans-serif;font-weight:800;font-size:13px;color:var(--gold)">🏆 ${champion.title}</div>` : ''}
+      ${champion?`<div style="background:rgba(255,213,79,0.12);border:1.5px solid var(--gold);border-radius:10px;padding:5px 14px;font-family:'Nunito',sans-serif;font-weight:800;font-size:13px;color:var(--gold)">🏆 ${champion.title}</div>`:''}
     </div>
     <div class="settle-body">
       ${bracketHtml}
-      ${(isLeader||isAdmin) ? `<button class="action-btn leader-action" onclick="advanceTournament('${tn.id}')">⚡ 라운드 진행 (득표 많은 곡 승리)</button>` : ''}
-      ${isAdmin ? `<button class="action-btn danger" onclick="deleteTournament('${tn.id}')">토너먼트 삭제</button>` : ''}
+      ${(isLeader||isAdmin)?`<button class="action-btn leader-action" onclick="advanceTournament('${tn.id}')">⚡ 다음 라운드로</button>`:''}
+      ${isAdmin?`<button class="action-btn danger" onclick="deleteTournament('${tn.id}')">삭제</button>`:''}
     </div>
   </div>`;
 }
 
-function renderMatchSong(matchId, songId, song, myCount, oppCount, myVote, winnerId, isFinished) {
-  const isVoted   = myVote?.song_id === songId;
-  const isWinner  = winnerId === songId;
-  const isLoser   = winnerId && winnerId !== songId;
-  const total     = myCount + oppCount;
-  const pct       = total > 0 ? Math.round(myCount/total*100) : 0;
-  const col       = isWinner ? 'var(--gold)' : isLoser ? 'var(--text3)' : isVoted ? 'var(--ocean-mid)' : 'var(--text)';
-  const bg        = isWinner ? 'rgba(255,213,79,0.08)' : isVoted ? 'rgba(79,195,247,0.08)' : 'transparent';
+function renderMatchCard(m) {
+  const s1 = songs.find(s=>s.id===m.song1_id);
+  const s2 = songs.find(s=>s.id===m.song2_id);
+  if (!s1||!s2) return '';
+  const v1 = tournamentVotes.filter(v=>v.match_id===m.id&&v.song_id===m.song1_id).length;
+  const v2 = tournamentVotes.filter(v=>v.match_id===m.id&&v.song_id===m.song2_id).length;
+  const myVote = tournamentVotes.find(v=>v.match_id===m.id&&v.voter_name===myName);
+  const total = v1+v2;
 
-  return `<div onclick="${isFinished?'':`voteTournament('${matchId}','${songId}')`}"
-    style="display:flex;align-items:center;gap:12px;padding:12px 14px;cursor:${isFinished?'default':'pointer'};background:${bg};transition:background .15s">
-    <div style="flex:1;min-width:0">
-      <div style="font-weight:700;font-size:14px;color:${col};display:flex;align-items:center;gap:6px">
-        ${isWinner?'🏆 ':''}${isLoser?'<span style="opacity:.4">':''} ${song.title}${isLoser?'</span>':''}
+  function songRow(sid, song, votes, oVotes) {
+    const isVoted  = myVote?.song_id===sid;
+    const isWinner = m.winner_id===sid;
+    const isLoser  = m.winner_id&&m.winner_id!==sid;
+    const pct = total>0 ? Math.round(votes/total*100) : 0;
+    const bg  = isWinner?'rgba(255,213,79,0.08)':isVoted?'rgba(41,182,246,0.08)':'transparent';
+    const col = isWinner?'var(--gold)':isLoser?'var(--text3)':isVoted?'var(--ocean-mid)':'var(--text)';
+    return `<div onclick="${m.winner_id?'':(`voteTournament('${m.id}','${sid}')`)}"
+      style="display:flex;align-items:center;gap:12px;padding:12px 14px;cursor:${m.winner_id?'default':'pointer'};background:${bg};transition:background .15s;opacity:${isLoser?'0.45':'1'}">
+      <div style="flex:1;min-width:0">
+        <div style="font-weight:700;font-size:14px;color:${col}">${isWinner?'🏆 ':''}${song.title}</div>
+        <div style="font-size:11px;color:var(--text3);margin-top:1px">${song.artist||''}</div>
+        ${(myVote||m.winner_id)?`<div style="margin-top:5px;height:3px;background:var(--border);border-radius:2px;overflow:hidden"><div style="height:100%;width:${pct}%;background:${isWinner?'var(--gold)':'var(--ocean-mid)'};transition:width .5s"></div></div>`:''}
       </div>
-      <div style="font-size:11px;color:var(--text3);margin-top:2px">${song.artist||''}</div>
-      ${isFinished || (myVote) ? `<div style="margin-top:6px;height:4px;background:var(--border);border-radius:2px;overflow:hidden"><div style="height:100%;background:${isWinner?'var(--gold)':'var(--ocean-mid)'};width:${pct}%;transition:width .5s"></div></div>` : ''}
-    </div>
-    <div style="text-align:right;flex-shrink:0">
-      <div style="font-family:'Nunito',sans-serif;font-weight:800;font-size:18px;color:${col}">${myCount}</div>
-      <div style="font-size:10px;color:var(--text3)">표</div>
-    </div>
+      <div style="text-align:right;flex-shrink:0">
+        <div style="font-family:'Nunito',sans-serif;font-weight:800;font-size:20px;color:${col}">${votes}</div>
+        ${(myVote||m.winner_id)?`<div style="font-size:10px;color:var(--text3)">${pct}%</div>`:''}
+      </div>
+    </div>`;
+  }
+
+  return `<div style="background:var(--bg3);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:10px">
+    <div style="padding:6px 14px;background:var(--surface);border-bottom:1px solid var(--border);font-size:10px;font-weight:700;color:var(--text3);font-family:'Nunito',sans-serif;letter-spacing:1.5px">MATCH ${m.match_num}</div>
+    ${songRow(m.song1_id,s1,v1,v2)}
+    <div style="text-align:center;padding:3px 0;font-size:11px;font-weight:800;color:var(--text3);font-family:'Nunito',sans-serif;background:var(--bg);border-top:1px solid var(--border);border-bottom:1px solid var(--border)">VS</div>
+    ${songRow(m.song2_id,s2,v2,v1)}
   </div>`;
 }
 
 async function createTournament() {
-  const title = document.getElementById('tournamentTitle').value.trim() || '곡 토너먼트';
+  const title = document.getElementById('tournamentTitle').value.trim()||'곡 토너먼트';
   const checked = [...document.querySelectorAll('#tournamentSongPicker input:checked')].map(i=>i.value);
-  if (checked.length < 2) return showToast('최소 2곡 이상 선택해주세요','error');
-  if (checked.length % 2 !== 0) return showToast('짝수 개로 선택해주세요 (2,4,6,8곡)','error');
-  if (checked.length > 8)  return showToast('최대 8곡까지 선택 가능해요','error');
-
-  const {data:tn, error} = await db.from('band_tournament').insert({title, created_by:myName, status:'active'}).select().single();
+  if (checked.length<2) return showToast('최소 2곡 이상 선택해주세요','error');
+  if (checked.length%2!==0) return showToast('짝수 개로 선택해주세요 (2,4,6,8곡)','error');
+  if (checked.length>8) return showToast('최대 8곡까지 가능해요','error');
+  const {data:tn,error} = await db.from('band_tournament').insert({title,created_by:myName,status:'active'}).select().single();
   if (error) return showToast('생성 실패: '+error.message,'error');
-
-  // 1라운드 매치 생성 (랜덤 시드)
-  const shuffled = [...checked].sort(()=>Math.random()-0.5);
-  const matchInserts = [];
-  for (let i=0; i<shuffled.length; i+=2) {
-    matchInserts.push({ tournament_id:tn.id, round:1, match_num:i/2+1, song1_id:shuffled[i], song2_id:shuffled[i+1] });
-  }
+  const shuffled=[...checked].sort(()=>Math.random()-0.5);
+  const matchInserts=[];
+  for(let i=0;i<shuffled.length;i+=2) matchInserts.push({tournament_id:tn.id,round:1,match_num:i/2+1,song1_id:shuffled[i],song2_id:shuffled[i+1]});
   await db.from('band_tournament_matches').insert(matchInserts);
   showToast('🏆 토너먼트 시작!','success');
   document.getElementById('tournamentTitle').value='';
   await loadAll(); renderTournamentTab();
 }
 
-async function voteTournament(matchId, songId) {
-  const existing = tournamentVotes.find(v=>v.match_id===matchId && v.voter_name===myName);
-  if (existing) {
-    if (existing.song_id === songId) {
-      await db.from('band_tournament_votes').delete().eq('id', existing.id);
-      showToast('투표 취소','success');
-    } else {
-      await db.from('band_tournament_votes').update({song_id:songId}).eq('id', existing.id);
-      showToast('✅ 투표 변경!','success');
-    }
+async function voteTournament(matchId,songId) {
+  const ex=tournamentVotes.find(v=>v.match_id===matchId&&v.voter_name===myName);
+  if(ex) {
+    if(ex.song_id===songId) { await db.from('band_tournament_votes').delete().eq('id',ex.id); showToast('투표 취소','success'); }
+    else { await db.from('band_tournament_votes').update({song_id:songId}).eq('id',ex.id); showToast('✅ 투표 변경!','success'); }
   } else {
-    await db.from('band_tournament_votes').insert({match_id:matchId, voter_name:myName, song_id:songId});
-    showToast('✅ 투표 완료!','success');
+    await db.from('band_tournament_votes').insert({match_id:matchId,voter_name:myName,song_id:songId});
+    showToast('✅ 투표!','success');
   }
   await loadAll(); renderTournamentTab();
 }
 
 async function advanceTournament(tnId) {
-  if (!confirm('현재 라운드 결과를 확정하고 다음 라운드로 진행할까요?')) return;
-  const matches = tournamentMatches.filter(m=>m.tournament_id===tnId);
-  const maxRound = Math.max(...matches.map(m=>m.round));
-  const curMatches = matches.filter(m=>m.round===maxRound && !m.winner_id);
-
-  if (!curMatches.length) {
-    showToast('모든 매치가 이미 완료됐어요','error'); return;
-  }
-
-  // 각 매치 승자 결정
-  const winners = [];
-  for (const m of curMatches) {
-    const v1 = tournamentVotes.filter(v=>v.match_id===m.id && v.song_id===m.song1_id).length;
-    const v2 = tournamentVotes.filter(v=>v.match_id===m.id && v.song_id===m.song2_id).length;
-    const winnerId = v1 >= v2 ? m.song1_id : m.song2_id;
+  if(!confirm('현재 라운드를 마감하고 다음 라운드로 진행할까요?')) return;
+  const matches=tournamentMatches.filter(m=>m.tournament_id===tnId);
+  const maxRound=Math.max(...matches.map(m=>m.round));
+  const curMatches=matches.filter(m=>m.round===maxRound&&!m.winner_id);
+  if(!curMatches.length) return showToast('모든 매치가 완료됐어요','error');
+  const winners=[];
+  for(const m of curMatches){
+    const v1=tournamentVotes.filter(v=>v.match_id===m.id&&v.song_id===m.song1_id).length;
+    const v2=tournamentVotes.filter(v=>v.match_id===m.id&&v.song_id===m.song2_id).length;
+    const winnerId=v1>=v2?m.song1_id:m.song2_id;
     await db.from('band_tournament_matches').update({winner_id:winnerId}).eq('id',m.id);
     winners.push(winnerId);
   }
-
-  // 다음 라운드 생성 (2명 이상이면)
-  if (winners.length >= 2) {
-    const nextRound = maxRound + 1;
-    const nextMatches = [];
-    for (let i=0; i<winners.length; i+=2) {
-      if (winners[i+1]) {
-        nextMatches.push({tournament_id:tnId, round:nextRound, match_num:i/2+1, song1_id:winners[i], song2_id:winners[i+1]});
-      }
-    }
-    if (nextMatches.length) await db.from('band_tournament_matches').insert(nextMatches);
-    showToast(`⚡ ${nextRound}라운드 시작!`, 'success');
-  } else {
-    showToast('🏆 토너먼트 완료! 우승곡 결정!','success');
-  }
+  if(winners.length>=2){
+    const nextRound=maxRound+1;
+    const nextMatches=[];
+    for(let i=0;i<winners.length;i+=2) if(winners[i+1]) nextMatches.push({tournament_id:tnId,round:nextRound,match_num:i/2+1,song1_id:winners[i],song2_id:winners[i+1]});
+    if(nextMatches.length) await db.from('band_tournament_matches').insert(nextMatches);
+    showToast(`⚡ ${nextRound}라운드 시작!`,'success');
+  } else showToast('🏆 토너먼트 완료! 우승곡 결정!','success');
   await loadAll(); renderTournamentTab();
 }
 
-async function deleteTournament(id) {
-  if (!confirm('토너먼트를 삭제할까요?')) return;
+async function deleteTournament(id){
+  if(!confirm('삭제할까요?')) return;
   await db.from('band_tournament').delete().eq('id',id);
   await loadAll(); renderTournamentTab();
 }
