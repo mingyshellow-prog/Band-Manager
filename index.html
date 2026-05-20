@@ -829,48 +829,47 @@
 
   <!-- 나머지 탭 -->
   <div id="tab-songs" style="display:none">
-    <!-- 곡 추가 (전체 멤버) + 토너먼트 만들기 (리더/어드민) -->
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px">
-      <!-- 곡 추가: 전체 멤버 가능 -->
-      <div class="settle-card">
-        <div class="settle-card-header"><div class="settle-card-title">🎵 곡 추가</div></div>
-        <div class="settle-body">
-          <div class="form-row">
-            <label class="form-label">곡 제목 *</label>
-            <input class="form-input" id="quickSongTitle" placeholder="ex) Superstition">
-          </div>
-          <div class="form-row">
-            <label class="form-label">아티스트</label>
-            <input class="form-input" id="quickSongArtist" placeholder="ex) Stevie Wonder">
-          </div>
-          <button class="action-btn leader-action" onclick="quickAddSong()">+ 곡 추가</button>
+
+    <!-- 추가된 곡 목록 -->
+    <div id="tournamentSongList" style="margin-bottom:20px"></div>
+
+    <!-- 곡 추가 폼 (전체 멤버) -->
+    <div class="settle-card" style="margin-bottom:16px">
+      <div class="settle-card-header"><div class="settle-card-title">🎵 곡 추가하기</div></div>
+      <div class="settle-body">
+        <div style="display:flex;gap:10px;flex-wrap:wrap">
+          <input class="form-input" id="quickSongTitle" placeholder="곡 제목 *" style="flex:2;min-width:140px">
+          <input class="form-input" id="quickSongArtist" placeholder="아티스트" style="flex:2;min-width:120px">
+          <button class="action-btn leader-action" style="width:auto;padding:10px 20px;margin:0;white-space:nowrap" onclick="quickAddSong()">+ 추가</button>
         </div>
       </div>
-      <!-- 토너먼트 생성: 리더/어드민만 -->
-      <div class="settle-card" id="tournamentLeaderPanel">
-        <div class="settle-card-header"><div class="settle-card-title">🏆 토너먼트 시작</div></div>
-        <div class="settle-body">
-          <div class="form-row">
-            <label class="form-label">이름</label>
-            <input class="form-input" id="tournamentTitle" placeholder="ex) 5월 합주 곡 선정">
-          </div>
-          <div class="form-row">
-            <label class="form-label">참가 곡 <span style="font-size:11px;color:var(--text3)">(짝수 개 선택)</span></label>
-            <div id="tournamentSongPicker" style="display:flex;flex-direction:column;gap:5px;max-height:180px;overflow-y:auto"></div>
-          </div>
-          <button class="action-btn leader-action" onclick="createTournament()">🏆 토너먼트 시작!</button>
+    </div>
+
+    <!-- 토너먼트 시작 (전체) -->
+    <div class="settle-card" id="tournamentLeaderPanel" style="margin-bottom:16px">
+      <div class="settle-card-header"><div class="settle-card-title">🏆 토너먼트 시작</div></div>
+      <div class="settle-body">
+        <div class="form-row">
+          <label class="form-label">토너먼트 이름</label>
+          <input class="form-input" id="tournamentTitle" placeholder="ex) 5월 합주 곡 선정">
         </div>
+        <div class="form-row">
+          <label class="form-label">참가 곡 선택 <span style="font-size:11px;color:var(--text3)">(짝수 개)</span></label>
+          <div id="tournamentSongPicker" style="display:flex;flex-direction:column;gap:5px;max-height:200px;overflow-y:auto;margin-top:4px"></div>
+        </div>
+        <button class="action-btn leader-action" onclick="createTournament()">🏆 토너먼트 시작!</button>
       </div>
     </div>
 
     <!-- 토너먼트 없을 때 -->
     <div id="tournamentEmpty" style="display:none">
-      <div class="empty-hint"><span class="e">🏆</span><p>아직 토너먼트가 없어요<br>리더가 토너먼트를 만들 수 있어요!</p></div>
+      <div class="empty-hint"><span class="e">🏆</span><p>아직 토너먼트가 없어요<br>곡을 추가하고 토너먼트를 시작해보세요!</p></div>
     </div>
 
     <!-- 브라켓 뷰어 -->
     <div id="tournamentViewer"></div>
   </div>
+
   <div id="tab-scores" style="display:none">
     <div class="section-header">
       <div class="section-title">📄 악보 창고 <span class="section-sub">구글드라이브 링크로 악보를 모아요</span></div>
@@ -2551,7 +2550,30 @@ function setSongMode(mode) {
 }
 
 function renderTournamentTab() {
-  // 곡 피커 업데이트
+  // 곡 목록 렌더
+  const songList = document.getElementById('tournamentSongList');
+  if (songList) {
+    if (!songs.length) {
+      songList.innerHTML = '<div class="empty-hint"><span class="e">🎵</span><p>아직 추가된 곡이 없어요<br>아래에서 곡을 추가해보세요!</p></div>';
+    } else {
+      songList.innerHTML = `
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+          <div style="font-family:'Nunito',sans-serif;font-weight:800;font-size:15px;color:var(--text)">🎵 등록된 곡 <span style="color:var(--ocean-mid)">${songs.length}</span>곡</div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:6px">
+          ${songs.map(s=>`
+            <div style="display:flex;align-items:center;gap:12px;padding:10px 14px;background:var(--bg2);border:1px solid var(--border);border-radius:8px">
+              <div style="flex:1;min-width:0">
+                <div style="font-weight:700;font-size:13px;color:var(--text)">${s.title}</div>
+                <div style="font-size:11px;color:var(--text3);margin-top:1px">${s.artist||'아티스트 미입력'}</div>
+              </div>
+              <button onclick="deleteSong('${s.id}')" style="background:none;border:none;color:var(--text3);cursor:pointer;font-size:12px;padding:4px 8px;border-radius:4px" title="삭제">✕</button>
+            </div>`).join('')}
+        </div>`;
+    }
+  }
+
+  // 피커 업데이트
   const picker = document.getElementById('tournamentSongPicker');
   if (picker) {
     picker.innerHTML = songs.length
@@ -2559,7 +2581,7 @@ function renderTournamentTab() {
         <label style="display:flex;align-items:center;gap:8px;padding:7px 10px;background:var(--bg3);border-radius:6px;cursor:pointer;border:1px solid var(--border)">
           <input type="checkbox" value="${s.id}" style="accent-color:#4fc3f7;width:14px;height:14px;flex-shrink:0">
           <span style="font-size:12px;font-weight:700;color:var(--text)">${s.title}</span>
-          <span style="font-size:11px;color:var(--text3);margin-left:2px">${s.artist?'· '+s.artist:''}</span>
+          <span style="font-size:11px;color:var(--text3)">${s.artist?'· '+s.artist:''}</span>
         </label>`).join('')
       : '<div style="color:var(--text3);font-size:12px;padding:6px">먼저 곡을 추가해주세요</div>';
   }
