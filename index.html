@@ -105,121 +105,151 @@
   .calendar-layout{display:grid;grid-template-columns:1fr 290px;gap:18px;align-items:start;}
   @media(max-width:740px){.calendar-layout{grid-template-columns:1fr;}}
 
-  .calendar-card{background:var(--bg2);border:1px solid var(--border);border-radius:24px;box-shadow:0 6px 28px var(--shadow);overflow:hidden;}
-  .cal-nav{display:flex;align-items:center;justify-content:space-between;padding:18px 22px 14px;border-bottom:1px solid var(--border);}
-  .cal-month-title{font-family:'Nunito',sans-serif;font-weight:800;font-size:20px;color:var(--ocean-mid);}
-  .cal-nav-btn{width:34px;height:34px;background:var(--bg3);border:1px solid var(--border);border-radius:10px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:18px;color:var(--text2);transition:all .18s;}
-  .cal-nav-btn:hover{background:rgba(41,182,246,0.1);border-color:var(--ocean-mid);color:var(--ocean-mid);}
+  /* 달력 카드 - 다크 디지털 */
+  .calendar-card{
+    background:#0a0d12;
+    border:1px solid #1e2d3d;
+    border-radius:16px;
+    box-shadow:0 0 0 1px rgba(41,182,246,0.06), 0 8px 32px rgba(0,0,0,0.6);
+    overflow:hidden;
+  }
+  .cal-nav{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:16px 20px 12px;
+    border-bottom:1px solid #1e2d3d;
+    background:#0d1117;
+  }
+  .cal-month-title{
+    font-family:'Nunito',sans-serif;font-weight:900;font-size:18px;
+    color:#4fc3f7;
+    letter-spacing:1px;
+    text-shadow:0 0 20px rgba(79,195,247,0.4);
+  }
+  .cal-nav-btn{
+    width:30px;height:30px;
+    background:#111827;border:1px solid #1e2d3d;border-radius:6px;
+    cursor:pointer;display:flex;align-items:center;justify-content:center;
+    font-size:16px;color:#4a6070;transition:all .15s;
+  }
+  .cal-nav-btn:hover{background:rgba(79,195,247,0.1);border-color:rgba(79,195,247,0.4);color:#4fc3f7;}
 
-  .cal-tip{padding:10px 22px;background:var(--bg3);border-bottom:1px solid var(--border);font-size:12px;color:var(--text3);font-weight:500;}
-  .cal-tip b{color:var(--ocean-mid);}
+  .cal-tip{
+    padding:8px 20px;
+    background:#0d1117;border-bottom:1px solid #1e2d3d;
+    font-size:11px;color:#4a6070;font-weight:500;
+    letter-spacing:0.3px;
+  }
+  .cal-tip b{color:#29b6f6;}
 
-  /* ── 구글 캘린더 스타일 달력 ── */
-  .cal-weekdays{display:grid;grid-template-columns:repeat(7,1fr);padding:8px 8px 0;}
-  .cal-weekday{text-align:center;font-size:11px;font-weight:700;color:var(--text3);font-family:'Nunito',sans-serif;letter-spacing:.5px;padding:6px 0;}
-  .cal-weekday.sun{color:var(--holiday);}
-  .cal-weekday.sat{color:var(--ocean-mid);}
+  /* 요일 헤더 */
+  .cal-weekdays{display:grid;grid-template-columns:repeat(7,1fr);padding:8px 6px 4px;background:#0a0d12;}
+  .cal-weekday{
+    text-align:center;font-size:10px;font-weight:700;
+    color:#2a3a4a;font-family:'Nunito',sans-serif;
+    letter-spacing:1px;text-transform:uppercase;padding:4px 0;
+  }
+  .cal-weekday.sun{color:rgba(255,82,82,0.6);}
+  .cal-weekday.sat{color:rgba(79,195,247,0.6);}
 
-  /* 그리드: 7열, 각 셀 고정 높이 */
+  /* 달력 그리드 */
   .cal-grid{
     display:grid;
     grid-template-columns:repeat(7,1fr);
-    grid-auto-rows: minmax(80px, auto);
-    border-left:1px solid var(--border2);
-    border-top:1px solid var(--border2);
-    margin:0 8px 12px;
+    grid-auto-rows:minmax(76px,auto);
+    border-left:1px solid #151e2a;
+    border-top:1px solid #151e2a;
+    margin:0 6px 10px;
+    background:#0a0d12;
   }
 
+  /* 셀 */
   .cal-day{
-    border-right:1px solid var(--border);
-    border-bottom:1px solid var(--border);
+    border-right:1px solid #151e2a;
+    border-bottom:1px solid #151e2a;
     padding:4px 5px;
     cursor:pointer;
     position:relative;
     font-family:'Nunito',sans-serif;
-    transition:background .12s;
-    user-select:none; -webkit-user-select:none;
+    transition:background .1s;
+    user-select:none;-webkit-user-select:none;
     -webkit-tap-highlight-color:transparent;
-    min-height:80px;
-    display:flex; flex-direction:column; align-items:flex-start; gap:2px;
+    min-height:76px;
+    display:flex;flex-direction:column;align-items:flex-start;gap:2px;
+    background:#0a0d12;
   }
-  .cal-day:hover:not(.empty):not(.other-month){background:var(--bg3);}
-  .cal-day.empty{cursor:default; border-right:1px solid var(--border); border-bottom:1px solid var(--border);}
-  .cal-day.other-month{opacity:.35;cursor:default;pointer-events:none;}
+  .cal-day:hover:not(.empty):not(.other-month){
+    background:#0f1520;
+    box-shadow:inset 0 0 0 1px rgba(79,195,247,0.12);
+  }
+  .cal-day.empty{cursor:default;border-right:1px solid #151e2a;border-bottom:1px solid #151e2a;background:#080b10;}
+  .cal-day.other-month{opacity:.2;cursor:default;pointer-events:none;}
 
-  /* 날짜 숫자 - 구글 캘린더처럼 원형 */
+  /* 날짜 숫자 */
   .day-num{
-    font-size:13px;font-weight:700;line-height:1;
-    color:var(--text);z-index:1;
-    width:26px;height:26px;
+    font-size:12px;font-weight:700;line-height:1;
+    color:#4a6070;z-index:1;
+    width:24px;height:24px;
     display:flex;align-items:center;justify-content:center;
-    border-radius:50%;
-    flex-shrink:0;
+    border-radius:50%;flex-shrink:0;
     transition:all .12s;
+    font-family:'Nunito',sans-serif;
   }
-  .cal-day.sunday   .day-num{color:var(--holiday);}
-  .cal-day.saturday .day-num{color:var(--ocean-mid);}
-  .cal-day.holiday  .day-num{color:var(--holiday);}
+  .cal-day.sunday   .day-num{color:rgba(255,82,82,0.7);}
+  .cal-day.saturday .day-num{color:rgba(79,195,247,0.7);}
+  .cal-day.holiday  .day-num{color:rgba(255,82,82,0.7);}
 
-  /* 오늘: 원형 배경 */
+  /* 오늘 */
   .cal-day.today .day-num{
-    background:var(--ocean-deep);color:#fff;
-    font-weight:800;
+    background:#29b6f6;color:#000;font-weight:900;
+    box-shadow:0 0 10px rgba(41,182,246,0.5);
   }
 
-  /* 내가 가능 표시한 날 - 좌측 색상 바 */
-  .cal-day.my-available{background:rgba(77,208,196,0.07);}
-  .cal-day.my-available::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--mint-deep);border-radius:0;}
-  .cal-day.my-available .day-num{color:var(--mint-deep);}
-  .cal-day.my-unavail{background:rgba(244,160,136,.1);}
-  .cal-day.my-unavail::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--coral);border-radius:0;}
-  .cal-day.my-unavail .day-num{color:var(--coral);}
-  .cal-day.my-available::before{
-    content:'';position:absolute;left:0;top:0;bottom:0;
-    width:3px;background:var(--mint-deep);border-radius:0;
-  }
-  .cal-day.my-available .day-num{color:var(--mint-deep);}
+  /* 내가 가능 */
+  .cal-day.my-available{background:rgba(38,198,190,0.05);}
+  .cal-day.my-available::before{content:'';position:absolute;left:0;top:0;bottom:0;width:2px;background:#26c6be;box-shadow:0 0 6px rgba(38,198,190,0.5);}
+  .cal-day.my-available .day-num{color:#26c6be;}
 
-  /* 확정된 날 */
-  .cal-day.confirmed-day{background:rgba(58,184,150,.08);}
-  .cal-day.confirmed-day::before{
-    content:'';position:absolute;left:0;top:0;bottom:0;
-    width:3px;background:var(--mint-deep);
-  }
-  .cal-day.confirmed-day .day-num{
-    background:var(--mint-deep);color:#fff;font-weight:800;
-  }
+  /* 내가 불가 */
+  .cal-day.my-unavail{background:rgba(255,112,67,0.04);}
+  .cal-day.my-unavail::before{content:'';position:absolute;left:0;top:0;bottom:0;width:2px;background:#ff7043;box-shadow:0 0 6px rgba(255,112,67,0.4);}
+  .cal-day.my-unavail .day-num{color:#ff7043;}
 
-  /* 드래그 범위 선택 */
-  .cal-day.in-range{background:rgba(41,182,246,0.1)!important;}
-  .cal-day.in-range .day-num{background:var(--ocean-mid);color:#fff;}
+  /* 확정 날 */
+  .cal-day.confirmed-day{background:rgba(38,198,190,0.07);}
+  .cal-day.confirmed-day::before{content:'';position:absolute;left:0;top:0;bottom:0;width:2px;background:#26c6be;box-shadow:0 0 8px rgba(38,198,190,0.6);}
+  .cal-day.confirmed-day .day-num{background:#26c6be;color:#000;font-weight:900;box-shadow:0 0 8px rgba(38,198,190,0.4);}
 
-  /* 선택된 날 테두리 */
-  .cal-day.selected{outline:2px solid var(--ocean-deep);outline-offset:-2px;}
+  /* 드래그 범위 */
+  .cal-day.in-range{background:rgba(41,182,246,0.07)!important;}
+  .cal-day.in-range .day-num{background:#29b6f6;color:#000;}
+
+  /* 선택 테두리 */
+  .cal-day.selected{box-shadow:inset 0 0 0 1.5px rgba(41,182,246,0.5);}
 
   /* 공휴일 */
-  .cal-day.holiday:not(.my-available):not(.confirmed-day){background:rgba(224,112,112,.04);}
+  .cal-day.holiday:not(.my-available):not(.confirmed-day){background:rgba(255,82,82,0.03);}
   .holiday-label{
-    font-size:10px;color:var(--holiday);font-weight:600;
+    font-size:9px;color:rgba(255,82,82,0.7);font-weight:600;
     font-family:'Noto Sans KR',sans-serif;
     white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
     max-width:100%;line-height:1.2;
   }
 
-  /* 이름 태그 - 구글 캘린더 이벤트 바 스타일 */
+  /* 이름 태그 */
   .name-events{display:flex;flex-direction:column;gap:2px;width:100%;margin-top:1px;}
   .name-event{
-    font-size:11px;font-weight:600;
+    font-size:10px;font-weight:700;
     font-family:'Nunito',sans-serif;
-    padding:1px 5px;border-radius:3px;
-    background:var(--mint-deep);color:#fff;
+    padding:1px 5px;border-radius:2px;
+    background:#26c6be;color:#000;
     white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
     width:100%;line-height:1.5;
+    letter-spacing:0.3px;
   }
-  .name-event.leader-ev{background:var(--gold);color:#6a4400;}
-  .name-event.more-ev{background:var(--text3);color:#fff;}
+  .name-event.leader-ev{background:#ffd54f;color:#000;}
+  .name-event.more-ev{background:#2a3a4a;color:#4a6070;}
 
-  .confirmed-star{position:absolute;top:4px;right:5px;font-size:10px;z-index:1;}
+  .confirmed-star{position:absolute;top:3px;right:4px;font-size:9px;z-index:1;}
 
   /* ── 사이드 패널 ── */
   .side-panel{display:flex;flex-direction:column;gap:14px;}
@@ -256,10 +286,10 @@
   .empty-hint p{font-size:13px;line-height:1.7;}
 
   /* 범례 */
-  .legend-card{background:rgba(255,255,255,.72);border:1px solid var(--border);border-radius:16px;padding:14px 16px;}
-  .legend-title{font-size:11px;font-weight:700;color:var(--text3);letter-spacing:1px;text-transform:uppercase;font-family:'Nunito',sans-serif;margin-bottom:9px;}
+  .legend-card{background:#0d1117;border:1px solid #1e2d3d;border-radius:12px;padding:14px 16px;}
+  .legend-title{font-size:10px;font-weight:700;color:#2a3a4a;letter-spacing:2px;text-transform:uppercase;font-family:'Nunito',sans-serif;margin-bottom:9px;}
   .legend-items{display:flex;flex-direction:column;gap:6px;}
-  .legend-item{display:flex;align-items:center;gap:9px;font-size:12px;color:var(--text2);font-weight:500;}
+  .legend-item{display:flex;align-items:center;gap:9px;font-size:12px;color:#4a6070;font-weight:500;}
   .legend-dot{width:20px;height:20px;border-radius:6px;border:1.5px solid transparent;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:9px;}
 
   /* ── 정산 탭 ── */
@@ -414,6 +444,77 @@
   .coming-soon{text-align:center;padding:90px 0;}
   .coming-soon .big{font-family:'Nunito',sans-serif;font-weight:900;font-size:48px;color:var(--border);letter-spacing:2px;margin-bottom:14px;}
   .coming-soon p{font-size:15px;color:var(--text3);}
+
+  /* ── 토너먼트 브라켓 ── */
+  .tn-header{text-align:center;padding:24px 0 32px;}
+  .tn-title{font-family:'Nunito',sans-serif;font-weight:900;font-size:28px;color:#e2e8f0;letter-spacing:1px;}
+  .tn-sub{font-size:12px;color:#4a6070;margin-top:4px;letter-spacing:1px;}
+  .tn-champion{display:inline-flex;align-items:center;gap:8px;background:rgba(255,213,79,0.1);border:1px solid rgba(255,213,79,0.4);border-radius:8px;padding:8px 18px;margin-top:12px;font-family:'Nunito',sans-serif;font-weight:800;font-size:14px;color:#ffd54f;}
+
+  .bracket-wrap{overflow-x:auto;padding-bottom:16px;}
+  .bracket{display:flex;gap:0;align-items:stretch;min-width:max-content;}
+
+  .bracket-round{display:flex;flex-direction:column;justify-content:space-around;min-width:180px;padding:0 12px;position:relative;}
+  .bracket-round-title{text-align:center;font-size:10px;font-weight:700;color:#2a3a4a;letter-spacing:3px;text-transform:uppercase;font-family:'Nunito',sans-serif;margin-bottom:16px;padding-bottom:8px;border-bottom:1px solid #1a2535;}
+
+  /* 라운드 사이 연결선 */
+  .bracket-round:not(:last-child)::after{
+    content:''; position:absolute; right:-1px; top:30px; bottom:0;
+    width:1px; background:linear-gradient(to bottom,transparent,#1e2d3d 20%,#1e2d3d 80%,transparent);
+  }
+
+  /* 매치 카드 */
+  .bracket-match{
+    background:#0d1117;
+    border:1px solid #1a2535;
+    border-radius:8px;
+    overflow:hidden;
+    margin:6px 0;
+    transition:border-color .2s;
+    animation:matchIn .4s ease both;
+  }
+  .bracket-match:hover{border-color:rgba(41,182,246,0.3);}
+  @keyframes matchIn{from{opacity:0;transform:translateX(-12px)}to{opacity:1;transform:translateX(0)}}
+
+  /* 매치 셀 */
+  .match-cell{
+    display:flex;align-items:center;gap:8px;
+    padding:9px 12px;cursor:pointer;
+    transition:background .15s;
+    position:relative; overflow:hidden;
+    border-bottom:1px solid #1a2535;
+  }
+  .match-cell:last-child{border-bottom:none;}
+  .match-cell:hover{background:rgba(41,182,246,0.06);}
+  .match-cell.voted{background:rgba(41,182,246,0.08);}
+  .match-cell.winner{background:rgba(255,213,79,0.07);}
+  .match-cell.loser{opacity:0.35;}
+  .match-cell.done{cursor:default;}
+
+  /* 진행 바 */
+  .match-cell-bar{
+    position:absolute;left:0;top:0;bottom:0;
+    background:rgba(41,182,246,0.12);
+    transition:width .6s cubic-bezier(.4,0,.2,1);
+    pointer-events:none;
+  }
+  .match-cell.winner .match-cell-bar{background:rgba(255,213,79,0.12);}
+
+  .match-seed{font-size:9px;font-weight:700;color:#2a3a4a;font-family:'Nunito',sans-serif;width:14px;flex-shrink:0;}
+  .match-name{flex:1;font-size:12px;font-weight:700;color:#8fa8c0;font-family:'Nunito',sans-serif;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;position:relative;z-index:1;transition:color .15s;}
+  .match-cell:hover .match-name{color:#e2e8f0;}
+  .match-cell.voted .match-name{color:#4fc3f7;}
+  .match-cell.winner .match-name{color:#ffd54f;}
+  .match-score{font-size:13px;font-weight:900;color:#4a6070;font-family:'Nunito',sans-serif;flex-shrink:0;position:relative;z-index:1;min-width:16px;text-align:right;}
+  .match-cell.winner .match-score{color:#ffd54f;}
+  .match-cell.voted .match-score{color:#4fc3f7;}
+
+  /* VS 구분선 */
+  .match-vs{text-align:center;font-size:8px;font-weight:900;color:#1e2d3d;font-family:'Nunito',sans-serif;letter-spacing:2px;padding:1px 0;background:#080b10;}
+
+  /* 스윽 입장 애니메이션 */
+  @keyframes slideRight{from{opacity:0;transform:translateX(-30px)}to{opacity:1;transform:translateX(0)}}
+  @keyframes glowPulse{0%,100%{box-shadow:0 0 0 0 rgba(79,195,247,0)}50%{box-shadow:0 0 12px 2px rgba(79,195,247,0.2)}}
 
   /* ── 악보 창고 ── */
   .scores-layout{display:grid;grid-template-columns:1fr 270px;gap:18px;align-items:start;}
@@ -835,28 +936,33 @@
   </div>
   <!-- 토너먼트 탭 -->
   <div id="tab-tournament" style="display:none">
-    <div class="section-header">
-      <div class="section-title">🏆 토너먼트 <span class="section-sub">투표로 최고의 곡을 결정해요</span></div>
-    </div>
-    <div id="tournamentLeaderPanel" style="display:none;margin-bottom:20px">
+
+    <!-- 생성 패널 (리더/어드민) -->
+    <div id="tournamentLeaderPanel" style="display:none;margin-bottom:24px">
       <div class="settle-card">
         <div class="settle-card-header"><div class="settle-card-title">🏆 새 토너먼트 만들기</div></div>
         <div class="settle-body">
           <div class="form-row">
-            <label class="form-label">이름</label>
+            <label class="form-label">토너먼트 이름</label>
             <input class="form-input" id="tournamentTitle" placeholder="ex) 5월 합주 곡 선정">
           </div>
           <div class="form-row">
-            <label class="form-label">참가 곡 선택 <span style="font-size:11px;color:var(--text3)">(짝수 개, 최대 8곡)</span></label>
-            <div id="tournamentSongPicker" style="display:flex;flex-direction:column;gap:6px;max-height:200px;overflow-y:auto;padding:4px 0"></div>
+            <label class="form-label">참가 곡 선택 <span style="font-size:11px;color:var(--text3)">(짝수 개, 최대 16곡)</span></label>
+            <div id="tournamentSongPicker" style="display:flex;flex-direction:column;gap:6px;max-height:220px;overflow-y:auto;padding:4px 0"></div>
           </div>
           <button class="action-btn leader-action" onclick="createTournament()">🏆 토너먼트 시작!</button>
         </div>
       </div>
     </div>
-    <div id="tournamentList">
-      <div class="empty-hint"><span class="e">🏆</span><p>아직 토너먼트가 없어요</p></div>
+
+    <!-- 토너먼트 없을 때 -->
+    <div id="tournamentEmpty" style="display:none">
+      <div class="empty-hint"><span class="e">🏆</span><p>아직 토너먼트가 없어요<br>리더가 만들 수 있어요!</p></div>
     </div>
+
+    <!-- 토너먼트 뷰어 -->
+    <div id="tournamentViewer"></div>
+
   </div>
 
   <div id="tab-recruit" style="display:none">
@@ -1155,93 +1261,120 @@ function renderTournamentTab() {
   const panel = document.getElementById('tournamentLeaderPanel');
   if (panel) panel.style.display = (isLeader||isAdmin) ? 'block' : 'none';
 
+  // 곡 피커
   const picker = document.getElementById('tournamentSongPicker');
   if (picker) {
     picker.innerHTML = songs.length
       ? songs.map(s=>`
-        <label style="display:flex;align-items:center;gap:10px;padding:8px 10px;background:var(--bg3);border-radius:8px;cursor:pointer;border:1px solid var(--border)">
-          <input type="checkbox" value="${s.id}" style="accent-color:var(--ocean-mid);width:15px;height:15px">
+        <label style="display:flex;align-items:center;gap:10px;padding:8px 12px;background:var(--bg3);border-radius:8px;cursor:pointer;border:1px solid var(--border)">
+          <input type="checkbox" value="${s.id}" style="accent-color:#4fc3f7;width:15px;height:15px;flex-shrink:0">
           <div><div style="font-weight:700;font-size:13px;color:var(--text)">${s.title}</div><div style="font-size:11px;color:var(--text3)">${s.artist||'아티스트 미입력'}</div></div>
         </label>`).join('')
-      : '<div style="color:var(--text3);font-size:13px;padding:10px">먼저 곡 정하기에서 곡을 추가해주세요</div>';
+      : '<div style="color:var(--text3);font-size:13px;padding:10px">곡 정하기에서 먼저 곡을 추가해주세요</div>';
   }
 
-  const list = document.getElementById('tournamentList');
+  const viewer = document.getElementById('tournamentViewer');
+  const empty  = document.getElementById('tournamentEmpty');
+
   if (!tournaments.length) {
-    list.innerHTML='<div class="empty-hint"><span class="e">🏆</span><p>아직 토너먼트가 없어요<br>리더가 만들 수 있어요!</p></div>';
+    viewer.innerHTML = '';
+    if (empty) empty.style.display = 'block';
     return;
   }
-  list.innerHTML = tournaments.map(tn => renderTournamentCard(tn)).join('');
+  if (empty) empty.style.display = 'none';
+
+  // 가장 최신 토너먼트 표시
+  viewer.innerHTML = tournaments.map(tn => buildBracketHtml(tn)).join('');
 }
 
-function renderTournamentCard(tn) {
+function buildBracketHtml(tn) {
   const matches = tournamentMatches.filter(m=>m.tournament_id===tn.id);
   const rounds  = [...new Set(matches.map(m=>m.round))].sort((a,b)=>a-b);
   const maxRound = rounds.length ? Math.max(...rounds) : 0;
-  const roundNames = {1:'1라운드',2:'준결승',3:'결승'};
+  const roundLabel = {1:'16강', 2:'8강', 3:'4강', 4:'준결승', 5:'결승'};
 
-  const bracketHtml = rounds.map(r=>{
-    const rMatches = matches.filter(m=>m.round===r);
-    return `<div style="margin-bottom:20px">
-      <div style="font-family:'Nunito',sans-serif;font-weight:800;font-size:12px;color:var(--ocean-mid);letter-spacing:2px;text-transform:uppercase;margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid var(--border)">${roundNames[r]||r+'라운드'}</div>
-      ${rMatches.map(m=>renderMatchCard(m)).join('')}
+  // 자동 라운드명 계산 (역순으로)
+  const totalRounds = rounds.length;
+  const roundNames  = {};
+  rounds.forEach((r, i) => {
+    const fromEnd = totalRounds - i;
+    if (fromEnd===1) roundNames[r]='결승';
+    else if (fromEnd===2) roundNames[r]='준결승';
+    else if (fromEnd===3) roundNames[r]='4강';
+    else if (fromEnd===4) roundNames[r]='8강';
+    else roundNames[r] = `${Math.pow(2, fromEnd)}강`;
+  });
+
+  const finalMatch = matches.find(m=>m.round===maxRound);
+  const champion   = finalMatch?.winner_id ? songs.find(s=>s.id===finalMatch.winner_id) : null;
+
+  const roundsHtml = rounds.map(r => {
+    const rMatches = matches.filter(m=>m.round===r)
+      .sort((a,b)=>a.match_num-b.match_num);
+    const matchesHtml = rMatches.map((m,i) => buildMatchHtml(m, i)).join('');
+    return `<div class="bracket-round">
+      <div class="bracket-round-title">${roundNames[r]||r+'R'}</div>
+      <div style="display:flex;flex-direction:column;gap:12px;justify-content:space-around;flex:1">
+        ${matchesHtml}
+      </div>
     </div>`;
   }).join('');
 
-  const finalMatch = matches.find(m=>m.round===maxRound);
-  const champion = finalMatch?.winner_id ? songs.find(s=>s.id===finalMatch.winner_id) : null;
-
-  return `<div class="settle-card" style="margin-bottom:16px">
-    <div class="settle-card-header" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px">
-      <div>
-        <div class="settle-card-title">🏆 ${tn.title||'곡 토너먼트'}</div>
-        <div style="font-size:11px;color:var(--text3);margin-top:2px">${tn.created_by} · ${new Date(tn.created_at).getMonth()+1}/${new Date(tn.created_at).getDate()}</div>
-      </div>
-      ${champion?`<div style="background:rgba(255,213,79,0.12);border:1.5px solid var(--gold);border-radius:10px;padding:5px 14px;font-family:'Nunito',sans-serif;font-weight:800;font-size:13px;color:var(--gold)">🏆 ${champion.title}</div>`:''}
+  return `<div style="margin-bottom:32px">
+    <div class="tn-header">
+      <div class="tn-title">🏆 ${tn.title||'곡 토너먼트'}</div>
+      <div class="tn-sub">BY ${tn.created_by.toUpperCase()} · ${new Date(tn.created_at).getMonth()+1}/${new Date(tn.created_at).getDate()}</div>
+      ${champion ? `<div><div class="tn-champion">🏆 우승 · ${champion.title}</div></div>` : ''}
     </div>
-    <div class="settle-body">
-      ${bracketHtml}
-      ${(isLeader||isAdmin)?`<button class="action-btn leader-action" onclick="advanceTournament('${tn.id}')">⚡ 다음 라운드로</button>`:''}
-      ${isAdmin?`<button class="action-btn danger" onclick="deleteTournament('${tn.id}')">삭제</button>`:''}
+    <div class="bracket-wrap">
+      <div class="bracket">${roundsHtml}</div>
+    </div>
+    <div style="display:flex;gap:8px;margin-top:16px;justify-content:flex-end">
+      ${(isLeader||isAdmin)?`<button class="action-btn leader-action" style="width:auto;padding:10px 20px;margin:0" onclick="advanceTournament('${tn.id}')">⚡ 다음 라운드</button>`:''}
+      ${isAdmin?`<button class="action-btn danger" style="width:auto;padding:10px 16px;margin:0" onclick="deleteTournament('${tn.id}')">삭제</button>`:''}
     </div>
   </div>`;
 }
 
-function renderMatchCard(m) {
+function buildMatchHtml(m, idx) {
   const s1 = songs.find(s=>s.id===m.song1_id);
   const s2 = songs.find(s=>s.id===m.song2_id);
-  if (!s1||!s2) return '';
+  if (!s1) return '';
+
+  const isBye = !m.song2_id; // 부전승
   const v1 = tournamentVotes.filter(v=>v.match_id===m.id&&v.song_id===m.song1_id).length;
   const v2 = tournamentVotes.filter(v=>v.match_id===m.id&&v.song_id===m.song2_id).length;
-  const myVote = tournamentVotes.find(v=>v.match_id===m.id&&v.voter_name===myName);
   const total = v1+v2;
+  const myVote = tournamentVotes.find(v=>v.match_id===m.id&&v.voter_name===myName);
+  const done = !!m.winner_id;
 
-  function songRow(sid, song, votes, oVotes) {
+  function cell(sid, song, vCnt, oVCnt) {
+    if (!song) return '';
     const isVoted  = myVote?.song_id===sid;
     const isWinner = m.winner_id===sid;
-    const isLoser  = m.winner_id&&m.winner_id!==sid;
-    const pct = total>0 ? Math.round(votes/total*100) : 0;
-    const bg  = isWinner?'rgba(255,213,79,0.08)':isVoted?'rgba(41,182,246,0.08)':'transparent';
-    const col = isWinner?'var(--gold)':isLoser?'var(--text3)':isVoted?'var(--ocean-mid)':'var(--text)';
-    return `<div onclick="${m.winner_id?'':(`voteTournament('${m.id}','${sid}')`)}"
-      style="display:flex;align-items:center;gap:12px;padding:12px 14px;cursor:${m.winner_id?'default':'pointer'};background:${bg};transition:background .15s;opacity:${isLoser?'0.45':'1'}">
-      <div style="flex:1;min-width:0">
-        <div style="font-weight:700;font-size:14px;color:${col}">${isWinner?'🏆 ':''}${song.title}</div>
-        <div style="font-size:11px;color:var(--text3);margin-top:1px">${song.artist||''}</div>
-        ${(myVote||m.winner_id)?`<div style="margin-top:5px;height:3px;background:var(--border);border-radius:2px;overflow:hidden"><div style="height:100%;width:${pct}%;background:${isWinner?'var(--gold)':'var(--ocean-mid)'};transition:width .5s"></div></div>`:''}
-      </div>
-      <div style="text-align:right;flex-shrink:0">
-        <div style="font-family:'Nunito',sans-serif;font-weight:800;font-size:20px;color:${col}">${votes}</div>
-        ${(myVote||m.winner_id)?`<div style="font-size:10px;color:var(--text3)">${pct}%</div>`:''}
-      </div>
+    const isLoser  = done && m.winner_id!==sid;
+    const pct = total>0 ? Math.round(vCnt/total*100) : 0;
+    const cls = `match-cell${isVoted?' voted':''}${isWinner?' winner':''}${isLoser?' loser':''}${done?' done':''}`;
+    const onclick = done ? '' : `onclick="voteTournament('${m.id}','${sid}')"`;
+    return `<div class="${cls}" ${onclick}>
+      <div class="match-cell-bar" style="width:${(myVote||done)?pct:0}%"></div>
+      <div class="match-name" title="${song.title}">${song.title}</div>
+      ${(myVote||done) ? `<div class="match-score">${vCnt}</div>` : ''}
+      ${isWinner ? '<div style="font-size:10px;margin-left:2px">🏆</div>' : ''}
     </div>`;
   }
 
-  return `<div style="background:var(--bg3);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:10px">
-    <div style="padding:6px 14px;background:var(--surface);border-bottom:1px solid var(--border);font-size:10px;font-weight:700;color:var(--text3);font-family:'Nunito',sans-serif;letter-spacing:1.5px">MATCH ${m.match_num}</div>
-    ${songRow(m.song1_id,s1,v1,v2)}
-    <div style="text-align:center;padding:3px 0;font-size:11px;font-weight:800;color:var(--text3);font-family:'Nunito',sans-serif;background:var(--bg);border-top:1px solid var(--border);border-bottom:1px solid var(--border)">VS</div>
-    ${songRow(m.song2_id,s2,v2,v1)}
+  const delay = idx * 0.06;
+
+  return `<div class="bracket-match" style="animation-delay:${delay}s">
+    ${isBye
+      ? `<div class="match-cell winner done" style="cursor:default">
+          <div class="match-name">${s1.title}</div>
+          <div style="font-size:9px;color:#ffd54f;margin-left:4px">부전승</div>
+         </div>`
+      : `${cell(m.song1_id, s1, v1, v2)}
+         <div class="match-vs">VS</div>
+         ${cell(m.song2_id, s2, v2, v1)}`}
   </div>`;
 }
 
@@ -1249,57 +1382,74 @@ async function createTournament() {
   const title = document.getElementById('tournamentTitle').value.trim()||'곡 토너먼트';
   const checked = [...document.querySelectorAll('#tournamentSongPicker input:checked')].map(i=>i.value);
   if (checked.length<2) return showToast('최소 2곡 이상 선택해주세요','error');
-  if (checked.length%2!==0) return showToast('짝수 개로 선택해주세요 (2,4,6,8곡)','error');
-  if (checked.length>8) return showToast('최대 8곡까지 가능해요','error');
-  const {data:tn,error} = await db.from('band_tournament').insert({title,created_by:myName,status:'active'}).select().single();
+  if (checked.length%2!==0) return showToast('짝수 개로 선택해주세요 (2,4,8,16곡)','error');
+  if (checked.length>16) return showToast('최대 16곡까지 가능해요','error');
+
+  const {data:tn,error} = await db.from('band_tournament')
+    .insert({title, created_by:myName, status:'active'})
+    .select().single();
   if (error) return showToast('생성 실패: '+error.message,'error');
-  const shuffled=[...checked].sort(()=>Math.random()-0.5);
-  const matchInserts=[];
-  for(let i=0;i<shuffled.length;i+=2) matchInserts.push({tournament_id:tn.id,round:1,match_num:i/2+1,song1_id:shuffled[i],song2_id:shuffled[i+1]});
+
+  // 랜덤 시드 배정
+  const shuffled = [...checked].sort(()=>Math.random()-0.5);
+  const matchInserts = [];
+  for (let i=0;i<shuffled.length;i+=2)
+    matchInserts.push({tournament_id:tn.id, round:1, match_num:i/2+1, song1_id:shuffled[i], song2_id:shuffled[i+1]});
   await db.from('band_tournament_matches').insert(matchInserts);
+
   showToast('🏆 토너먼트 시작!','success');
   document.getElementById('tournamentTitle').value='';
   await loadAll(); renderTournamentTab();
 }
 
-async function voteTournament(matchId,songId) {
-  const ex=tournamentVotes.find(v=>v.match_id===matchId&&v.voter_name===myName);
-  if(ex) {
-    if(ex.song_id===songId) { await db.from('band_tournament_votes').delete().eq('id',ex.id); showToast('투표 취소','success'); }
-    else { await db.from('band_tournament_votes').update({song_id:songId}).eq('id',ex.id); showToast('✅ 투표 변경!','success'); }
+async function voteTournament(matchId, songId) {
+  const ex = tournamentVotes.find(v=>v.match_id===matchId&&v.voter_name===myName);
+  if (ex) {
+    if (ex.song_id===songId) {
+      await db.from('band_tournament_votes').delete().eq('id',ex.id);
+      showToast('투표 취소','success');
+    } else {
+      await db.from('band_tournament_votes').update({song_id:songId}).eq('id',ex.id);
+      showToast('✅ 투표 변경!','success');
+    }
   } else {
-    await db.from('band_tournament_votes').insert({match_id:matchId,voter_name:myName,song_id:songId});
+    await db.from('band_tournament_votes').insert({match_id:matchId, voter_name:myName, song_id:songId});
     showToast('✅ 투표!','success');
   }
   await loadAll(); renderTournamentTab();
 }
 
 async function advanceTournament(tnId) {
-  if(!confirm('현재 라운드를 마감하고 다음 라운드로 진행할까요?')) return;
-  const matches=tournamentMatches.filter(m=>m.tournament_id===tnId);
-  const maxRound=Math.max(...matches.map(m=>m.round));
-  const curMatches=matches.filter(m=>m.round===maxRound&&!m.winner_id);
-  if(!curMatches.length) return showToast('모든 매치가 완료됐어요','error');
-  const winners=[];
-  for(const m of curMatches){
-    const v1=tournamentVotes.filter(v=>v.match_id===m.id&&v.song_id===m.song1_id).length;
-    const v2=tournamentVotes.filter(v=>v.match_id===m.id&&v.song_id===m.song2_id).length;
-    const winnerId=v1>=v2?m.song1_id:m.song2_id;
+  if (!confirm('현재 라운드를 마감하고 다음 라운드로 진행할까요?\n득표수가 같으면 1번 곡이 진출해요')) return;
+  const matches = tournamentMatches.filter(m=>m.tournament_id===tnId);
+  const maxRound = Math.max(...matches.map(m=>m.round));
+  const curMatches = matches.filter(m=>m.round===maxRound&&!m.winner_id);
+  if (!curMatches.length) { showToast('이미 완료된 라운드예요','error'); return; }
+
+  const winners = [];
+  for (const m of curMatches) {
+    const v1 = tournamentVotes.filter(v=>v.match_id===m.id&&v.song_id===m.song1_id).length;
+    const v2 = tournamentVotes.filter(v=>v.match_id===m.id&&v.song_id===m.song2_id).length;
+    const winnerId = v1>=v2 ? m.song1_id : m.song2_id;
     await db.from('band_tournament_matches').update({winner_id:winnerId}).eq('id',m.id);
     winners.push(winnerId);
   }
-  if(winners.length>=2){
-    const nextRound=maxRound+1;
-    const nextMatches=[];
-    for(let i=0;i<winners.length;i+=2) if(winners[i+1]) nextMatches.push({tournament_id:tnId,round:nextRound,match_num:i/2+1,song1_id:winners[i],song2_id:winners[i+1]});
-    if(nextMatches.length) await db.from('band_tournament_matches').insert(nextMatches);
-    showToast(`⚡ ${nextRound}라운드 시작!`,'success');
-  } else showToast('🏆 토너먼트 완료! 우승곡 결정!','success');
+
+  if (winners.length>=2) {
+    const nextRound = maxRound+1;
+    const nextMatches = [];
+    for (let i=0;i<winners.length;i+=2)
+      if (winners[i+1]) nextMatches.push({tournament_id:tnId, round:nextRound, match_num:i/2+1, song1_id:winners[i], song2_id:winners[i+1]});
+    if (nextMatches.length) await db.from('band_tournament_matches').insert(nextMatches);
+    showToast('⚡ 다음 라운드 시작!','success');
+  } else {
+    showToast('🏆 우승곡 결정!','success');
+  }
   await loadAll(); renderTournamentTab();
 }
 
-async function deleteTournament(id){
-  if(!confirm('삭제할까요?')) return;
+async function deleteTournament(id) {
+  if (!confirm('토너먼트를 삭제할까요?')) return;
   await db.from('band_tournament').delete().eq('id',id);
   await loadAll(); renderTournamentTab();
 }
