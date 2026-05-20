@@ -941,6 +941,81 @@ let _soundFadeTimer = null;
 function openOverlay()  { document.getElementById('overlay').classList.add('open'); document.body.style.overflow='hidden'; goS(1); }
 function closeOverlay() { document.getElementById('overlay').classList.remove('open'); document.body.style.overflow=''; }
 
+// ── 사운드 토글 + 크레센도 ──
+function toggleSound() {
+  soundOn = !soundOn;
+  const icon  = document.getElementById('soundIcon');
+  const label = document.getElementById('soundLabel');
+  const btn   = document.getElementById('soundToggle');
+  const vids  = document.querySelectorAll('#videoBg video');
+
+  if (soundOn) {
+    icon.textContent  = '🔊';
+    label.textContent = 'SOUND ON';
+    btn.style.borderColor = 'rgba(79,195,247,0.5)';
+    btn.style.color       = 'rgba(79,195,247,0.9)';
+    btn.style.background  = 'rgba(79,195,247,0.1)';
+    vids.forEach(v => { v.muted = false; v.volume = 0; });
+    fadeVolume(0, 0.75, 2000);
+    smoothScrollTo(document.getElementById('info'), 1200);
+  } else {
+    icon.textContent  = '🔇';
+    label.textContent = 'SOUND OFF';
+    btn.style.borderColor = 'rgba(255,255,255,0.15)';
+    btn.style.color       = 'rgba(255,255,255,0.7)';
+    btn.style.background  = 'rgba(255,255,255,0.08)';
+    const curVol = document.querySelector('#videoBg video')?.volume || 0;
+    fadeVolume(curVol, 0, 600, () => {
+      vids.forEach(v => { v.muted = true; });
+    });
+  }
+}
+
+function fadeVolume(from, to, duration, onDone) {
+  if (_soundFadeTimer) clearInterval(_soundFadeTimer);
+  const steps = 40;
+  const interval = duration / steps;
+  let step = 0;
+  _soundFadeTimer = setInterval(() => {
+    step++;
+    const t = step / steps;
+    const ease = t < 0.5 ? 2*t*t : -1+(4-2*t)*t; // ease in-out
+    const vol = from + (to - from) * ease;
+    document.querySelectorAll('#videoBg video').forEach(v => {
+      v.volume = Math.max(0, Math.min(1, vol));
+    });
+    if (step >= steps) {
+      clearInterval(_soundFadeTimer);
+      if (onDone) onDone();
+    }
+  }, interval);
+}
+
+function smoothScrollTo(target, duration) {
+  if (!target) return;
+  const start = window.scrollY;
+  const end   = target.getBoundingClientRect().top + window.scrollY - 64;
+  let startTime = null;
+  function step(ts) {
+    if (!startTime) startTime = ts;
+    const p = Math.min((ts - startTime) / duration, 1);
+    const ease = p < 0.5 ? 4*p*p*p : 1 - Math.pow(-2*p+2,3)/2;
+    window.scrollTo(0, start + (end - start) * ease);
+    if (p < 1) requestAnimationFrame(step);
+  }
+  requestAnimationFrame(step);
+}
+
+// 스크롤 시 볼륨 크레센도
+let _scrollPlayed = false;
+window.addEventListener('scroll', () => {
+  if (_scrollPlayed || !soundOn) return;
+  if (window.scrollY > window.innerHeight * 0.3) {
+    _scrollPlayed = true;
+    fadeVolume(document.querySelector('#videoBg video')?.volume||0, 0.9, 1500);
+  }
+});
+
 function goS(n) {
   ['s1','s2','s3','s-done'].forEach(id=>document.getElementById(id).style.display='none');
   document.getElementById(n==='done'?'s-done':'s'+n).style.display='block';
