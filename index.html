@@ -704,6 +704,7 @@
         </div>
       </div>
     </div>
+    </div><!-- songVoteView end -->
 
     <!-- 토너먼트 모드 (숨김) -->
     <div id="songTournamentView" style="display:none">
@@ -829,6 +830,14 @@
 
   <!-- 나머지 탭 -->
   <div id="tab-songs" style="display:none">
+    <!-- 모드 전환 -->
+    <div style="display:flex;gap:0;border-bottom:1px solid var(--border);margin-bottom:20px">
+      <button id="songModeVote" onclick="setSongMode('vote')" style="padding:10px 22px;font-size:13px;font-weight:700;font-family:'Nunito',sans-serif;border:none;border-bottom:2px solid var(--ocean-mid);cursor:pointer;background:transparent;color:var(--ocean-mid)">🎵 곡 투표</button>
+      <button id="songModeTour" onclick="setSongMode('tournament')" style="padding:10px 22px;font-size:13px;font-weight:700;font-family:'Nunito',sans-serif;border:none;border-bottom:2px solid transparent;cursor:pointer;background:transparent;color:var(--text3)">🏆 토너먼트</button>
+    </div>
+
+    <!-- 곡 투표 영역 -->
+    <div id="songVoteView">
     <div class="section-header">
       <div class="section-title">🎵 곡 정하기 <span class="section-sub">세트로 제안하고 곡별로 투표해요</span></div>
     </div>
@@ -1470,9 +1479,9 @@ async function deleteTournament(id) {
 
 async function renderRecruitTab() {
   const isPriv = isLeader || isAdmin;
-  document.getElementById('recruitMemberHint').style.display  = isPriv ? 'none'  : 'block';
-  document.getElementById('recruitLeaderView').style.display  = isPriv ? 'block' : 'none';
-  if (!isPriv) return;
+  // 모든 멤버 볼 수 있음 (힌트 숨기고 목록 표시)
+  document.getElementById('recruitMemberHint').style.display  = 'none';
+  document.getElementById('recruitLeaderView').style.display  = 'block';
 
   const { data, error } = await db.from('band_applications').select('*').order('created_at', { ascending: false });
   if (error) return showToast('로드 실패: ' + error.message, 'error');
@@ -2494,7 +2503,7 @@ let _songMode = 'vote';
 
 function setSongMode(mode) {
   _songMode = mode;
-  const voteArea = document.querySelector('.songs-layout');
+  const voteArea = document.getElementById('songVoteView');
   const tourArea = document.getElementById('songTournamentView');
   const btnVote  = document.getElementById('songModeVote');
   const btnTour  = document.getElementById('songModeTour');
