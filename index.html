@@ -689,29 +689,6 @@
     </div>
     </div><!-- songVoteView end -->
 
-    <!-- 토너먼트 모드 (숨김) -->
-    <div id="songTournamentView" style="display:none">
-      <div id="tournamentLeaderPanel" style="display:none;margin-bottom:24px">
-        <div class="settle-card">
-          <div class="settle-card-header"><div class="settle-card-title">🏆 새 토너먼트 만들기</div></div>
-          <div class="settle-body">
-            <div class="form-row">
-              <label class="form-label">토너먼트 이름</label>
-              <input class="form-input" id="tournamentTitle" placeholder="ex) 5월 합주 곡 선정">
-            </div>
-            <div class="form-row">
-              <label class="form-label">참가 곡 선택 <span style="font-size:11px;color:var(--text3)">(짝수 개, 최대 16곡)</span></label>
-              <div id="tournamentSongPicker" style="display:flex;flex-direction:column;gap:6px;max-height:220px;overflow-y:auto;padding:4px 0"></div>
-            </div>
-            <button class="action-btn leader-action" onclick="createTournament()">🏆 토너먼트 시작!</button>
-          </div>
-        </div>
-      </div>
-      <div id="tournamentEmpty" style="display:block">
-        <div class="empty-hint"><span class="e">🏆</span><p>아직 토너먼트가 없어요<br>리더가 만들 수 있어요!</p></div>
-      </div>
-      <div id="tournamentViewer"></div>
-    </div>
   </div>
 
   <!-- ── 정산 탭 ── -->
