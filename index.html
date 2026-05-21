@@ -814,44 +814,57 @@
   <!-- 나머지 탭 -->
   <div id="tab-songs" style="display:none">
 
-    <!-- 추가된 곡 목록 -->
-    <div id="tournamentSongList" style="margin-bottom:20px"></div>
-
-    <!-- 곡 추가 폼 (전체 멤버) -->
-    <div class="settle-card" style="margin-bottom:16px">
-      <div class="settle-card-header"><div class="settle-card-title">🎵 곡 추가하기</div></div>
-      <div class="settle-body">
-        <div style="display:flex;gap:10px;flex-wrap:wrap">
-          <input class="form-input" id="quickSongTitle" placeholder="곡 제목 *" style="flex:2;min-width:140px">
-          <input class="form-input" id="quickSongArtist" placeholder="아티스트" style="flex:2;min-width:120px">
-          <button class="action-btn leader-action" style="width:auto;padding:10px 20px;margin:0;white-space:nowrap" onclick="quickAddSong()">+ 추가</button>
-        </div>
-      </div>
-    </div>
-
-    <!-- 토너먼트 시작 (전체) -->
-    <div class="settle-card" id="tournamentLeaderPanel" style="margin-bottom:16px">
-      <div class="settle-card-header"><div class="settle-card-title">🏆 토너먼트 시작</div></div>
-      <div class="settle-body">
-        <div class="form-row">
-          <label class="form-label">토너먼트 이름</label>
-          <input class="form-input" id="tournamentTitle" placeholder="ex) 5월 합주 곡 선정">
-        </div>
-        <div class="form-row">
-          <label class="form-label">참가 곡 선택 <span style="font-size:11px;color:var(--text3)">(짝수 개)</span></label>
-          <div id="tournamentSongPicker" style="display:flex;flex-direction:column;gap:5px;max-height:200px;overflow-y:auto;margin-top:4px"></div>
-        </div>
-        <button class="action-btn leader-action" onclick="createTournament()">🏆 토너먼트 시작!</button>
-      </div>
-    </div>
-
-    <!-- 토너먼트 없을 때 -->
+    <!-- 토너먼트 없을 때: 시작 화면 -->
     <div id="tournamentEmpty" style="display:none">
-      <div class="empty-hint"><span class="e">🏆</span><p>아직 토너먼트가 없어요<br>곡을 추가하고 토너먼트를 시작해보세요!</p></div>
+      <div style="text-align:center;padding:60px 20px 40px">
+        <div style="font-family:'Nunito',sans-serif;font-weight:900;font-size:48px;color:#1e2d3d;letter-spacing:2px;margin-bottom:8px">TOURNAMENT</div>
+        <div style="font-size:14px;color:var(--text3);margin-bottom:32px">투표로 최고의 곡을 결정해요</div>
+        <button onclick="document.getElementById('tnSetupModal').style.display='flex'"
+          style="background:linear-gradient(135deg,#29b6f6,#0288d1);color:#000;border:none;border-radius:8px;padding:14px 36px;font-size:15px;font-weight:900;font-family:'Nunito',sans-serif;cursor:pointer;letter-spacing:1px;box-shadow:0 0 24px rgba(41,182,246,0.3)">
+          🏆 토너먼트 시작
+        </button>
+      </div>
     </div>
 
-    <!-- 브라켓 뷰어 -->
+    <!-- 토너먼트 브라켓 -->
     <div id="tournamentViewer"></div>
+
+    <!-- 우측 하단 플로팅 버튼 (토너먼트 있을 때) -->
+    <div id="tnFloatBtn" style="display:none;position:fixed;bottom:28px;right:28px;z-index:50;display:flex;flex-direction:column;gap:8px;align-items:flex-end">
+      <button onclick="document.getElementById('tnSetupModal').style.display='flex'"
+        style="background:#29b6f6;color:#000;border:none;border-radius:50%;width:48px;height:48px;font-size:20px;cursor:pointer;box-shadow:0 4px 16px rgba(41,182,246,0.4)">+</button>
+    </div>
+
+    <!-- 토너먼트 설정 모달 -->
+    <div id="tnSetupModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:200;align-items:center;justify-content:center;padding:20px">
+      <div style="background:#0d1117;border:1px solid #1e2d3d;border-radius:14px;width:100%;max-width:500px;max-height:90vh;overflow-y:auto">
+        <div style="padding:20px 24px;border-bottom:1px solid #1e2d3d;display:flex;justify-content:space-between;align-items:center">
+          <div style="font-family:'Nunito',sans-serif;font-weight:800;font-size:18px;color:#e2e8f0">🏆 토너먼트 설정</div>
+          <button onclick="document.getElementById('tnSetupModal').style.display='none'"
+            style="background:none;border:none;color:#4a6070;font-size:20px;cursor:pointer">✕</button>
+        </div>
+        <div style="padding:20px 24px">
+          <!-- 곡 추가 -->
+          <div style="margin-bottom:20px">
+            <div style="font-size:11px;font-weight:700;color:#4a6070;letter-spacing:2px;text-transform:uppercase;font-family:'Nunito',sans-serif;margin-bottom:8px">곡 추가</div>
+            <div style="display:flex;gap:8px">
+              <input class="form-input" id="quickSongTitle" placeholder="곡 제목 *" style="flex:2">
+              <input class="form-input" id="quickSongArtist" placeholder="아티스트" style="flex:2">
+              <button onclick="quickAddSong()" style="background:#29b6f6;color:#000;border:none;border-radius:8px;padding:0 16px;font-weight:800;font-family:'Nunito',sans-serif;cursor:pointer;white-space:nowrap;font-size:13px">+ 추가</button>
+            </div>
+            <div id="tnSongListInModal" style="margin-top:10px;display:flex;flex-direction:column;gap:4px;max-height:140px;overflow-y:auto"></div>
+          </div>
+          <!-- 토너먼트 시작 -->
+          <div style="border-top:1px solid #1e2d3d;padding-top:16px">
+            <div style="font-size:11px;font-weight:700;color:#4a6070;letter-spacing:2px;text-transform:uppercase;font-family:'Nunito',sans-serif;margin-bottom:8px">토너먼트 시작</div>
+            <input class="form-input" id="tournamentTitle" placeholder="토너먼트 이름" style="margin-bottom:10px">
+            <div style="font-size:11px;color:#4a6070;margin-bottom:6px;font-family:'Nunito',sans-serif">참가 곡 선택</div>
+            <div id="tournamentSongPicker" style="display:flex;flex-direction:column;gap:4px;max-height:160px;overflow-y:auto;margin-bottom:14px"></div>
+            <button onclick="createTournament()" style="width:100%;padding:13px;background:linear-gradient(135deg,#ffd54f,#ffb300);color:#000;border:none;border-radius:8px;font-size:14px;font-weight:900;font-family:'Nunito',sans-serif;cursor:pointer;letter-spacing:0.5px">🏆 토너먼트 시작!</button>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 
   <div id="tab-scores" style="display:none">
@@ -1302,6 +1315,7 @@ async function quickAddSong() {
   document.getElementById('quickSongTitle').value='';
   document.getElementById('quickSongArtist').value='';
   await loadAll(); renderTournamentTab();
+  // 모달 열려있으면 유지
 }
 
 function buildBracketHtml(tn) {
@@ -1426,6 +1440,7 @@ async function createTournament() {
 
   showToast('🏆 토너먼트 시작!','success');
   document.getElementById('tournamentTitle').value='';
+  document.getElementById('tnSetupModal').style.display='none';
   await loadAll(); renderTournamentTab();
 }
 
@@ -2546,27 +2561,20 @@ function setSongMode(mode) {
 }
 
 function renderTournamentTab() {
-  // 곡 목록 렌더
-  const songList = document.getElementById('tournamentSongList');
-  if (songList) {
-    if (!songs.length) {
-      songList.innerHTML = '<div class="empty-hint"><span class="e">🎵</span><p>아직 추가된 곡이 없어요<br>아래에서 곡을 추가해보세요!</p></div>';
-    } else {
-      songList.innerHTML = `
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
-          <div style="font-family:'Nunito',sans-serif;font-weight:800;font-size:15px;color:var(--text)">🎵 등록된 곡 <span style="color:var(--ocean-mid)">${songs.length}</span>곡</div>
-        </div>
-        <div style="display:flex;flex-direction:column;gap:6px">
-          ${songs.map(s=>`
-            <div style="display:flex;align-items:center;gap:12px;padding:10px 14px;background:var(--bg2);border:1px solid var(--border);border-radius:8px">
-              <div style="flex:1;min-width:0">
-                <div style="font-weight:700;font-size:13px;color:var(--text)">${s.title}</div>
-                <div style="font-size:11px;color:var(--text3);margin-top:1px">${s.artist||'아티스트 미입력'}</div>
-              </div>
-              <button onclick="deleteSong('${s.id}')" style="background:none;border:none;color:var(--text3);cursor:pointer;font-size:12px;padding:4px 8px;border-radius:4px" title="삭제">✕</button>
-            </div>`).join('')}
-        </div>`;
-    }
+  const viewer = document.getElementById('tournamentViewer');
+  const empty  = document.getElementById('tournamentEmpty');
+
+  // 모달 내 곡 목록 업데이트
+  const songListModal = document.getElementById('tnSongListInModal');
+  if (songListModal) {
+    songListModal.innerHTML = songs.length
+      ? songs.map(s=>`
+        <div style="display:flex;align-items:center;gap:8px;padding:7px 10px;background:#111827;border-radius:6px;border:1px solid #1e2d3d">
+          <span style="flex:1;font-size:12px;font-weight:700;color:#8fa8c0">${s.title}</span>
+          <span style="font-size:11px;color:#4a6070">${s.artist||''}</span>
+          <button onclick="deleteSong('${s.id}')" style="background:none;border:none;color:#2a3a4a;cursor:pointer;font-size:12px;padding:2px 6px">✕</button>
+        </div>`).join('')
+      : '<div style="color:#2a3a4a;font-size:12px;padding:4px">아직 곡이 없어요</div>';
   }
 
   // 피커 업데이트
@@ -2574,23 +2582,22 @@ function renderTournamentTab() {
   if (picker) {
     picker.innerHTML = songs.length
       ? songs.map(s=>`
-        <label style="display:flex;align-items:center;gap:8px;padding:7px 10px;background:var(--bg3);border-radius:6px;cursor:pointer;border:1px solid var(--border)">
+        <label style="display:flex;align-items:center;gap:8px;padding:7px 10px;background:#111827;border-radius:6px;cursor:pointer;border:1px solid #1e2d3d">
           <input type="checkbox" value="${s.id}" style="accent-color:#4fc3f7;width:14px;height:14px;flex-shrink:0">
-          <span style="font-size:12px;font-weight:700;color:var(--text)">${s.title}</span>
-          <span style="font-size:11px;color:var(--text3)">${s.artist?'· '+s.artist:''}</span>
+          <span style="font-size:13px;font-weight:700;color:#8fa8c0">${s.title}</span>
+          <span style="font-size:11px;color:#4a6070">${s.artist?'· '+s.artist:''}</span>
         </label>`).join('')
-      : '<div style="color:var(--text3);font-size:12px;padding:6px">먼저 곡을 추가해주세요</div>';
+      : '<div style="color:#2a3a4a;font-size:12px;padding:4px">먼저 곡을 추가해주세요</div>';
   }
 
-  const viewer = document.getElementById('tournamentViewer');
-  const empty  = document.getElementById('tournamentEmpty');
   if (!viewer) return;
+
   if (!tournaments.length) {
     viewer.innerHTML = '';
-    if (empty) empty.style.display = 'block';
+    if (empty) { empty.style.display='block'; }
     return;
   }
-  if (empty) empty.style.display = 'none';
+  if (empty) empty.style.display='none';
   viewer.innerHTML = tournaments.map(tn => buildBracketHtml(tn)).join('');
 }
 
